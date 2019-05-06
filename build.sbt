@@ -2,6 +2,7 @@ import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
 lazy val `http4s-jdk-http-client` = project.in(file("."))
   .settings(commonSettings, releaseSettings, skipOnPublishSettings)
+  .settings(crossScalaVersions := Nil)
   .aggregate(core, docs)
 
 lazy val core = project.in(file("core"))
@@ -29,15 +30,15 @@ val reactiveStreamsV = "1.0.2"
 
 val specs2V = "4.5.1"
 
-val kindProjectorV = "0.10.0"
-val betterMonadicForV = "0.3.0"
+val kindProjectorV = "0.9.9"
+val betterMonadicForV = "0.3.0-M4"
 
-// General Settings
+// General Settingsla
 lazy val commonSettings = Seq(
   organization := "org.http4s",
 
   scalaVersion := "2.12.8",
-  crossScalaVersions := Seq(scalaVersion.value, "2.11.12"),
+  crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0-M5"),
   scalacOptions += "-Yrangepos",
 
   scalacOptions in (Compile, doc) ++= Seq(
@@ -46,7 +47,7 @@ lazy val commonSettings = Seq(
       "-doc-source-url", "https://github.com/http4s/http4s-jdk-http-client/blob/v" + version.value + "€{FILE_PATH}.scala"
   ),
 
-  addCompilerPlugin("org.typelevel" % "kind-projector" % kindProjectorV cross CrossVersion.binary),
+  addCompilerPlugin("org.spire-math" % "kind-projector" % kindProjectorV cross CrossVersion.binary),
   addCompilerPlugin("com.olegpy" %% "better-monadic-for" % betterMonadicForV),
   libraryDependencies ++= Seq(
     "org.typelevel"               %% "cats-core"                      % catsV,
@@ -186,6 +187,7 @@ lazy val mimaSettings = {
 lazy val micrositeSettings = {
   import microsites._
   Seq(
+    crossScalaVersions := List(scalaVersion.value),
     micrositeName := "http4s-jdk-http-client",
     micrositeDescription := "JDK 11+ http client implementation for http4s clients",
     micrositeAuthor := "http4s",
