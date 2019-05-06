@@ -6,8 +6,7 @@ Everyone is expected to follow the [Scala Code of Conduct] when discussing the p
 
 ## Moderation
 
-Any questions, concerns, or moderation requests please contact a member of the project.
+Any questions, concerns, or moderation requests please contact a [member of the project][moderators].
 
-- [Christopher Davenport](mailto:chris@christopherdavenport.tech)
-
-[Scala Code of Conduct]: https://www.scala-lang.org/conduct/
+[Scala Code of Conduct]: https://http4s.org/code-of-conduct/
+[moderators]: https://http4s.org/code-of-conduct/#moderation
