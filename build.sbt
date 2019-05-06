@@ -205,8 +205,12 @@ lazy val micrositeSettings = {
       "gray-lighter" -> "#F4F3F4",
       "white-color" -> "#FFFFFF"
     ),
-    fork in tut := true,
-    scalacOptions in Tut --= Seq(
+    micrositeCompilingDocsTool := WithMdoc,
+    mdocIn := (baseDirectory.value) / "src" / "main" / "mdoc",
+    mdocVariables := Map(
+      "VERSION" -> version.value
+    ),
+    scalacOptions in mdoc --= Seq(
       "-Xfatal-warnings",
       "-Ywarn-unused-import",
       "-Ywarn-numeric-widen",
