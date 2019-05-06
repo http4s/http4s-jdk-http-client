@@ -24,10 +24,8 @@ jobs:
       jdk: *java_11
     - <<: *tests
       scala: *scala_version_212
-      jdk: *java_11
     - <<: *tests
       scala: *scala_version_213
-      jdk: *java_11
     - <<: *tests
       scala: *scala_version_212
       jdk: *java_12
@@ -43,15 +41,21 @@ jobs:
       script: sbt ++$TRAVIS_SCALA_VERSION docs/makeMicrosite
       scala: *scala_version_212
 
-    - stage: publish
+    - &publish
+      stage: publish
       env: TEST="publish"
-      scala: *scala_version_212
-      jdk: *java_8
+      scala: *scala_version_211
+      jdk: *java_11
       script:
         - sbt ++$TRAVIS_SCALA_VERSION publish
+    - <<: *publish
+      scala: *scala_version_212
+    - <<: *publish
+      scala: *scala_version_213
+      
     - env: TEST="publish docs"
       scala: *scala_version_212
-      jdk: *java_8
+      jdk: *java_11
       script:
         - sbt ++$TRAVIS_SCALA_VERSION docs/publishMicrosite
 
