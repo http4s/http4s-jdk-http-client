@@ -9,10 +9,9 @@ lazy val core = project.in(file("core"))
   )
 
 lazy val docs = project.in(file("docs"))
-  .settings(commonSettings, skipOnPublishSettings, micrositeSettings)
+  .enablePlugins(MdocPlugin, ParadoxMaterialThemePlugin, ParadoxSitePlugin)
   .dependsOn(core)
-  .enablePlugins(MicrositesPlugin)
-  .enablePlugins(TutPlugin)
+  .settings(commonSettings, skipOnPublishSettings, docsSettings)
 
 lazy val contributors = Seq(
   "ChristopherDavenport"  -> "Christopher Davenport",
@@ -181,30 +180,10 @@ lazy val mimaSettings = {
   )
 }
 
-lazy val micrositeSettings = {
-  import microsites._
+lazy val docsSettings = {
+  ParadoxMaterialThemePlugin.paradoxMaterialThemeSettings(Paradox) ++
   Seq(
-    micrositeName := "http4s-jdk-http-client",
-    micrositeDescription := "JDK 11+ http client implementation for http4s clients",
-    micrositeAuthor := "http4s",
-    micrositeGithubOwner := "http4s",
-    micrositeGithubRepo := "http4s-jdk-http-client",
-    micrositeBaseUrl := "/http4s-jdk-http-client",
-    micrositeDocumentationUrl := "https://www.javadoc.io/doc/org.http4s/http4s-jdk-http-client_2.12",
-    micrositeFooterText := None,
-    micrositeHighlightTheme := "atom-one-light",
-    micrositePalette := Map(
-      "brand-primary" -> "#3e5b95",
-      "brand-secondary" -> "#294066",
-      "brand-tertiary" -> "#2d5799",
-      "gray-dark" -> "#49494B",
-      "gray" -> "#7B7B7E",
-      "gray-light" -> "#E5E5E6",
-      "gray-lighter" -> "#F4F3F4",
-      "white-color" -> "#FFFFFF"
-    ),
-    micrositeCompilingDocsTool := WithMdoc,
-    mdocIn := (baseDirectory.value) / "src" / "main" / "mdoc",
+    mdocIn := (baseDirectory.value) / "src" / "main" / "mdoc", // 
     mdocVariables := Map(
       "VERSION" -> version.value
     ),
@@ -216,15 +195,22 @@ lazy val micrositeSettings = {
       "-Ywarn-unused:imports",
       "-Xlint:-missing-interpolator,_"
     ),
-    libraryDependencies += "com.47deg" %% "github4s" % "0.20.1",
-    micrositePushSiteWith := GitHub4s,
-    micrositeGithubToken := sys.env.get("GITHUB_TOKEN"),
-    micrositeExtraMdFiles := Map(
-        file("CHANGELOG.md")        -> ExtraMdFileConfig("changelog.md", "page", Map("title" -> "changelog", "section" -> "changelog", "position" -> "100")),
-        file("CODE_OF_CONDUCT.md")  -> ExtraMdFileConfig("code-of-conduct.md",   "page", Map("title" -> "code of conduct",   "section" -> "code of conduct",   "position" -> "101")),
-        file("LICENSE")             -> ExtraMdFileConfig("license.md",   "page", Map("title" -> "license",   "section" -> "license",   "position" -> "102"))
-    ),
-    micrositeGitterChannelUrl := "http4s/http4s",
+
+    sourceDirectory in Paradox := mdocOut.value,
+    makeSite := makeSite.dependsOn(mdoc.toTask("")).value,
+    Paradox / paradoxMaterialTheme ~= {
+      _.withRepository(uri("https://github.com/http4s/http4s-jdk-http-client"))
+       .withLogoUri(uri("https://http4s.org/images/http4s-logo.svg"))
+    }
+    // libraryDependencies += "com.47deg" %% "github4s" % "0.20.1",
+    // micrositePushSiteWith := GitHub4s,
+    // micrositeGithubToken := sys.env.get("GITHUB_TOKEN"),
+    // micrositeExtraMdFiles := Map(
+    //     file("CHANGELOG.md")        -> ExtraMdFileConfig("changelog.md", "page", Map("title" -> "changelog", "section" -> "changelog", "position" -> "100")),
+    //     file("CODE_OF_CONDUCT.md")  -> ExtraMdFileConfig("code-of-conduct.md",   "page", Map("title" -> "code of conduct",   "section" -> "code of conduct",   "position" -> "101")),
+    //     file("LICENSE")             -> ExtraMdFileConfig("license.md",   "page", Map("title" -> "license",   "section" -> "license",   "position" -> "102"))
+    // ),
+    // micrositeGitterChannelUrl := "http4s/http4s",
   )
 }
 
