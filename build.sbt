@@ -34,7 +34,7 @@ lazy val commonSettings = Seq(
   organization := "org.http4s",
 
   scalaVersion := "2.12.8",
-  crossScalaVersions := Seq(scalaVersion.value, "2.11.12"),
+  crossScalaVersions := Seq("2.11.12", scalaVersion.value),
   scalacOptions += "-Yrangepos",
 
   scalacOptions in (Compile, doc) ++= Seq(
@@ -185,7 +185,10 @@ lazy val docsSettings = {
   Seq(
     mdocIn := (baseDirectory.value) / "src" / "main" / "mdoc", // 
     mdocVariables := Map(
-      "VERSION" -> version.value
+      "VERSION" -> version.value,
+      "BINARY_VERSION" -> binaryVersion(version.value),
+      "HTTP4S_VERSION" -> "0.20",
+      "SCALA_VERSIONS" -> formatCrossScalaVersions(crossScalaVersions.value.toList)
     ),
     scalacOptions in mdoc --= Seq(
       "-Xfatal-warnings",
@@ -221,3 +224,21 @@ lazy val skipOnPublishSettings = Seq(
   publishArtifact := false,
   publishTo := None
 )
+
+def binaryVersion(version: String) =
+  version match {
+    case VersionNumber(Seq(0, minor, _*), _, _) => s"0.$minor"
+    case VersionNumber(Seq(major, _, _*), _, _) if major > 0 => major.toString
+  }
+
+def formatCrossScalaVersions(crossScalaVersions: List[String]): String = {
+  def go(vs: List[String]): String = {
+    vs match {
+      case Nil => ""
+      case a :: Nil => a
+      case a :: b :: Nil => s"$a and $b"
+      case a :: bs => s"$a, ${go(bs)}"
+    }
+  }
+  go(crossScalaVersions.map(CrossVersion.binaryScalaVersion))
+}
