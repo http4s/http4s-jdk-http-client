@@ -12,6 +12,6 @@ To use http4s-jdk-http-client in an existing SBT project with Scala 2.11 or a la
 
 ```scala
 libraryDependencies ++= Seq(
-  "org.http4s" %% "http4s-jdk-http-client" % "<version>"
+  "org.http4s" %% "http4s-jdk-http-client" % "@VERSION@"
 )
 ```
