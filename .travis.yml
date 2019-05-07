@@ -22,11 +22,11 @@ install:
 script:
   - sbt ++$TRAVIS_SCALA_VERSION test
   - sbt ++$TRAVIS_SCALA_VERSION mimaReportBinaryIssues
-  - sbt ++$TRAVIS_SCALA_VERSION docs/makeMicrosite
+  - sbt ++$TRAVIS_SCALA_VERSION docs/makeSite
 
 after_success:
   - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_JDK_VERSION == "openjdk11" && test $TRAVIS_BRANCH == "master" && test $TRAVIS_REPO_SLUG == "http4s/http4s-jdk-http-client" && sbt ++$TRAVIS_SCALA_VERSION publish
-  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_JDK_VERSION == "openjdk11" && test $TRAVIS_BRANCH == "master" && test $TRAVIS_REPO_SLUG == "http4s/http4s-jdk-http-client" && test $TRAVIS_SCALA_VERSION == "2.12.8" && sbt docs/publishMicrosite
+  - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_JDK_VERSION == "openjdk11" && test $TRAVIS_BRANCH == "master" && test $TRAVIS_REPO_SLUG == "http4s/http4s-jdk-http-client" && test $TRAVIS_SCALA_VERSION == "2.12.8" && sbt docs/ghpagesPushSite
 
 cache:
   directories:
