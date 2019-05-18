@@ -20,9 +20,7 @@ install:
   - gem install jekyll -v 3.2.1
 
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION test
-  - sbt ++$TRAVIS_SCALA_VERSION mimaReportBinaryIssues
-  - sbt ++$TRAVIS_SCALA_VERSION docs/makeSite
+  - sbt ++$TRAVIS_SCALA_VERSION validate
 
 after_success:
   - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_JDK_VERSION == "openjdk11" && test $TRAVIS_BRANCH == "master" && test $TRAVIS_REPO_SLUG == "http4s/http4s-jdk-http-client" && sbt ++$TRAVIS_SCALA_VERSION publish
