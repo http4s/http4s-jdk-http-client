@@ -14,8 +14,6 @@ stages:
   - name: test
   - name: publish
     if: (branch = master AND type = push)
-  - name: publish-docs
-    if: (branch = master AND type = push)
 
 jobs:
   include:
@@ -43,14 +41,9 @@ jobs:
       stage: publish
       env: TEST="publish"
       jdk: *java_11
-      script:
-        - sbt +publishSigned
-      
-    - env: TEST="publish-docs"
       scala: *scala_version_docs
-      jdk: *java_11
       script:
-        - sbt ++$TRAVIS_SCALA_VERSION ;docs/makeSite ;docs/ghpagesPushSite
+        - sbt ++$TRAVIS_SCALA_VERSION ;+publishSigned ;docs/makeSite ;docs/ghpagesPushSite
 
 cache:
   directories:
