@@ -10,7 +10,7 @@ lazy val core = project.in(file("core"))
   )
 
 lazy val docs = project.in(file("docs"))
-  .enablePlugins(MdocPlugin, ParadoxMaterialThemePlugin, ParadoxSitePlugin)
+  .enablePlugins(GhpagesPlugin, MdocPlugin, ParadoxMaterialThemePlugin, ParadoxSitePlugin)
   .dependsOn(core)
   .settings(commonSettings, skipOnPublishSettings, docsSettings)
 
@@ -58,7 +58,9 @@ lazy val commonSettings = Seq(
     "org.http4s"                  %% "http4s-testing"                 % http4sV       % Test,
     "org.specs2"                  %% "specs2-core"                    % specs2V       % Test,
     "org.specs2"                  %% "specs2-scalacheck"              % specs2V       % Test
-  )
+  ),
+
+  git.remoteRepo := "git@github.com:http4s/http4s-jdk-http4s-client.git",
 )
 
 lazy val releaseSettings = {

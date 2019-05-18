@@ -13,6 +13,8 @@ stages:
   - name: test
   - name: publish
     if: (branch = master AND type = push)
+  - name: publish-docs
+    if: (branch = master AND type = push)
 
 jobs:
   include:
@@ -36,7 +38,8 @@ jobs:
         - export PATH=${PATH}:./vendor/bundle
       install:
         - rvm use 2.6.0 --install --fuzzy
-        - gem update --system
+        - gem update --systmetw
+        
         - gem install sass
         - gem install jekyll -v 3.2.1
       script: sbt ++$TRAVIS_SCALA_VERSION docs/makeSite
@@ -45,16 +48,15 @@ jobs:
     - &publish
       stage: publish
       env: TEST="publish"
-      scala: *scala_version_211
       jdk: *java_11
       script:
-        - sbt ++$TRAVIS_SCALA_VERSION +publishSigned
+        - sbt +publishSigned
       
-    - env: TEST="publish docs"
+    - env: TEST="publish-docs"
       scala: *scala_version_212
       jdk: *java_11
       script:
-        - sbt ++$TRAVIS_SCALA_VERSION docs/ghpagesPushSite
+        - sbt ++$TRAVIS_SCALA_VERSION docs/makeSite docs/ghpagesPushSite
 
 cache:
   directories:
