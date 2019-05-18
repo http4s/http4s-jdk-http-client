@@ -50,7 +50,7 @@ jobs:
       scala: *scala_version_docs
       jdk: *java_11
       script:
-        - sbt ++$TRAVIS_SCALA_VERSION docs/makeSite docs/ghpagesPushSite
+        - sbt ++$TRAVIS_SCALA_VERSION ;docs/makeSite ;docs/ghpagesPushSite
 
 cache:
   directories:
