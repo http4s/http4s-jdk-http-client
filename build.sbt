@@ -15,6 +15,7 @@ lazy val docs = project.in(file("docs"))
 
 lazy val contributors = Seq(
   "ChristopherDavenport"  -> "Christopher Davenport",
+  "amesgen"               -> "Alexander Esgen",  
   "rossabaker"            -> "Ross A. Baker",
 )
 
