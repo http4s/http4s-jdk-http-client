@@ -1,5 +1,3 @@
-import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
-
 lazy val `http4s-jdk-http-client` = project.in(file("."))
   .settings(commonSettings, releaseSettings, skipOnPublishSettings)
   .settings(crossScalaVersions := Nil)
@@ -12,10 +10,9 @@ lazy val core = project.in(file("core"))
   )
 
 lazy val docs = project.in(file("docs"))
-  .settings(commonSettings, skipOnPublishSettings, micrositeSettings)
+  .enablePlugins(MdocPlugin, ParadoxMaterialThemePlugin, ParadoxSitePlugin)
   .dependsOn(core)
-  .enablePlugins(MicrositesPlugin)
-  .enablePlugins(TutPlugin)
+  .settings(commonSettings, skipOnPublishSettings, docsSettings)
 
 lazy val contributors = Seq(
   "ChristopherDavenport"  -> "Christopher Davenport",
@@ -23,9 +20,9 @@ lazy val contributors = Seq(
 )
 
 val catsV = "1.6.0"
-val catsEffectV = "1.2.0"
+val catsEffectV = "1.3.0"
 val fs2V = "1.0.4"
-val http4sV = "0.20.0-RC1"
+val http4sV = "0.20.0"
 val reactiveStreamsV = "1.0.2"
 
 val specs2V = "4.5.1"
@@ -184,31 +181,18 @@ lazy val mimaSettings = {
   )
 }
 
-lazy val micrositeSettings = {
-  import microsites._
+lazy val docsSettings = {
+  ParadoxMaterialThemePlugin.paradoxMaterialThemeSettings(Paradox) ++
   Seq(
     crossScalaVersions := List(scalaVersion.value),
-    micrositeName := "http4s-jdk-http-client",
-    micrositeDescription := "JDK 11+ http client implementation for http4s clients",
-    micrositeAuthor := "http4s",
-    micrositeGithubOwner := "http4s",
-    micrositeGithubRepo := "http4s-jdk-http-client",
-    micrositeBaseUrl := "/http4s-jdk-http-client",
-    micrositeDocumentationUrl := "https://www.javadoc.io/doc/org.http4s/http4s-jdk-http-client_2.12",
-    micrositeFooterText := None,
-    micrositeHighlightTheme := "atom-one-light",
-    micrositePalette := Map(
-      "brand-primary" -> "#3e5b95",
-      "brand-secondary" -> "#294066",
-      "brand-tertiary" -> "#2d5799",
-      "gray-dark" -> "#49494B",
-      "gray" -> "#7B7B7E",
-      "gray-light" -> "#E5E5E6",
-      "gray-lighter" -> "#F4F3F4",
-      "white-color" -> "#FFFFFF"
+    mdocIn := (baseDirectory.value) / "src" / "main" / "mdoc", // 
+    mdocVariables := Map(
+      "VERSION" -> version.value,
+      "BINARY_VERSION" -> binaryVersion(version.value),
+      "HTTP4S_VERSION" -> "0.20",
+      "SCALA_VERSIONS" -> formatCrossScalaVersions(crossScalaVersions.value.toList)
     ),
-    fork in tut := true,
-    scalacOptions in Tut --= Seq(
+    scalacOptions in mdoc --= Seq(
       "-Xfatal-warnings",
       "-Ywarn-unused-import",
       "-Ywarn-numeric-widen",
@@ -216,14 +200,13 @@ lazy val micrositeSettings = {
       "-Ywarn-unused:imports",
       "-Xlint:-missing-interpolator,_"
     ),
-    libraryDependencies += "com.47deg" %% "github4s" % "0.20.1",
-    micrositePushSiteWith := GitHub4s,
-    micrositeGithubToken := sys.env.get("GITHUB_TOKEN"),
-    micrositeExtraMdFiles := Map(
-        file("CHANGELOG.md")        -> ExtraMdFileConfig("changelog.md", "page", Map("title" -> "changelog", "section" -> "changelog", "position" -> "100")),
-        file("CODE_OF_CONDUCT.md")  -> ExtraMdFileConfig("code-of-conduct.md",   "page", Map("title" -> "code of conduct",   "section" -> "code of conduct",   "position" -> "101")),
-        file("LICENSE")             -> ExtraMdFileConfig("license.md",   "page", Map("title" -> "license",   "section" -> "license",   "position" -> "102"))
-    )
+
+    sourceDirectory in Paradox := mdocOut.value,
+    makeSite := makeSite.dependsOn(mdoc.toTask("")).value,
+    Paradox / paradoxMaterialTheme ~= {
+      _.withRepository(uri("https://github.com/http4s/http4s-jdk-http-client"))
+       .withLogoUri(uri("https://http4s.org/images/http4s-logo.svg"))
+    }
   )
 }
 
@@ -234,3 +217,21 @@ lazy val skipOnPublishSettings = Seq(
   publishArtifact := false,
   publishTo := None
 )
+
+def binaryVersion(version: String) =
+  version match {
+    case VersionNumber(Seq(0, minor, _*), _, _) => s"0.$minor"
+    case VersionNumber(Seq(major, _, _*), _, _) if major > 0 => major.toString
+  }
+
+def formatCrossScalaVersions(crossScalaVersions: List[String]): String = {
+  def go(vs: List[String]): String = {
+    vs match {
+      case Nil => ""
+      case a :: Nil => a
+      case a :: b :: Nil => s"$a and $b"
+      case a :: bs => s"$a, ${go(bs)}"
+    }
+  }
+  go(crossScalaVersions.map(CrossVersion.binaryScalaVersion))
+}

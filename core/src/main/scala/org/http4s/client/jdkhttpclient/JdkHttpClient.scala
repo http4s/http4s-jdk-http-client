@@ -6,8 +6,7 @@ import java.net.http.HttpResponse.BodyHandlers
 import java.net.http.{HttpClient, HttpRequest, HttpResponse}
 import java.nio.ByteBuffer
 import java.util
-import java.util.concurrent.{CancellationException, CompletableFuture, CompletionException, Flow}
-import java.util.function.BiFunction
+import java.util.concurrent.Flow
 
 import cats.ApplicativeError
 import cats.effect._
@@ -15,6 +14,7 @@ import cats.implicits._
 import fs2.interop.reactivestreams._
 import fs2.{Chunk, Stream}
 import org.http4s.client.Client
+import org.http4s.internal.fromCompletableFuture
 import org.http4s.util.CaseInsensitiveString
 import org.http4s.{Header, Headers, HttpVersion, Request, Response, Status}
 import org.reactivestreams.FlowAdapters
@@ -115,22 +115,5 @@ object JdkHttpClient {
       "via",
       "warning"
     ).map(CaseInsensitiveString(_))
-
-  // TODO remove when added to http4s-core
-  private[http4s] def fromCompletableFuture[F[_], A](fcf: F[CompletableFuture[A]])(
-      implicit F: Concurrent[F]): F[A] =
-    fcf.flatMap { cf =>
-      F.cancelable(cb => {
-        cf.handle[Unit](new BiFunction[A, Throwable, Unit] {
-          override def apply(result: A, err: Throwable): Unit = err match {
-            case null => cb(Right(result))
-            case _: CancellationException => ()
-            case ex: CompletionException if ex.getCause ne null => cb(Left(ex.getCause))
-            case ex => cb(Left(ex))
-          }
-        })
-        F.delay { cf.cancel(true); () }
-      })
-    }
 
 }

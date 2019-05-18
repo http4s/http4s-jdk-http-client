@@ -1,3 +1,4 @@
+dist: xenial
 sudo: false
 language: scala
 
@@ -47,11 +48,7 @@ jobs:
       scala: *scala_version_211
       jdk: *java_11
       script:
-        - sbt ++$TRAVIS_SCALA_VERSION publish
-    - <<: *publish
-      scala: *scala_version_212
-    - <<: *publish
-      scala: *scala_version_213
+        - sbt ++$TRAVIS_SCALA_VERSION +publishSigned
       
     - env: TEST="publish docs"
       scala: *scala_version_212
