@@ -5,7 +5,8 @@ language: scala
 scala_version_211: &scala_version_211 2.11.12
 scala_version_212: &scala_version_212 2.12.8
 scala_version_213: &scala_version_213 2.13.0-M5
-
+scala_version_docs: &scala_version_docs *scala_version_212
+  
 java11: &java_11 openjdk11
 java12: &java_12 openjdk12
 
@@ -34,16 +35,9 @@ jobs:
       jdk: *java_12
 
     - env: TEST="docs"
-      before_install:
-        - export PATH=${PATH}:./vendor/bundle
-      install:
-        - rvm use 2.6.0 --install --fuzzy
-        - gem update --systmetw
-        
-        - gem install sass
-        - gem install jekyll -v 3.2.1
-      script: sbt ++$TRAVIS_SCALA_VERSION docs/makeSite
-      scala: *scala_version_212
+      scala: *scala_version_docs
+      script:
+        - sbt ++$TRAVIS_SCALA_VERSION docs/makeSite
 
     - &publish
       stage: publish
@@ -53,7 +47,7 @@ jobs:
         - sbt +publishSigned
       
     - env: TEST="publish-docs"
-      scala: *scala_version_212
+      scala: *scala_version_docs
       jdk: *java_11
       script:
         - sbt ++$TRAVIS_SCALA_VERSION docs/makeSite docs/ghpagesPushSite
