@@ -1,6 +1,7 @@
 lazy val `http4s-jdk-http-client` = project.in(file("."))
   .settings(commonSettings, releaseSettings, skipOnPublishSettings)
-  .aggregate(core, docs)
+  .settings(crossScalaVersions := Nil)
+  .aggregate(core)
 
 lazy val core = project.in(file("core"))
   .settings(commonSettings, releaseSettings, mimaSettings)
@@ -9,32 +10,33 @@ lazy val core = project.in(file("core"))
   )
 
 lazy val docs = project.in(file("docs"))
-  .enablePlugins(MdocPlugin, ParadoxMaterialThemePlugin, ParadoxSitePlugin)
+  .enablePlugins(GhpagesPlugin, MdocPlugin, ParadoxMaterialThemePlugin, ParadoxSitePlugin)
   .dependsOn(core)
   .settings(commonSettings, skipOnPublishSettings, docsSettings)
 
 lazy val contributors = Seq(
   "ChristopherDavenport"  -> "Christopher Davenport",
+  "amesgen"               -> "Alexander Esgen",  
   "rossabaker"            -> "Ross A. Baker",
 )
 
 val catsV = "1.6.0"
 val catsEffectV = "1.3.0"
 val fs2V = "1.0.4"
-val http4sV = "0.20.0"
+val http4sV = "0.20.1"
 val reactiveStreamsV = "1.0.2"
 
 val specs2V = "4.5.1"
 
-val kindProjectorV = "0.10.0"
-val betterMonadicForV = "0.3.0"
+val kindProjectorV = "0.9.9"
+val betterMonadicForV = "0.3.0-M4"
 
 // General Settings
 lazy val commonSettings = Seq(
   organization := "org.http4s",
 
   scalaVersion := "2.12.8",
-  crossScalaVersions := Seq("2.11.12", scalaVersion.value),
+  crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0-M5"),
   scalacOptions += "-Yrangepos",
 
   scalacOptions in (Compile, doc) ++= Seq(
@@ -43,7 +45,7 @@ lazy val commonSettings = Seq(
       "-doc-source-url", "https://github.com/http4s/http4s-jdk-http-client/blob/v" + version.value + "€{FILE_PATH}.scala"
   ),
 
-  addCompilerPlugin("org.typelevel" % "kind-projector" % kindProjectorV cross CrossVersion.binary),
+  addCompilerPlugin("org.spire-math" % "kind-projector" % kindProjectorV cross CrossVersion.binary),
   addCompilerPlugin("com.olegpy" %% "better-monadic-for" % betterMonadicForV),
   libraryDependencies ++= Seq(
     "org.typelevel"               %% "cats-core"                      % catsV,
@@ -57,7 +59,9 @@ lazy val commonSettings = Seq(
     "org.http4s"                  %% "http4s-testing"                 % http4sV       % Test,
     "org.specs2"                  %% "specs2-core"                    % specs2V       % Test,
     "org.specs2"                  %% "specs2-scalacheck"              % specs2V       % Test
-  )
+  ),
+
+  git.remoteRepo := "git@github.com:http4s/http4s-jdk-http4s-client.git",
 )
 
 lazy val releaseSettings = {
@@ -183,6 +187,7 @@ lazy val mimaSettings = {
 lazy val docsSettings = {
   ParadoxMaterialThemePlugin.paradoxMaterialThemeSettings(Paradox) ++
   Seq(
+    crossScalaVersions := List(scalaVersion.value),
     mdocIn := (baseDirectory.value) / "src" / "main" / "mdoc", // 
     mdocVariables := Map(
       "VERSION" -> version.value,
@@ -205,15 +210,6 @@ lazy val docsSettings = {
       _.withRepository(uri("https://github.com/http4s/http4s-jdk-http-client"))
        .withLogoUri(uri("https://http4s.org/images/http4s-logo.svg"))
     }
-    // libraryDependencies += "com.47deg" %% "github4s" % "0.20.1",
-    // micrositePushSiteWith := GitHub4s,
-    // micrositeGithubToken := sys.env.get("GITHUB_TOKEN"),
-    // micrositeExtraMdFiles := Map(
-    //     file("CHANGELOG.md")        -> ExtraMdFileConfig("changelog.md", "page", Map("title" -> "changelog", "section" -> "changelog", "position" -> "100")),
-    //     file("CODE_OF_CONDUCT.md")  -> ExtraMdFileConfig("code-of-conduct.md",   "page", Map("title" -> "code of conduct",   "section" -> "code of conduct",   "position" -> "101")),
-    //     file("LICENSE")             -> ExtraMdFileConfig("license.md",   "page", Map("title" -> "license",   "section" -> "license",   "position" -> "102"))
-    // ),
-    // micrositeGitterChannelUrl := "http4s/http4s",
   )
 }
 
