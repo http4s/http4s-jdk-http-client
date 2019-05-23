@@ -43,7 +43,7 @@ jobs:
       jdk: *java_11
       scala: *scala_version_docs
       script:
-        - sbt ++$TRAVIS_SCALA_VERSION ;+publishSigned ;docs/makeSite ;docs/ghpagesPushSite
+        - sbt ++$TRAVIS_SCALA_VERSION +publishSigned docs/makeSite docs/ghpagesPushSite
 
 cache:
   directories:
