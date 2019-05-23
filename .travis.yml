@@ -22,6 +22,7 @@ jobs:
       script:
         - sbt ++$TRAVIS_SCALA_VERSION test
         - sbt ++$TRAVIS_SCALA_VERSION mimaReportBinaryIssues
+        - sbt ++$TRAVIS_SCALA_VERSION scalafmtCheckAll        
       scala: *scala_version_211
       jdk: *java_11
     - <<: *tests

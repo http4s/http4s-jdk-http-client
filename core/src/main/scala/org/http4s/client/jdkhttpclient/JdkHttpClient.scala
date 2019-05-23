@@ -24,14 +24,14 @@ import scala.collection.JavaConverters._
 object JdkHttpClient {
 
   /**
-   * Creates a [[Client]] from an [[HttpClient]]. Note that the creation of an [[HttpClient]] is a
-   * side effect.
-   *
-   * @param jdkHttpClient The [[HttpClient]].
-   * @param ignoredHeaders A set of ignored request headers. Some headers (like Content-Length) are
-   *                       "restricted" and cannot be set by the user. By default, the set of
-   *                       restricted headers of the OpenJDK 11 is used.
-   */
+    * Creates a [[Client]] from an [[HttpClient]]. Note that the creation of an [[HttpClient]] is a
+    * side effect.
+    *
+    * @param jdkHttpClient The [[HttpClient]].
+    * @param ignoredHeaders A set of ignored request headers. Some headers (like Content-Length) are
+    *                       "restricted" and cannot be set by the user. By default, the set of
+    *                       restricted headers of the OpenJDK 11 is used.
+    */
   def apply[F[_]](
       jdkHttpClient: HttpClient,
       ignoredHeaders: Set[CaseInsensitiveString] = restrictedHeaders
@@ -43,12 +43,13 @@ object JdkHttpClient {
           .method(
             req.method.name, {
               val publisher = FlowAdapters.toFlowPublisher(
-                StreamUnicastPublisher(req.body.chunks.map(_.toByteBuffer)))
+                StreamUnicastPublisher(req.body.chunks.map(_.toByteBuffer))
+              )
               if (req.isChunked)
                 BodyPublishers.fromPublisher(publisher)
               else
-                req.contentLength.fold(BodyPublishers.noBody)(
-                  BodyPublishers.fromPublisher(publisher, _))
+                req.contentLength
+                  .fold(BodyPublishers.noBody)(BodyPublishers.fromPublisher(publisher, _))
             }
           )
           .uri(URI.create(req.uri.renderString))
@@ -74,28 +75,34 @@ object JdkHttpClient {
           body = FlowAdapters
             .toPublisher(res.body)
             .toStream[F]
-            .flatMap(bs =>
-              Stream.fromIterator(bs.asScala.map(Chunk.byteBuffer).iterator).flatMap(Stream.chunk))
+            .flatMap(
+              bs =>
+                Stream.fromIterator(bs.asScala.map(Chunk.byteBuffer).iterator).flatMap(Stream.chunk)
+            )
         )
       }
 
     Client[F] { req =>
       Resource.liftF(
         convertRequest(req)
-          .flatMap(r =>
-            fromCompletableFuture(F.delay(jdkHttpClient.sendAsync(r, BodyHandlers.ofPublisher))))
-          .flatMap(convertResponse))
+          .flatMap(
+            r =>
+              fromCompletableFuture(F.delay(jdkHttpClient.sendAsync(r, BodyHandlers.ofPublisher)))
+          )
+          .flatMap(convertResponse)
+      )
     }
   }
 
   /**
-   * A [[Client]] wrapping the default [[HttpClient]].
-   */
+    * A [[Client]] wrapping the default [[HttpClient]].
+    */
   def simple[F[_]](implicit F: ConcurrentEffect[F]): F[Client[F]] =
     F.delay(HttpClient.newHttpClient()).map(apply(_))
 
-  def convertHttpVersionFromHttp4s[F[_]](version: HttpVersion)(
-      implicit F: ApplicativeError[F, Throwable]): F[HttpClient.Version] =
+  def convertHttpVersionFromHttp4s[F[_]](
+      version: HttpVersion
+  )(implicit F: ApplicativeError[F, Throwable]): F[HttpClient.Version] =
     version match {
       case HttpVersion.`HTTP/1.1` => HttpClient.Version.HTTP_1_1.pure[F]
       case HttpVersion.`HTTP/2.0` => HttpClient.Version.HTTP_2.pure[F]

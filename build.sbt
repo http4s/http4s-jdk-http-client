@@ -238,3 +238,5 @@ def formatCrossScalaVersions(crossScalaVersions: List[String]): String = {
   }
   go(crossScalaVersions.map(CrossVersion.binaryScalaVersion))
 }
+
+addCommandAlias("validate", ";test ;mimaBinaryIssueFilters ;scalafmtCheckAll ;docs/makeSite")
