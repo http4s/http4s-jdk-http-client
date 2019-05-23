@@ -210,7 +210,16 @@ lazy val docsSettings = {
     Paradox / paradoxMaterialTheme ~= {
       _.withRepository(uri("https://github.com/http4s/http4s-jdk-http-client"))
        .withLogoUri(uri("https://http4s.org/images/http4s-logo.svg"))
-    }
+    },
+
+    ghpagesCommitOptions := {
+      val sha = sys.env.getOrElse("TRAVIS_COMMIT", "???")
+      val build = sys.env.getOrElse("TRAVIS_BUILD_NUMBER", "???")
+      List(
+        s"--author=Travis CI <travis-ci@invalid>",
+        "-m", s"Updated site: sha=${sha} build=${build}"
+      )
+    },
   )
 }
 

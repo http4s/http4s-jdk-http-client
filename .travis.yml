@@ -43,6 +43,8 @@ jobs:
       scala: *scala_version_docs
       before_script:
         - echo $PGP_SECRET | base64 --decode | gpg --import
+        - eval "$(ssh-agent -s)"
+        - echo $SSH_PRIVATE_KEY | base64 --decode | ssh-add -
       script:
         - sbt ++$TRAVIS_SCALA_VERSION +publishSigned docs/makeSite docs/ghpagesPushSite
 
