@@ -18,6 +18,7 @@ stages:
 jobs:
   include:
     - &tests
+      stage: tests
       env: TEST="tests"
       script:
         - sbt ++$TRAVIS_SCALA_VERSION test doc mimaReportBinaryIssues scalafmtCheckAll
@@ -31,7 +32,8 @@ jobs:
       scala: *scala_version_212
       jdk: *java_12
 
-    - env: TEST="site"
+    - stage: tests
+      env: TEST="site"
       scala: *scala_version_docs
       script:
         - sbt ++$TRAVIS_SCALA_VERSION docs/makeSite
