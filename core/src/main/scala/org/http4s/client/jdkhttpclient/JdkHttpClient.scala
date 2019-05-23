@@ -24,10 +24,10 @@ import scala.collection.JavaConverters._
 object JdkHttpClient {
 
   /**
-    * Creates a [[Client]] from an [[HttpClient]]. Note that the creation of an [[HttpClient]] is a
+    * Creates a `Client` from an `HttpClient`. Note that the creation of an `HttpClient` is a
     * side effect.
     *
-    * @param jdkHttpClient The [[HttpClient]].
+    * @param jdkHttpClient The `HttpClient`.
     * @param ignoredHeaders A set of ignored request headers. Some headers (like Content-Length) are
     *                       "restricted" and cannot be set by the user. By default, the set of
     *                       restricted headers of the OpenJDK 11 is used.
@@ -95,7 +95,7 @@ object JdkHttpClient {
   }
 
   /**
-    * A [[Client]] wrapping the default [[HttpClient]].
+    * A `Client` wrapping the default `HttpClient`.
     */
   def simple[F[_]](implicit F: ConcurrentEffect[F]): F[Client[F]] =
     F.delay(HttpClient.newHttpClient()).map(apply(_))
