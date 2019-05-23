@@ -43,6 +43,8 @@ jobs:
       env: TEST="publish"
       jdk: *java_11
       scala: *scala_version_docs
+      before_script:
+        - echo $PGP_SECRET | base64 --decode | gpg --import
       script:
         - sbt ++$TRAVIS_SCALA_VERSION +publishSigned docs/makeSite docs/ghpagesPushSite
 

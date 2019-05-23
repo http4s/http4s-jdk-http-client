@@ -126,7 +126,8 @@ lazy val releaseSettings = {
         </developer>
         }
       </developers>
-    }
+    },
+    pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray),
   )
 }
 
