@@ -1,3 +1,6 @@
+import com.typesafe.sbt.SbtGit
+import sbt.librarymanagement.VersionNumber
+
 lazy val `http4s-jdk-http-client` = project.in(file("."))
   .settings(commonSettings, releaseSettings, skipOnPublishSettings)
   .settings(crossScalaVersions := Nil)
@@ -19,6 +22,8 @@ lazy val contributors = Seq(
   "amesgen"               -> "Alexander Esgen",  
   "rossabaker"            -> "Ross A. Baker",
 )
+
+git.baseVersion := "0.1.0"
 
 val catsV = "1.6.0"
 val catsEffectV = "1.3.0"
@@ -62,27 +67,17 @@ lazy val commonSettings = Seq(
   ),
 
   git.remoteRepo := "git@github.com:http4s/http4s-jdk-http4s-client.git",
-)
+  git.formattedShaVersion := {
+    val base = git.baseVersion.?.value
+    val suffix = "-SNAPSHOT"
+    git.gitHeadCommit.value.map { sha =>
+      git.defaultFormatShaVersion(base, sha, suffix)
+    }
+  },
+) ++ SbtGit.versionWithGit
 
 lazy val releaseSettings = {
-  import ReleaseTransformations._
   Seq(
-    releaseCrossBuild := true,
-    releaseProcess := Seq[ReleaseStep](
-      checkSnapshotDependencies,
-      inquireVersions,
-      runClean,
-      runTest,
-      setReleaseVersion,
-      commitReleaseVersion,
-      tagRelease,
-      // For non cross-build projects, use releaseStepCommand("publishSigned")
-      releaseStepCommandAndRemaining("+publishSigned"),
-      setNextVersion,
-      commitNextVersion,
-      releaseStepCommand("sonatypeReleaseAll"),
-      pushChanges
-    ),
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
       if (isSnapshot.value)
@@ -103,7 +98,6 @@ lazy val releaseSettings = {
         )
     ).toSeq,
     publishArtifact in Test := false,
-    releasePublishArtifactsAction := PgpKeys.publishSigned.value,
     scmInfo := Some(
       ScmInfo(
         url("https://github.com/http4s/http4s-jdk-http-client"),
@@ -128,12 +122,10 @@ lazy val releaseSettings = {
       </developers>
     },
     pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray),
-  )
+  ),
 }
 
 lazy val mimaSettings = {
-  import sbtrelease.Version
-
   def semverBinCompatVersions(major: Int, minor: Int, patch: Int): Set[(Int, Int, Int)] = {
     val majorVersions: List[Int] =
       if (major == 0 && minor == 0) List.empty[Int] // If 0.0.x do not check MiMa
@@ -155,8 +147,8 @@ lazy val mimaSettings = {
   }
 
   def mimaVersions(version: String): Set[String] = {
-    Version(version) match {
-      case Some(Version(major, Seq(minor, patch), _)) =>
+    version match {
+      case VersionNumber((Seq(major, minor, patch, _*)), _, _) =>
         semverBinCompatVersions(major.toInt, minor.toInt, patch.toInt)
           .map{case (maj, min, pat) => maj.toString + "." + min.toString + "." + pat.toString}
       case _ =>
@@ -249,4 +241,4 @@ def formatCrossScalaVersions(crossScalaVersions: List[String]): String = {
   go(crossScalaVersions.map(CrossVersion.binaryScalaVersion))
 }
 
-addCommandAlias("validate", ";test ;mimaBinaryIssueFilters ;scalafmtCheckAll ;docs/makeSite")
+addCommandAlias("validate", ";test ;mimaBinaryIssueFilters ;scalafmtCheckAll ;doc ;docs/makeSite")

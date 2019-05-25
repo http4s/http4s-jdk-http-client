@@ -1,4 +1,3 @@
-addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.11")
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.2")
 addSbtPlugin("com.lightbend.paradox" % "sbt-paradox" % "0.5.4")
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.3.0")

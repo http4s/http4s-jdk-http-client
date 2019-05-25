@@ -13,7 +13,9 @@ java12: &java_12 openjdk12
 stages:
   - name: tests
   - name: publish
-    if: (branch = master AND type = push)
+    if: (branch = master AND type = push AND tag IS blank)
+  - name: release
+    if: tag IS present
 
 jobs:
   include:
@@ -48,7 +50,15 @@ jobs:
         - eval "$(ssh-agent -s)"
         - echo $SSH_PRIVATE_KEY | base64 --decode | ssh-add -
       script:
-        - sbt ++$TRAVIS_SCALA_VERSION +publishSigned docs/makeSite docs/ghpagesPushSite
+        - sbt ++$TRAVIS_SCALA_VERSION +publishSigned
+      after_success:
+        - sbt ++$TRAVIS_SCALA_VERSION docs/makeSite docs/ghpagesPushSite
+
+    - <<: *tests
+      stage: release
+      env: TEST="release"
+      script:
+        - sbt ++$TRAVIS_SCALA_VERSION sonatypeOpen +publishSigned sonatypeRelease
 
 cache:
   directories:
