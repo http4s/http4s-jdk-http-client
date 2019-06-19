@@ -202,7 +202,7 @@ lazy val docsSettings = {
     mdocVariables := Map(
       "VERSION" -> version.value,
       "BINARY_VERSION" -> binaryVersion(version.value),
-      "HTTP4S_VERSION" -> "0.20",
+      "HTTP4S_VERSION" -> http4sV,
       "SCALA_VERSIONS" -> formatCrossScalaVersions(crossScalaVersions.value.toList)
     ),
     scalacOptions in mdoc --= Seq(
