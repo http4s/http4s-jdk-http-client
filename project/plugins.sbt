@@ -11,4 +11,4 @@ addSbtPlugin("org.lyranthe.sbt" % "partial-unification" % "1.1.2")
 addSbtPlugin("org.scalameta" % "sbt-mdoc" % "1.3.0" )
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.0.0")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "2.3")
-addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.3.6")
+
