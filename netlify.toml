@@ -1,0 +1,6 @@
+
+[[redirects]]
+  from = "/*"
+  to = "/latest/:splat"
+  force = false
+  status = 302
