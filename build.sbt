@@ -61,7 +61,7 @@ lazy val commonSettings = Seq(
     "org.specs2"                  %% "specs2-scalacheck"              % specs2V       % Test
   ),
 
-  git.remoteRepo := "git@github.com:http4s/http4s-jdk-http4s-client.git",
+  git.remoteRepo := "git@github.com:http4s/http4s-jdk-http-client.git",
 )
 
 lazy val releaseSettings = {
@@ -194,6 +194,8 @@ lazy val mimaSettings = {
   )
 }
 
+lazy val generateNetlifyToml = taskKey[Unit]("Generate netlify.toml")
+
 lazy val docsSettings = {
   ParadoxMaterialThemePlugin.paradoxMaterialThemeSettings(Paradox) ++
   Seq(
@@ -214,12 +216,30 @@ lazy val docsSettings = {
       "-Xlint:-missing-interpolator,_"
     ),
 
+    generateNetlifyToml := {
+      val toml = s"""
+           |[[redirects]]
+           |  from = "/*"
+           |  to = "/latest/:splat"
+           |  force = false
+           |  status = 302
+           |""".stripMargin
+      IO.write(target.value / "netlify.toml", toml)
+    },
+
     sourceDirectory in Paradox := mdocOut.value,
-    makeSite := makeSite.dependsOn(mdoc.toTask("")).value,
+    makeSite := makeSite.dependsOn(mdoc.toTask("")).dependsOn(generateNetlifyToml).value,
     Paradox / paradoxMaterialTheme ~= {
       _.withRepository(uri("https://github.com/http4s/http4s-jdk-http-client"))
        .withLogoUri(uri("https://http4s.org/images/http4s-logo.svg"))
     },
+    siteSubdirName in Paradox := {
+      if (isSnapshot.value) "latest"
+      else version.value
+    },
+    mappings in makeSite ++= Seq(
+      target.value / "netlify.toml" -> "netlify.toml",
+    ),
 
     ghpagesCommitOptions := {
       val sha = sys.env.getOrElse("TRAVIS_COMMIT", "???")
@@ -229,6 +249,11 @@ lazy val docsSettings = {
         "-m", s"Updated site: sha=${sha} build=${build}"
       )
     },
+    includeFilter in ghpagesCleanSite :=
+      new FileFilter{
+        def accept(f: File) =
+          f.toPath.startsWith((ghpagesRepository.value / (siteSubdirName in Paradox).value).toPath)
+      } || "netlify.toml"
   )
 }
 
