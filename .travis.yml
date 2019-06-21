@@ -4,7 +4,7 @@ language: scala
 
 scala_version_211: &scala_version_211 2.11.12
 scala_version_212: &scala_version_212 2.12.8
-scala_version_213: &scala_version_213 2.13.0-M5
+scala_version_213: &scala_version_213 2.13.0
 scala_version_docs: &scala_version_docs 2.12.8
   
 java11: &java_11 openjdk11

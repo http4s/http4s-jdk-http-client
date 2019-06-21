@@ -20,23 +20,23 @@ lazy val contributors = Seq(
   "rossabaker"            -> "Ross A. Baker",
 )
 
-val catsV = "1.6.1"
-val catsEffectV = "1.3.1"
-val fs2V = "1.0.4"
-val http4sV = "0.20.3"
+val catsV = "2.0.0-M4"
+val catsEffectV = "2.0.0-M4"
+val fs2V = "1.1.0-M1"
+val http4sV = "0.21.0-M1"
 val reactiveStreamsV = "1.0.2"
 
 val specs2V = "4.5.1"
 
-val kindProjectorV = "0.9.9"
-val betterMonadicForV = "0.3.0-M4"
+val kindProjectorV = "0.10.3"
+val betterMonadicForV = "0.3.0"
 
 // General Settings
 lazy val commonSettings = Seq(
   organization := "org.http4s",
 
   scalaVersion := "2.12.8",
-  crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0-M5"),
+  crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0"),
   scalacOptions += "-Yrangepos",
 
   scalacOptions in (Compile, doc) ++= Seq(
@@ -45,7 +45,7 @@ lazy val commonSettings = Seq(
       "-doc-source-url", "https://github.com/http4s/http4s-jdk-http-client/blob/v" + version.value + "€{FILE_PATH}.scala"
   ),
 
-  addCompilerPlugin("org.spire-math" % "kind-projector" % kindProjectorV cross CrossVersion.binary),
+  addCompilerPlugin("org.typelevel" % "kind-projector" % kindProjectorV cross CrossVersion.binary),
   addCompilerPlugin("com.olegpy" %% "better-monadic-for" % betterMonadicForV),
   libraryDependencies ++= Seq(
     "org.typelevel"               %% "cats-core"                      % catsV,
@@ -128,6 +128,15 @@ lazy val releaseSettings = {
       </developers>
     },
     pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray),
+    unmanagedSourceDirectories in Compile ++= {
+      (unmanagedSourceDirectories in Compile).value.map { dir =>
+        val sv = scalaVersion.value
+        CrossVersion.partialVersion(sv) match {
+          case Some((2, 13)) => file(dir.getPath ++ "-2.13")
+          case _             => file(dir.getPath ++ "-2.11-2.12")
+        }
+      }
+    },
   )
 }
 
@@ -195,7 +204,7 @@ lazy val docsSettings = {
     mdocVariables := Map(
       "VERSION" -> version.value,
       "BINARY_VERSION" -> binaryVersion(version.value),
-      "HTTP4S_VERSION" -> "0.20",
+      "HTTP4S_VERSION" -> http4sV,
       "SCALA_VERSIONS" -> formatCrossScalaVersions(crossScalaVersions.value.toList)
     ),
     scalacOptions in mdoc --= Seq(

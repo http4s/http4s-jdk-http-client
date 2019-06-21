@@ -1,5 +1,10 @@
 package org.http4s.client.jdkhttpclient
 
+import cats.ApplicativeError
+import cats.effect._
+import cats.implicits._
+import fs2.interop.reactivestreams._
+import fs2.{Chunk, Stream}
 import java.net.URI
 import java.net.http.HttpRequest.BodyPublishers
 import java.net.http.HttpResponse.BodyHandlers
@@ -7,19 +12,12 @@ import java.net.http.{HttpClient, HttpRequest, HttpResponse}
 import java.nio.ByteBuffer
 import java.util
 import java.util.concurrent.Flow
-
-import cats.ApplicativeError
-import cats.effect._
-import cats.implicits._
-import fs2.interop.reactivestreams._
-import fs2.{Chunk, Stream}
 import org.http4s.client.Client
+import org.http4s.client.jdkhttpclient.compat.CollectionConverters._
 import org.http4s.internal.fromCompletableFuture
 import org.http4s.util.CaseInsensitiveString
 import org.http4s.{Header, Headers, HttpVersion, Request, Response, Status}
 import org.reactivestreams.FlowAdapters
-
-import scala.collection.JavaConverters._
 
 object JdkHttpClient {
 
