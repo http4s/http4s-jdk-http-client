@@ -205,7 +205,7 @@ lazy val docsSettings = {
       "VERSION" -> version.value,
       "BINARY_VERSION" -> binaryVersion(version.value),
       "HTTP4S_VERSION" -> http4sV,
-      "SCALA_VERSIONS" -> formatCrossScalaVersions(crossScalaVersions.value.toList)
+      "SCALA_VERSIONS" -> formatCrossScalaVersions((core / crossScalaVersions).value.toList)
     ),
     scalacOptions in mdoc --= Seq(
       "-Xfatal-warnings",
