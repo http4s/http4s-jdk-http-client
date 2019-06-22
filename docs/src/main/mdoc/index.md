@@ -21,7 +21,7 @@ libraryDependencies ++= Seq(
 
 * Requires Java 11 or greater
 * Built for Scala @SCALA_VERSIONS@
-* Works with http4s-client-@HTTP4S_VERSION@.x
+* Works with http4s-client-@HTTP4S_VERSION@
 
 ## Creating the client
 
