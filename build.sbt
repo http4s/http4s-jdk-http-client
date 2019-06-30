@@ -26,7 +26,7 @@ val fs2V = "1.1.0-M1"
 val http4sV = "0.21.0-M1"
 val reactiveStreamsV = "1.0.2"
 
-val specs2V = "4.5.1"
+val specs2V = "4.6.0"
 
 val kindProjectorV = "0.10.3"
 val betterMonadicForV = "0.3.0"
