@@ -1,6 +1,9 @@
 lazy val `http4s-jdk-http-client` = project.in(file("."))
   .settings(commonSettings, releaseSettings, skipOnPublishSettings)
-  .settings(crossScalaVersions := Nil)
+  .settings(
+    crossScalaVersions := Nil,
+    mimaFailOnNoPrevious := false,
+  )
   .aggregate(core)
 
 lazy val core = project.in(file("core"))
@@ -179,6 +182,7 @@ lazy val mimaSettings = {
   lazy val extraVersions: Set[String] = Set()
 
   Seq(
+    mimaFailOnNoPrevious := false,
     mimaFailOnProblem := mimaVersions(version.value).toList.headOption.isDefined,
     mimaPreviousArtifacts := (mimaVersions(version.value) ++ extraVersions)
       .filterNot(excludedVersions.contains(_))
@@ -190,7 +194,7 @@ lazy val mimaSettings = {
       import com.typesafe.tools.mima.core._
       import com.typesafe.tools.mima.core.ProblemFilters._
       Seq()
-    }
+    },
   )
 }
 
