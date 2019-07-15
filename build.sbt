@@ -1,8 +1,8 @@
 lazy val `http4s-jdk-http-client` = project.in(file("."))
+  .disablePlugins(MimaPlugin)
   .settings(commonSettings, releaseSettings, skipOnPublishSettings)
   .settings(
     crossScalaVersions := Nil,
-    mimaFailOnNoPrevious := false,
   )
   .aggregate(core)
 
