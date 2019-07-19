@@ -29,7 +29,7 @@ val reactiveStreamsV = "1.0.2"
 val specs2V = "4.6.0"
 
 val kindProjectorV = "0.10.3"
-val betterMonadicForV = "0.3.0"
+val betterMonadicForV = "0.3.1"
 
 // General Settings
 lazy val commonSettings = Seq(
