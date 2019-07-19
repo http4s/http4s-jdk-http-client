@@ -1,3 +1,6 @@
+import sbtrelease._
+import com.typesafe.sbt.git.JGit
+
 lazy val `http4s-jdk-http-client` = project.in(file("."))
   .disablePlugins(MimaPlugin)
   .settings(commonSettings, releaseSettings, skipOnPublishSettings)
@@ -221,13 +224,22 @@ lazy val docsSettings = {
     ),
 
     generateNetlifyToml := {
-      val toml = s"""
+      var toml = s"""
            |[[redirects]]
            |  from = "/*"
            |  to = "/latest/:splat"
            |  force = false
            |  status = 302
            |""".stripMargin
+      latestStableVersion(baseDirectory.value).foreach { v =>
+        toml += s"""
+           |[[redirects]]
+           |  from = "/stable/*"
+           |  to = "/${v.string}/:splat"
+           |  force = false
+           |  status = 200
+        """.stripMargin
+      }
       IO.write(target.value / "netlify.toml", toml)
     },
 
@@ -286,5 +298,19 @@ def formatCrossScalaVersions(crossScalaVersions: List[String]): String = {
   }
   go(crossScalaVersions.map(CrossVersion.binaryScalaVersion))
 }
+
+def latestStableVersion(base: File): Option[Version] =
+  JGit(base).tags.collect {
+    case ref if ref.getName.startsWith("refs/tags/v") =>
+      Version(ref.getName.substring("refs/tags/v".size))
+  }.foldLeft(Option.empty[Version]) {
+    case (latest, Some(v)) if v.qualifier.isEmpty =>
+      def patch(v: Version) = v.subversions.drop(1).headOption.getOrElse(0)
+      import Ordering.Implicits._
+      implicit val versionOrdering: Ordering[Version] =
+        Ordering[Seq[Int]].on(v => v.major +: v.subversions)
+      Ordering[Option[Version]].max(latest, Option(v))
+    case (latest, _) => latest
+  }
 
 addCommandAlias("validate", ";test ;mimaBinaryIssueFilters ;scalafmtCheckAll ;docs/makeSite")
