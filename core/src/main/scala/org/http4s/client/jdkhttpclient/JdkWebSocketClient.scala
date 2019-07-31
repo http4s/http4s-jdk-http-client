@@ -1,0 +1,129 @@
+package org.http4s.client.jdkhttpclient
+
+import java.net.URI
+import java.net.http.{HttpClient, WebSocket => JWebSocket}
+import java.nio.ByteBuffer
+import java.util.concurrent.{CompletableFuture, CompletionStage}
+import java.util.function.Function
+
+import cats._
+import cats.effect._
+import cats.effect.concurrent.Semaphore
+import cats.implicits._
+import fs2.concurrent.Queue
+import org.http4s.internal.fromCompletableFuture
+import scodec.bits.ByteVector
+
+object JdkWebSocketClient {
+
+  /** Create a new `WebSocketClient` backed by a JDK 11+ http client. */
+  def apply[F[_]](jdkHttpClient: HttpClient)(implicit F: ConcurrentEffect[F]): WebSocketClient[F] =
+    WebSocketClient.defaultImpl(respondToPings = false) {
+      case WSRequest(uri, headers, _, subprotocols) =>
+        Resource
+          .make {
+            for {
+              wsBuilder <- F.delay {
+                val builder = jdkHttpClient.newWebSocketBuilder()
+                headers.foreach { h =>
+                  builder.header(h.name.value, h.value); ()
+                }
+                subprotocols match {
+                  case head :: tail => builder.subprotocols(head, tail: _*)
+                  case Nil =>
+                }
+                builder
+              }
+              queue <- Queue.noneTerminated[F, Either[Throwable, WSFrame]]
+              handleReceive = (wsf: Either[Throwable, WSFrame]) =>
+                toCompletionStage(for {
+                  _ <- queue.enqueue1(wsf.some)
+                  // if we encounter an error or receive a Close frame, we close the queue
+                  _ <- wsf match {
+                    case Left(_) | Right(_: WSFrame.Close) => queue.enqueue1(none)
+                    case _ => F.unit
+                  }
+                } yield ())
+              wsListener = new JWebSocket.Listener {
+                override def onOpen(webSocket: JWebSocket): Unit = ()
+                override def onClose(webSocket: JWebSocket, statusCode: Int, reason: String)
+                    : CompletionStage[_] =
+                  // The output side of this connection will be closed when the returned CompletionStage completes.
+                  // Therefore, we return a never completing CompletionStage, so we can control when the output will
+                  // be closed (as it is allowed to continue sending frames (as few as possible) after a close frame
+                  // has been received).
+                  handleReceive(WSFrame.Close(statusCode, reason).asRight)
+                    .thenCompose[Nothing](new Function[Unit, CompletionStage[Nothing]] {
+                      override def apply(t: Unit) = new CompletableFuture[Nothing]
+                    })
+                override def onText(webSocket: JWebSocket, data: CharSequence, last: Boolean)
+                    : CompletionStage[_] =
+                  handleReceive(WSFrame.Text(data.toString, last).asRight)
+                override def onBinary(webSocket: JWebSocket, data: ByteBuffer, last: Boolean)
+                    : CompletionStage[_] =
+                  handleReceive(WSFrame.Binary(ByteVector(data), last).asRight)
+                override def onPing(webSocket: JWebSocket, message: ByteBuffer)
+                    : CompletionStage[_] =
+                  handleReceive(WSFrame.Ping(ByteVector(message)).asRight)
+                override def onPong(webSocket: JWebSocket, message: ByteBuffer)
+                    : CompletionStage[_] =
+                  handleReceive(WSFrame.Pong(ByteVector(message)).asRight)
+                override def onError(webSocket: JWebSocket, error: Throwable): Unit = {
+                  handleReceive(error.asLeft); ()
+                }
+              }
+              webSocket <- fromCompletableFuture(
+                F.delay(wsBuilder.buildAsync(URI.create(uri.renderString), wsListener))
+              )
+              sendSem <- Semaphore[F](1L)
+            } yield (webSocket, queue, sendSem)
+          } {
+            case (webSocket, _, _) =>
+              for {
+                isOutputOpen <- F.delay(!webSocket.isOutputClosed)
+                closeOutput = fromCompletableFuture(
+                  F.delay(webSocket.sendClose(JWebSocket.NORMAL_CLOSURE, ""))
+                )
+                _ <- closeOutput.whenA(isOutputOpen)
+                _ <- F.delay(webSocket.abort())
+              } yield ()
+          }
+          .map {
+            case (webSocket, queue, sendSem) =>
+              // sending will throw if done in parallel
+              val rawSend = (wsf: WSFrame) =>
+                fromCompletableFuture(F.delay(wsf match {
+                  case WSFrame.Text(text, last) => webSocket.sendText(text, last)
+                  case WSFrame.Binary(data, last) => webSocket.sendBinary(data.toByteBuffer, last)
+                  case WSFrame.Ping(data) => webSocket.sendPing(data.toByteBuffer)
+                  case WSFrame.Pong(data) => webSocket.sendPong(data.toByteBuffer)
+                  case WSFrame.Close(statusCode, reason) => webSocket.sendClose(statusCode, reason)
+                })).void
+              new WSConnection[F] {
+                override def send(wsf: WSFrame) =
+                  sendSem.withPermit(rawSend(wsf))
+                override def sendMany[G[_]: Traverse, A <: WSFrame](wsfs: G[A]) =
+                  sendSem.withPermit(wsfs.traverse_(rawSend))
+                override def receive =
+                  F.delay(webSocket.request(1)) *> queue.dequeue1.map(_.sequence).rethrow
+                override def subprotocol =
+                  webSocket.getSubprotocol.some.filter(_.nonEmpty)
+              }
+          }
+    }
+
+  /** A `WebSocketClient` wrapping the default `HttpClient`. */
+  def simple[F[_]](implicit F: ConcurrentEffect[F]): F[WebSocketClient[F]] =
+    F.delay(HttpClient.newHttpClient()).map(apply(_))
+
+  private def toCompletionStage[F[_], A](fa: F[A])(implicit F: Effect[F]): CompletionStage[A] = {
+    val cf = new CompletableFuture[A]()
+    F.runAsync(fa) {
+        case Right(a) => IO { cf.complete(a); () }
+        case Left(e) => IO { cf.completeExceptionally(e); () }
+      }
+      .unsafeRunSync()
+    cf
+  }
+
+}

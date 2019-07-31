@@ -64,7 +64,9 @@ lazy val commonSettings = Seq(
     
     "org.http4s"                  %% "http4s-testing"                 % http4sV       % Test,
     "org.specs2"                  %% "specs2-core"                    % specs2V       % Test,
-    "org.specs2"                  %% "specs2-scalacheck"              % specs2V       % Test
+    "org.specs2"                  %% "specs2-scalacheck"              % specs2V       % Test,
+    "org.http4s"                  %% "http4s-dsl"                     % http4sV       % Test,
+    "org.http4s"                  %% "http4s-blaze-server"            % http4sV       % Test
   ),
 
   git.remoteRepo := "git@github.com:http4s/http4s-jdk-http-client.git",
@@ -212,6 +214,8 @@ lazy val docsSettings = {
       "VERSION" -> version.value,
       "BINARY_VERSION" -> binaryVersion(version.value),
       "HTTP4S_VERSION" -> http4sV,
+      "HTTP4S_VERSION_SHORT" -> http4sV.split("\\.").take(2).mkString("."),
+      "SCALA_VERSION" -> CrossVersion.binaryScalaVersion(scalaVersion.value),
       "SCALA_VERSIONS" -> formatCrossScalaVersions((core / crossScalaVersions).value.toList)
     ),
     scalacOptions in mdoc --= Seq(
