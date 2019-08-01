@@ -36,7 +36,7 @@ object JdkWebSocketClient {
               }
               queue <- Queue.noneTerminated[F, Either[Throwable, WSFrame]]
               handleReceive = (wsf: Either[Throwable, WSFrame]) =>
-                toCompletionStage(for {
+                unsafeToCompletionStage(for {
                   _ <- queue.enqueue1(wsf.some)
                   // if we encounter an error or receive a Close frame, we close the queue
                   _ <- wsf match {
@@ -85,7 +85,6 @@ object JdkWebSocketClient {
                   F.delay(webSocket.sendClose(JWebSocket.NORMAL_CLOSURE, ""))
                 )
                 _ <- closeOutput.whenA(isOutputOpen)
-                _ <- F.delay(webSocket.abort())
               } yield ()
           }
           .map {
@@ -116,7 +115,9 @@ object JdkWebSocketClient {
   def simple[F[_]](implicit F: ConcurrentEffect[F]): F[WebSocketClient[F]] =
     F.delay(HttpClient.newHttpClient()).map(apply(_))
 
-  private def toCompletionStage[F[_], A](fa: F[A])(implicit F: Effect[F]): CompletionStage[A] = {
+  private def unsafeToCompletionStage[F[_], A](
+      fa: F[A]
+  )(implicit F: Effect[F]): CompletionStage[A] = {
     val cf = new CompletableFuture[A]()
     F.runAsync(fa) {
         case Right(a) => IO { cf.complete(a); () }
