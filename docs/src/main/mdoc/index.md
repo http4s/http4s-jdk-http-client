@@ -115,7 +115,7 @@ the API may change in the future.
 
 A `WebSocketClient` is created
 using an `HttpClient` as above. It is encouraged to use the same `HttpClient`
-to construct a `Client[F]` and a `WebSocketClient[F]`.
+to construct a `Client[F]` and a `WSClient[F]`.
 
 ```scala mdoc
 import org.http4s.client.jdkhttpclient._
@@ -123,7 +123,7 @@ import org.http4s.client.jdkhttpclient._
 val (http, webSocket) =
   IO(HttpClient.newHttpClient())
     .map { httpClient =>
-      (JdkHttpClient[IO](httpClient), JdkWebSocketClient[IO](httpClient))
+      (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient))
     }
     .unsafeRunSync()
 ```
