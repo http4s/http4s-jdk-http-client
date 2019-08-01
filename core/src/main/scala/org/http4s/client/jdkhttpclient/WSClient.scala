@@ -24,7 +24,7 @@ case class WSRequest(
     subprotocols: List[String] = List.empty
 )
 
-sealed trait WSFrame
+sealed trait WSFrame extends Product with Serializable
 
 sealed trait WSControlFrame extends WSFrame
 
