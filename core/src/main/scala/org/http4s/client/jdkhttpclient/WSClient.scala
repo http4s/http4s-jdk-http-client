@@ -88,7 +88,7 @@ trait WSConnectionHighLevel[F[_]] {
 
 }
 
-trait WebSocketClient[F[_]] {
+trait WSClient[F[_]] {
 
   /** Establish a websocket connection. It will be closed automatically if necessary. */
   def connect(request: WSRequest): Resource[F, WSConnection[F]]
@@ -100,12 +100,12 @@ trait WebSocketClient[F[_]] {
   def connectHighLevel(request: WSRequest): Resource[F, WSConnectionHighLevel[F]]
 }
 
-object WebSocketClient {
+object WSClient {
 
   def defaultImpl[F[_]](
       respondToPings: Boolean
-  )(f: WSRequest => Resource[F, WSConnection[F]])(implicit F: Concurrent[F]): WebSocketClient[F] =
-    new WebSocketClient[F] {
+  )(f: WSRequest => Resource[F, WSConnection[F]])(implicit F: Concurrent[F]): WSClient[F] =
+    new WSClient[F] {
       override def connect(request: WSRequest) = f(request)
       override def connectHighLevel(request: WSRequest) =
         for {

@@ -14,11 +14,11 @@ import fs2.concurrent.Queue
 import org.http4s.internal.fromCompletableFuture
 import scodec.bits.ByteVector
 
-object JdkWebSocketClient {
+object JdkWSClient {
 
-  /** Create a new `WebSocketClient` backed by a JDK 11+ http client. */
-  def apply[F[_]](jdkHttpClient: HttpClient)(implicit F: ConcurrentEffect[F]): WebSocketClient[F] =
-    WebSocketClient.defaultImpl(respondToPings = false) {
+  /** Create a new `WSClient` backed by a JDK 11+ http client. */
+  def apply[F[_]](jdkHttpClient: HttpClient)(implicit F: ConcurrentEffect[F]): WSClient[F] =
+    WSClient.defaultImpl(respondToPings = false) {
       case WSRequest(uri, headers, _, subprotocols) =>
         Resource
           .make {
@@ -111,8 +111,8 @@ object JdkWebSocketClient {
           }
     }
 
-  /** A `WebSocketClient` wrapping the default `HttpClient`. */
-  def simple[F[_]](implicit F: ConcurrentEffect[F]): F[WebSocketClient[F]] =
+  /** A `WSClient` wrapping the default `HttpClient`. */
+  def simple[F[_]](implicit F: ConcurrentEffect[F]): F[WSClient[F]] =
     F.delay(HttpClient.newHttpClient()).map(apply(_))
 
   private def unsafeToCompletionStage[F[_], A](

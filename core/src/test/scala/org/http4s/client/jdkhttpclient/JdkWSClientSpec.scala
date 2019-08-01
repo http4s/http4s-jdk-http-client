@@ -13,12 +13,12 @@ import scodec.bits.ByteVector
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
-class JdkWebSocketClientSpec extends Specification {
+class JdkWSClientSpec extends Specification {
 
   implicit val timer: cats.effect.Timer[IO] = IO.timer(global)
   implicit val cs: cats.effect.ContextShift[IO] = IO.contextShift(global)
 
-  val webSocket: WebSocketClient[IO] = JdkWebSocketClient.simple[IO].unsafeRunSync()
+  val webSocket: WSClient[IO] = JdkWSClient.simple[IO].unsafeRunSync()
 
   val wsUri = uri"wss://echo.websocket.org"
 
