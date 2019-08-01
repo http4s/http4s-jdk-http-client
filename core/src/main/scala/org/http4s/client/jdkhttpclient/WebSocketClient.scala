@@ -46,10 +46,10 @@ trait WSConnection[F[_]] {
   /** Send multiple websocket frames. Equivalent to multiple `send` calls, but at least as fast. */
   def sendMany[G[_]: Traverse, A <: WSFrame](wsfs: G[A]): F[Unit]
 
-  /** A `Pipe` which sends websocket frames and emits `()`'s when they are sent. */
+  /** A `Pipe` which sends websocket frames and emits a `()` for each chunk sent. */
   final def sendPipe: Pipe[F, WSFrame, Unit] = _.chunks.evalMap(sendMany(_))
 
-  /** Wait for a single websocket frame to be received. Returns `None` if the receiving side is closed.  */
+  /** Wait for a single websocket frame to be received. Returns `None` if the receiving side is closed. */
   def receive: F[Option[WSFrame]]
 
   /** A stream of the incoming websocket frames. */
@@ -67,6 +67,8 @@ trait WSConnectionHighLevel[F[_]] {
 
   /** Send multiple websocket frames. Equivalent to multiple `send` calls, but at least as fast. */
   def sendMany[G[_]: Traverse, A <: WSDataFrame](wsfs: G[A]): F[Unit]
+
+  /** A `Pipe` which sends websocket frames and emits a `()` for each chunk sent. */
   final def sendPipe: Pipe[F, WSDataFrame, Unit] = _.chunks.evalMap(sendMany(_))
 
   /** Send a Ping frame. */
