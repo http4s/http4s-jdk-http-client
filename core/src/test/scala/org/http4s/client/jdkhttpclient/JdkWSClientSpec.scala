@@ -116,16 +116,16 @@ class JdkWSClientSpec extends Specification {
                 _ <- webSocket.connect(req).use { conn =>
                   conn.send(WSFrame.Text("hi blaze"))
                 }
-                _ <- Timer[IO].sleep(500.millis)
+                _ <- Timer[IO].sleep(1.second)
                 _ <- webSocket.connectHighLevel(req).use { conn =>
                   conn.send(WSFrame.Text("hey blaze"))
                 }
-                _ <- Timer[IO].sleep(500.millis)
+                _ <- Timer[IO].sleep(1.second)
               } yield ()
             } *> ref.get
         }
       }
-      p.unsafeRunTimed(3.seconds) must beSome(
+      p.unsafeRunTimed(4.seconds) must beSome(
         List(
           WebSocketFrame.Text("hi blaze"),
           WebSocketFrame.Close(1000, "").fold(throw _, identity),
