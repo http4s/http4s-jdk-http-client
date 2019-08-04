@@ -11,6 +11,7 @@ import cats.effect._
 import cats.effect.concurrent.Semaphore
 import cats.implicits._
 import fs2.concurrent.Queue
+import org.http4s.headers.`Sec-WebSocket-Protocol`
 import org.http4s.internal.fromCompletableFuture
 import scodec.bits.ByteVector
 
@@ -19,13 +20,17 @@ object JdkWSClient {
   /** Create a new `WSClient` backed by a JDK 11+ http client. */
   def apply[F[_]](jdkHttpClient: HttpClient)(implicit F: ConcurrentEffect[F]): WSClient[F] =
     WSClient.defaultImpl(respondToPings = false) {
-      case WSRequest(uri, headers, _, subprotocols) =>
+      case WSRequest(uri, headers, _) =>
         Resource
           .make {
             for {
               wsBuilder <- F.delay {
                 val builder = jdkHttpClient.newWebSocketBuilder()
-                headers.foreach { h =>
+                val (subprotocols, hs) = headers.toList.partitionEither(
+                  h =>
+                    `Sec-WebSocket-Protocol`.matchHeader(h).fold(h.asRight[String])(_.value.asLeft)
+                )
+                hs.foreach { h =>
                   builder.header(h.name.value, h.value); ()
                 }
                 subprotocols match {

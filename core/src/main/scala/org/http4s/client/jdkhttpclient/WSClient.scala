@@ -13,15 +13,14 @@ import scodec.bits.ByteVector
   * A websocket request.
   *
   * @param uri The URI.
-  * @param headers The headers to send. Some websocket clients reject protocol-specific headers.
+  * @param headers The headers to send. Put your `Sec-Websocket-Protocol` headers here if needed.
+  *                Some websocket clients reject other WS-specific headers.
   * @param method The method of the intial HTTP request. Ignored by some clients.
-  * @param subprotocols The subprotocols, descending from most prefered.
   */
 case class WSRequest(
     uri: Uri,
     headers: Headers = Headers.empty,
-    method: Method = Method.GET,
-    subprotocols: List[String] = List.empty
+    method: Method = Method.GET
 )
 
 sealed trait WSFrame extends Product with Serializable

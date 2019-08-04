@@ -9,6 +9,9 @@ import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.websocket.WebSocketFrame
 import org.specs2.mutable.Specification
 import scodec.bits.ByteVector
+import org.http4s.dsl.io._
+import org.http4s.implicits._
+import org.http4s.server.websocket._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -97,33 +100,28 @@ class JdkWSClientSpec extends Specification {
     }
 
     "automatically close the connection" in {
-      val p = {
-        import org.http4s.dsl.io._
-        import org.http4s.implicits._
-        import org.http4s.server.websocket._
-        Ref[IO].of(List.empty[WebSocketFrame]).flatMap { ref =>
-          val routes = HttpRoutes.of[IO] {
-            case GET -> Root =>
-              WebSocketBuilder[IO].build(Stream.empty, _.evalMap(wsf => ref.update(_ :+ wsf)))
-          }
-          BlazeServerBuilder[IO]
-            .bindHttp(8080)
-            .withHttpApp(routes.orNotFound)
-            .resource
-            .use { _ =>
-              val req = WSRequest(uri"ws://localhost:8080")
-              for {
-                _ <- webSocket.connect(req).use { conn =>
-                  conn.send(WSFrame.Text("hi blaze"))
-                }
-                _ <- Timer[IO].sleep(1.second)
-                _ <- webSocket.connectHighLevel(req).use { conn =>
-                  conn.send(WSFrame.Text("hey blaze"))
-                }
-                _ <- Timer[IO].sleep(1.second)
-              } yield ()
-            } *> ref.get
+      val p = Ref[IO].of(List.empty[WebSocketFrame]).flatMap { ref =>
+        val routes = HttpRoutes.of[IO] {
+          case GET -> Root =>
+            WebSocketBuilder[IO].build(Stream.empty, _.evalMap(wsf => ref.update(_ :+ wsf)))
         }
+        BlazeServerBuilder[IO]
+          .bindHttp(8080)
+          .withHttpApp(routes.orNotFound)
+          .resource
+          .use { _ =>
+            val req = WSRequest(uri"ws://localhost:8080")
+            for {
+              _ <- webSocket.connect(req).use { conn =>
+                conn.send(WSFrame.Text("hi blaze"))
+              }
+              _ <- Timer[IO].sleep(1.second)
+              _ <- webSocket.connectHighLevel(req).use { conn =>
+                conn.send(WSFrame.Text("hey blaze"))
+              }
+              _ <- Timer[IO].sleep(1.second)
+            } yield ()
+          } *> ref.get
       }
       p.unsafeRunTimed(4.seconds) must beSome(
         List(
@@ -133,6 +131,32 @@ class JdkWSClientSpec extends Specification {
           WebSocketFrame.Close(1000, "").fold(throw _, identity)
         )
       )
+    }
+
+    "send headers" in {
+      val headers = Headers.of(
+        Header("foo", "bar"),
+        Header("Sec-Websocket-Protocol", "proto"),
+        Header("aaaa", "bbbbb")
+      )
+      val p = Ref[IO].of(None: Option[Headers]).flatMap { ref =>
+        val routes = HttpRoutes.of[IO] {
+          case r @ GET -> Root =>
+            ref.set(r.headers.some) *> WebSocketBuilder[IO].build(Stream.empty, _ => Stream.empty)
+        }
+        BlazeServerBuilder[IO]
+          .bindHttp(8081)
+          .withHttpApp(routes.orNotFound)
+          .resource
+          .use { _ =>
+            webSocket.connect(WSRequest(uri"ws://localhost:8081", headers)).use(_ => IO.unit)
+          } *> ref.get
+      }
+      p.unsafeRunTimed(3.seconds).map {
+        case Some(receivedHeaders) =>
+          headers.toList.toSet.subsetOf(receivedHeaders.toList.toSet)
+        case None => false
+      } must beSome(true)
     }
   }
 
