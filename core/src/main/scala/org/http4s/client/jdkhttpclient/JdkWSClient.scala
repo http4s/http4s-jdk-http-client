@@ -15,6 +15,10 @@ import org.http4s.headers.`Sec-WebSocket-Protocol`
 import org.http4s.internal.fromCompletableFuture
 import scodec.bits.ByteVector
 
+/** A `WSClient` wrapper for the JDK 11+ websocket client.
+  * It will reply to Pongs with Pings even in "low-level" mode.
+  * Custom (non-GET) HTTP methods are ignored.
+  */
 object JdkWSClient {
 
   /** Create a new `WSClient` backed by a JDK 11+ http client. */

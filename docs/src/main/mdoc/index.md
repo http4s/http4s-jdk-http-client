@@ -106,14 +106,14 @@ Clients created with this back end do not need to be shut down.
 For more details on the http4s-client, please see the [core client
 documentation][http4s-client].
 
-## WebSocket client
+## Websocket client
 
-This package also contains a functional WebSocket client. Please note that
+This package also contains a functional websocket client. Please note that
 the API may change in the future.
 
 ### Creation
 
-A `WebSocketClient` is created
+A `WSClient` is created
 using an `HttpClient` as above. It is encouraged to use the same `HttpClient`
 to construct a `Client[F]` and a `WSClient[F]`.
 
@@ -128,11 +128,11 @@ val (http, webSocket) =
     .unsafeRunSync()
 ```
 
-If you do not need an HTTP client, you can also call `JdkWebSocketClient.simple[IO]` as above.
+If you do not need an HTTP client, you can also call `JdkWSClient.simple[IO]` as above.
 
 ### Overview
 
-We have the following WebSocket frame hierarchy:
+We have the following websocket frame hierarchy:
 
  - `WSFrame`
    - `WSControlFrame`
@@ -150,7 +150,8 @@ The high-level mode does the following things for you:
 
  - Hides the control frames (you can still send Ping and Close frames).
  - Responds to Ping frames with Pongs and echoes Close frames (the received Close frame is exposed
-   as a [`TryableDeferred`][TryableDeferred]).
+   as a [`TryableDeferred`][TryableDeferred]). In fact, this currently also the case for the
+   "low-level" mode, but this will change when other websocket backends are added.
  - Groups the data frames by their `last` attribute.
 
 ### Usage example
