@@ -9,6 +9,6 @@ addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat" % "0.1.7")
 addSbtPlugin("io.github.jonas" % "sbt-paradox-material-theme" % "0.6.0")
 addSbtPlugin("org.lyranthe.sbt" % "partial-unification" % "1.1.2")
 addSbtPlugin("org.scalameta" % "sbt-mdoc" % "1.3.1" )
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.0.2")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.0.3")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "2.5")
 
