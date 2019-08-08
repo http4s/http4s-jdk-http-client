@@ -112,27 +112,26 @@ object WSClient {
             Deferred.tryable[F, WSFrame.Close].product(Ref[F].of(false))
           )
           conn <- f(request)
-        } yield
-          new WSConnectionHighLevel[F] {
-            override def send(wsf: WSDataFrame) = conn.send(wsf)
-            override def sendMany[G[_]: Traverse, A <: WSDataFrame](wsfs: G[A]): F[Unit] =
-              conn.sendMany(wsfs)
-            override def sendPing(data: ByteVector) = conn.send(WSFrame.Ping(data))
-            override def sendClose(reason: String) =
-              conn.send(WSFrame.Close(1000, reason)) *> outputOpen.set(false)
-            override def receiveStream: Stream[F, WSDataFrame] =
-              conn.receiveStream
-                .evalTap {
-                  case WSFrame.Ping(data) if respondToPings => conn.send(WSFrame.Pong(data))
-                  case wsf: WSFrame.Close =>
-                    recvCloseFrame.complete(wsf) *> outputOpen.get.flatMap(conn.send(wsf).whenA(_))
-                  case _ => F.unit
-                }
-                .collect { case wsdf: WSDataFrame => wsdf }
-                .through(groupFrames[F])
-            override def subprocotol: Option[String] = conn.subprotocol
-            override def closeFrame: TryableDeferred[F, WSFrame.Close] = recvCloseFrame
-          }
+        } yield new WSConnectionHighLevel[F] {
+          override def send(wsf: WSDataFrame) = conn.send(wsf)
+          override def sendMany[G[_]: Traverse, A <: WSDataFrame](wsfs: G[A]): F[Unit] =
+            conn.sendMany(wsfs)
+          override def sendPing(data: ByteVector) = conn.send(WSFrame.Ping(data))
+          override def sendClose(reason: String) =
+            conn.send(WSFrame.Close(1000, reason)) *> outputOpen.set(false)
+          override def receiveStream: Stream[F, WSDataFrame] =
+            conn.receiveStream
+              .evalTap {
+                case WSFrame.Ping(data) if respondToPings => conn.send(WSFrame.Pong(data))
+                case wsf: WSFrame.Close =>
+                  recvCloseFrame.complete(wsf) *> outputOpen.get.flatMap(conn.send(wsf).whenA(_))
+                case _ => F.unit
+              }
+              .collect { case wsdf: WSDataFrame => wsdf }
+              .through(groupFrames[F])
+          override def subprocotol: Option[String] = conn.subprotocol
+          override def closeFrame: TryableDeferred[F, WSFrame.Close] = recvCloseFrame
+        }
     }
 
   private[jdkhttpclient] def groupFrames[F[_]]: Pipe[F, WSDataFrame, WSDataFrame] = {
