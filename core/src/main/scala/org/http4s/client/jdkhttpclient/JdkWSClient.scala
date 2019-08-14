@@ -4,7 +4,6 @@ import java.net.URI
 import java.net.http.{HttpClient, WebSocket => JWebSocket}
 import java.nio.ByteBuffer
 import java.util.concurrent.{CompletableFuture, CompletionStage}
-import java.util.function.Function
 
 import cats._
 import cats.effect._
@@ -62,9 +61,7 @@ object JdkWSClient {
                   // be closed (as it is allowed to continue sending frames (as few as possible) after a close frame
                   // has been received).
                   handleReceive(WSFrame.Close(statusCode, reason).asRight)
-                    .thenCompose[Nothing](new Function[Unit, CompletionStage[Nothing]] {
-                      override def apply(t: Unit) = new CompletableFuture[Nothing]
-                    })
+                    .thenCompose[Nothing](_ => new CompletableFuture[Nothing])
                 override def onText(webSocket: JWebSocket, data: CharSequence, last: Boolean)
                     : CompletionStage[_] =
                   handleReceive(WSFrame.Text(data.toString, last).asRight)
