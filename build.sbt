@@ -33,6 +33,7 @@ val http4sV = "0.21.0-M1"
 val reactiveStreamsV = "1.0.2"
 
 val specs2V = "4.6.0"
+val catsEffectTestingV = "0.1.0"
 
 val kindProjectorV = "0.10.3"
 val betterMonadicForV = "0.3.1"
@@ -42,7 +43,7 @@ lazy val commonSettings = Seq(
   organization := "org.http4s",
 
   scalaVersion := "2.12.8",
-  crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0"),
+  crossScalaVersions := Seq(scalaVersion.value, "2.13.0"),
   scalacOptions += "-Yrangepos",
 
   scalacOptions in (Compile, doc) ++= Seq(
@@ -62,11 +63,12 @@ lazy val commonSettings = Seq(
     "org.http4s"                  %% "http4s-client"                  % http4sV,
     "org.reactivestreams"         %  "reactive-streams-flow-adapters" % reactiveStreamsV,
     
-    "org.http4s"                  %% "http4s-testing"                 % http4sV       % Test,
-    "org.specs2"                  %% "specs2-core"                    % specs2V       % Test,
-    "org.specs2"                  %% "specs2-scalacheck"              % specs2V       % Test,
-    "org.http4s"                  %% "http4s-dsl"                     % http4sV       % Test,
-    "org.http4s"                  %% "http4s-blaze-server"            % http4sV       % Test
+    "org.http4s"                  %% "http4s-testing"                 % http4sV            % Test,
+    "org.specs2"                  %% "specs2-core"                    % specs2V            % Test,
+    "org.specs2"                  %% "specs2-scalacheck"              % specs2V            % Test,
+    "com.codecommit"              %% "cats-effect-testing-specs2"     % catsEffectTestingV % Test,
+    "org.http4s"                  %% "http4s-dsl"                     % http4sV            % Test,
+    "org.http4s"                  %% "http4s-blaze-server"            % http4sV            % Test
   ),
 
   git.remoteRepo := "git@github.com:http4s/http4s-jdk-http-client.git",
