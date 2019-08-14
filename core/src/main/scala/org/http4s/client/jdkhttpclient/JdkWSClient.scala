@@ -110,7 +110,7 @@ object JdkWSClient {
               new WSConnection[F] {
                 override def send(wsf: WSFrame) =
                   sendSem.withPermit(rawSend(wsf))
-                override def sendMany[G[_]: Traverse, A <: WSFrame](wsfs: G[A]) =
+                override def sendMany[G[_]: Foldable, A <: WSFrame](wsfs: G[A]) =
                   sendSem.withPermit(wsfs.traverse_(rawSend))
                 override def receive =
                   F.delay(webSocket.request(1)) *> queue.dequeue1.map(_.sequence).rethrow

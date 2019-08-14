@@ -43,7 +43,7 @@ trait WSConnection[F[_]] {
   def send(wsf: WSFrame): F[Unit]
 
   /** Send multiple websocket frames. Equivalent to multiple `send` calls, but at least as fast. */
-  def sendMany[G[_]: Traverse, A <: WSFrame](wsfs: G[A]): F[Unit]
+  def sendMany[G[_]: Foldable, A <: WSFrame](wsfs: G[A]): F[Unit]
 
   /** A `Pipe` which sends websocket frames and emits a `()` for each chunk sent. */
   final def sendPipe: Pipe[F, WSFrame, Unit] = _.chunks.evalMap(sendMany(_))
@@ -65,7 +65,7 @@ trait WSConnectionHighLevel[F[_]] {
   def send(wsf: WSDataFrame): F[Unit]
 
   /** Send multiple websocket frames. Equivalent to multiple `send` calls, but at least as fast. */
-  def sendMany[G[_]: Traverse, A <: WSDataFrame](wsfs: G[A]): F[Unit]
+  def sendMany[G[_]: Foldable, A <: WSDataFrame](wsfs: G[A]): F[Unit]
 
   /** A `Pipe` which sends websocket frames and emits a `()` for each chunk sent. */
   final def sendPipe: Pipe[F, WSDataFrame, Unit] = _.chunks.evalMap(sendMany(_))
@@ -114,7 +114,7 @@ object WSClient {
           conn <- f(request)
         } yield new WSConnectionHighLevel[F] {
           override def send(wsf: WSDataFrame) = conn.send(wsf)
-          override def sendMany[G[_]: Traverse, A <: WSDataFrame](wsfs: G[A]): F[Unit] =
+          override def sendMany[G[_]: Foldable, A <: WSDataFrame](wsfs: G[A]): F[Unit] =
             conn.sendMany(wsfs)
           override def sendPing(data: ByteVector) = conn.send(WSFrame.Ping(data))
           override def sendClose(reason: String) =
