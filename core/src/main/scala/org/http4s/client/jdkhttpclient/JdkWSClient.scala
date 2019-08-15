@@ -88,6 +88,7 @@ object JdkWSClient {
               for {
                 isOutputOpen <- F.delay(!webSocket.isOutputClosed)
                 closeOutput = fromCompletableFuture(
+                  F.delay(println("Sending close")) *>
                   F.delay(webSocket.sendClose(JWebSocket.NORMAL_CLOSURE, ""))
                 )
                 _ <- closeOutput.whenA(isOutputOpen)
