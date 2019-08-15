@@ -1,7 +1,10 @@
 package org.http4s.client.jdkhttpclient
 
+import java.net.InetSocketAddress
+import java.nio.ByteBuffer
+
 import cats.effect._
-import cats.effect.concurrent.Ref
+import cats.effect.concurrent.{Deferred, Ref}
 import cats.effect.specs2.CatsEffect
 import cats.implicits._
 import fs2.Stream
@@ -11,6 +14,9 @@ import org.http4s.implicits._
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.websocket._
 import org.http4s.websocket.WebSocketFrame
+import org.java_websocket.WebSocket
+import org.java_websocket.handshake.ClientHandshake
+import org.java_websocket.server.WebSocketServer
 import org.specs2.mutable.Specification
 import scodec.bits.ByteVector
 
@@ -107,39 +113,45 @@ class JdkWSClientSpec extends Specification with CatsEffect {
     }
 
     "automatically close the connection" in {
-      Ref[IO]
-        .of(List.empty[WebSocketFrame])
-        .flatMap { ref =>
-          val routes = HttpRoutes.of[IO] {
-            case GET -> Root =>
-              WebSocketBuilder[IO].build(Stream.empty, _.evalMap(wsf => ref.update(_ :+ wsf)))
+      for {
+        ref <- Ref[IO].of(List.empty[WebSocketFrame])
+        finished <- Deferred[IO, Unit]
+        // we use Java-Websocket because Blaze has a bug concerning the handling of Close frames and shutting down
+        server = new WebSocketServer(new InetSocketAddress("localhost", 8080)) {
+          override def onOpen(conn: WebSocket, handshake: ClientHandshake) = ()
+          override def onClose(conn: WebSocket, code: Int, reason: String, remote: Boolean) =
+            ref
+              .update(_ :+ WebSocketFrame.Close(code, reason).fold(throw _, identity))
+              .unsafeRunSync()
+          override def onMessage(conn: WebSocket, message: String) =
+            ref.update(_ :+ WebSocketFrame.Text(message)).unsafeRunSync()
+          override def onMessage(conn: WebSocket, message: ByteBuffer) =
+            ref.update(_ :+ WebSocketFrame.Binary(ByteVector(message))).unsafeRunSync()
+          override def onError(conn: WebSocket, ex: Exception) = println(s"WS error $ex")
+          override def onStart() = {
+            val req = WSRequest(uri"ws://localhost:8080")
+            val p = for {
+              _ <- webSocket.connect(req).use { conn =>
+                conn.send(WSFrame.Text("hi blaze"))
+              }
+              _ <- Timer[IO].sleep(1.seconds)
+              _ <- webSocket.connectHighLevel(req).use { conn =>
+                conn.send(WSFrame.Text("hey blaze"))
+              }
+              _ <- Timer[IO].sleep(1.seconds)
+              _ <- finished.complete(())
+            } yield ()
+            p.unsafeRunAsync(_ => ())
           }
-          BlazeServerBuilder[IO]
-            .bindHttp(8080)
-            .withHttpApp(routes.orNotFound)
-            .resource
-            .use { _ =>
-              val req = WSRequest(uri"ws://localhost:8080")
-              for {
-                _ <- webSocket.connect(req).use { conn =>
-                  conn.send(WSFrame.Text("hi blaze"))
-                }
-                _ <- Timer[IO].sleep(1.seconds)
-                _ <- webSocket.connectHighLevel(req).use { conn =>
-                  conn.send(WSFrame.Text("hey blaze"))
-                }
-                _ <- Timer[IO].sleep(2.seconds)
-              } yield ()
-            } *> Timer[IO].sleep(2.seconds) *> ref.get
         }
-        .map(
-          _ mustEqual List(
-            WebSocketFrame.Text("hi blaze"),
-            WebSocketFrame.Close(1000, "").fold(throw _, identity),
-            WebSocketFrame.Text("hey blaze"),
-            WebSocketFrame.Close(1000, "").fold(throw _, identity)
-          )
-        )
+        frames <- IO(server.start())
+          .bracket(_ => finished.get *> ref.get)(_ => IO(server.stop(0)))
+      } yield frames mustEqual List(
+        WebSocketFrame.Text("hi blaze"),
+        WebSocketFrame.Close(1000, "").fold(throw _, identity),
+        WebSocketFrame.Text("hey blaze"),
+        WebSocketFrame.Close(1000, "").fold(throw _, identity)
+      )
     }
 
     "send headers" in {

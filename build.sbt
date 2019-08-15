@@ -34,6 +34,7 @@ val reactiveStreamsV = "1.0.2"
 
 val specs2V = "4.7.0"
 val catsEffectTestingV = "0.1.0"
+val javaWebsocketV = "1.4.0"
 
 val kindProjectorV = "0.10.3"
 val betterMonadicForV = "0.3.1"
@@ -68,7 +69,8 @@ lazy val commonSettings = Seq(
     "org.specs2"                  %% "specs2-scalacheck"              % specs2V            % Test,
     "com.codecommit"              %% "cats-effect-testing-specs2"     % catsEffectTestingV % Test,
     "org.http4s"                  %% "http4s-dsl"                     % http4sV            % Test,
-    "org.http4s"                  %% "http4s-blaze-server"            % http4sV            % Test
+    "org.http4s"                  %% "http4s-blaze-server"            % http4sV            % Test,
+    "org.java-websocket"          %  "Java-WebSocket"                 % javaWebsocketV     % Test
   ),
 
   git.remoteRepo := "git@github.com:http4s/http4s-jdk-http-client.git",
