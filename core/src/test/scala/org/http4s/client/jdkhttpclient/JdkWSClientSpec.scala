@@ -128,9 +128,9 @@ class JdkWSClientSpec extends Specification with CatsEffect {
                 _ <- webSocket.connectHighLevel(req).use { conn =>
                   conn.send(WSFrame.Text("hey blaze"))
                 }
-                _ <- Timer[IO].sleep(4.seconds)
+                _ <- Timer[IO].sleep(2.seconds)
               } yield ()
-            } *> ref.get
+            } *> Timer[IO].sleep(2.seconds) *> ref.get
         }
         .map(
           _ mustEqual List(
