@@ -62,6 +62,7 @@ lazy val commonSettings = Seq(
     "co.fs2"                      %% "fs2-reactive-streams"           % fs2V,
     "org.http4s"                  %% "http4s-client"                  % http4sV,
     "org.reactivestreams"         %  "reactive-streams-flow-adapters" % reactiveStreamsV,
+    "org.http4s"                  %% "http4s-blaze-server"            % http4sV,
     
     "org.http4s"                  %% "http4s-testing"                 % http4sV            % Test,
     "org.specs2"                  %% "specs2-core"                    % specs2V            % Test,
