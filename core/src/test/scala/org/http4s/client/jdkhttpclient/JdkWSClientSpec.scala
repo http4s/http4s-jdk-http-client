@@ -123,11 +123,11 @@ class JdkWSClientSpec extends Specification with CatsEffect {
           .use { _ =>
             val req = WSRequest(uri"ws://localhost:8080")
             for {
-              _ <- webSocket.connect(req).use { conn =>
-                conn.send(WSFrame.Text("hi blaze"))
-              }
-              _ <- expect(WebSocketFrame.Text("hi blaze"))
-              _ <- expect(WebSocketFrame.Close(1000, "").fold(throw _, identity))
+              // _ <- webSocket.connect(req).use { conn =>
+              //   conn.send(WSFrame.Text("hi blaze"))
+              // }
+              // _ <- expect(WebSocketFrame.Text("hi blaze"))
+              // _ <- expect(WebSocketFrame.Close(1000, "").fold(throw _, identity))
               _ <- webSocket.connectHighLevel(req).use { conn =>
                 conn.send(WSFrame.Text("hey blaze"))
               }
