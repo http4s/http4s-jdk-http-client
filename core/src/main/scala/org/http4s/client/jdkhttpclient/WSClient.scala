@@ -143,21 +143,22 @@ object WSClient {
       s.pull.uncons1.flatMap {
         case Some((wsf, ss)) =>
           wsf match {
-            case WSFrame.Text(t, true) =>
-              Pull.output1 {
-                val sb = new StringBuilder
-                text.iterator.foreach(sb ++= _)
-                sb ++= t
-                WSFrame.Text(sb.mkString)
-              } >> go(ss, Chain.empty, binary)
-            case WSFrame.Text(t, false) => go(ss, text :+ t, binary)
-            case WSFrame.Binary(b, true) =>
-              Pull.output1(WSFrame.Binary(binary ++ b)) >> go(
-                ss,
-                text,
-                ByteVector.empty
-              )
-            case WSFrame.Binary(b, false) => go(ss, text, binary ++ b)
+            case WSFrame.Text(t, finalFrame) =>
+              val nextText = text :+ t
+              if (finalFrame)
+                Pull.output1 {
+                  val sb = new StringBuilder(nextText.foldMap(_.length))
+                  nextText.iterator.foreach(sb ++= _)
+                  WSFrame.Text(sb.mkString)
+                } >> go(ss, Chain.empty, binary)
+              else
+                go(ss, nextText, binary)
+            case WSFrame.Binary(b, finalFrame) =>
+              val nextBinary = binary ++ b
+              if (finalFrame)
+                Pull.output1(WSFrame.Binary(nextBinary)) >> go(ss, text, ByteVector.empty)
+              else
+                go(ss, text, nextBinary)
           }
         case None => Pull.done
       }
