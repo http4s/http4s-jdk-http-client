@@ -110,7 +110,10 @@ class JdkWSClientSpec extends Specification with CatsEffect {
       Queue.unbounded[IO, WebSocketFrame].flatMap { queue =>
         val routes = HttpRoutes.of[IO] {
           case GET -> Root =>
-            WebSocketBuilder[IO].build(Stream.empty, _.evalTap(wsf => IO(System.out.println(wsf))).evalMap(queue.enqueue1))
+            WebSocketBuilder[IO].build(
+              Stream.empty,
+              _.evalTap(wsf => IO(System.out.println(wsf))).evalMap(queue.enqueue1)
+            )
         }
 
         def expect(wsf: WebSocketFrame) =
