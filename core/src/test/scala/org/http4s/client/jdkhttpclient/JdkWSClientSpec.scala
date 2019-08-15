@@ -5,6 +5,7 @@ import cats.effect.concurrent.Ref
 import cats.effect.specs2.CatsEffect
 import cats.implicits._
 import fs2.Stream
+import fs2.concurrent.Queue
 import org.http4s._
 import org.http4s.dsl.io._
 import org.http4s.implicits._
@@ -12,10 +13,9 @@ import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.websocket._
 import org.http4s.websocket.WebSocketFrame
 import org.specs2.mutable.Specification
-import scodec.bits.ByteVector
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import scodec.bits.ByteVector
 
 class JdkWSClientSpec extends Specification with CatsEffect {
 
@@ -107,39 +107,35 @@ class JdkWSClientSpec extends Specification with CatsEffect {
     }
 
     "automatically close the connection" in {
-      Ref[IO]
-        .of(List.empty[WebSocketFrame])
-        .flatMap { ref =>
-          val routes = HttpRoutes.of[IO] {
-            case GET -> Root =>
-              WebSocketBuilder[IO].build(Stream.empty, _.evalMap(wsf => ref.update(_ :+ wsf)))
-          }
-          BlazeServerBuilder[IO]
-            .bindHttp(8080)
-            .withHttpApp(routes.orNotFound)
-            .resource
-            .use { _ =>
-              val req = WSRequest(uri"ws://localhost:8080")
-              for {
-                _ <- webSocket.connect(req).use { conn =>
-                  conn.send(WSFrame.Text("hi blaze"))
-                }
-                _ <- Timer[IO].sleep(1.seconds)
-                _ <- webSocket.connectHighLevel(req).use { conn =>
-                  conn.send(WSFrame.Text("hey blaze"))
-                }
-                _ <- Timer[IO].sleep(2.seconds)
-              } yield ()
-            } *> Timer[IO].sleep(2.seconds) *> ref.get
+      Queue.unbounded[IO, WebSocketFrame].flatMap { queue =>
+        val routes = HttpRoutes.of[IO] {
+          case GET -> Root =>
+            WebSocketBuilder[IO].build(Stream.empty, _.evalMap(queue.enqueue1))
         }
-        .map(
-          _ mustEqual List(
-            WebSocketFrame.Text("hi blaze"),
-            WebSocketFrame.Close(1000, "").fold(throw _, identity),
-            WebSocketFrame.Text("hey blaze"),
-            WebSocketFrame.Close(1000, "").fold(throw _, identity)
-          )
-        )
+
+        def expect(wsf: WebSocketFrame) =
+          queue.dequeue1.timeout(1.second).map(_ must_== wsf)
+
+        BlazeServerBuilder[IO]
+          .bindHttp(8080)
+          .withHttpApp(routes.orNotFound)
+          .resource
+          .use { _ =>
+            val req = WSRequest(uri"ws://localhost:8080")
+            for {
+              _ <- webSocket.connect(req).use { conn =>
+                conn.send(WSFrame.Text("hi blaze"))
+              }
+              _ <- expect(WebSocketFrame.Text("hi blaze"))
+              _ <- expect(WebSocketFrame.Close(1000, "").fold(throw _, identity))
+              _ <- webSocket.connectHighLevel(req).use { conn =>
+                conn.send(WSFrame.Text("hey blaze"))
+              }
+              _ <- expect(WebSocketFrame.Text("hey blaze"))
+              _ <- expect(WebSocketFrame.Close(1000, "").fold(throw _, identity))
+            } yield ok
+          }
+      }
     }
 
     "send headers" in {
