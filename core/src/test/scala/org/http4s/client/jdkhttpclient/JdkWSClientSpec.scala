@@ -32,7 +32,8 @@ class JdkWSClientSpec extends Specification with CatsEffect {
           case GET -> Root =>
             WebSocketBuilder[IO].build(
               Stream.empty,
-              _.evalTap(wsf => IO(System.out.println(wsf))).evalMap(queue.enqueue1)
+              _.evalTap(wsf => IO(System.out.println("RCV" + wsf)))
+                .evalMap(queue.enqueue1(_) *> IO.delay(println("enqueued")))
             )
         }
 
