@@ -75,6 +75,7 @@ pool, and should be passed as an argument to code that uses it:
 import cats.effect._
 import cats.implicits._
 import org.http4s._
+import org.http4s.implicits._
   
 def fetchStatus[F[_]](c: Client[F], uri: Uri): F[Status] =
   c.status(Request[F](Method.GET, uri = uri))
