@@ -136,12 +136,8 @@ http4s/http4s-jdk-http-client
 <ul>
   <li><a href="index.html#http4s-jdk-http-client" class="header">http4s-jdk-http-client</a>
   <ul>
-    <li><a href="index.html#installation" class="header">Installation</a></li>
-    <li><a href="index.html#compatibility" class="header">Compatibility</a></li>
-    <li><a href="index.html#creating-the-client" class="header">Creating the client</a></li>
-    <li><a href="index.html#sharing" class="header">Sharing</a></li>
-    <li><a href="index.html#shutdown" class="header">Shutdown</a></li>
-    <li><a href="index.html#further-reading" class="header">Further reading</a></li>
+    <li><a href="index.html#http-client" class="header">HTTP client</a></li>
+    <li><a href="index.html#websocket-client" class="header">Websocket client</a></li>
   </ul></li>
 </ul>
 </nav>
@@ -165,12 +161,8 @@ http4s/http4s-jdk-http-client
 <ul>
   <li><a href="index.html#http4s-jdk-http-client" class="header">http4s-jdk-http-client</a>
   <ul>
-    <li><a href="index.html#installation" class="header">Installation</a></li>
-    <li><a href="index.html#compatibility" class="header">Compatibility</a></li>
-    <li><a href="index.html#creating-the-client" class="header">Creating the client</a></li>
-    <li><a href="index.html#sharing" class="header">Sharing</a></li>
-    <li><a href="index.html#shutdown" class="header">Shutdown</a></li>
-    <li><a href="index.html#further-reading" class="header">Further reading</a></li>
+    <li><a href="index.html#http-client" class="header">HTTP client</a></li>
+    <li><a href="index.html#websocket-client" class="header">Websocket client</a></li>
   </ul></li>
 </ul>
 </nav>
@@ -182,22 +174,23 @@ http4s/http4s-jdk-http-client
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
 <h1><a href="#http4s-jdk-http-client" name="http4s-jdk-http-client" class="anchor"><span class="anchor-link"></span></a>http4s-jdk-http-client</h1>
-<p><a href="https://travis-ci.com/http4s/http4s-jdk-http-client"><img src="https://travis-ci.com/http4s/http4s-jdk-http-client.svg?branch=master" alt="Build Status" /></a> <a href="https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_2.12"><img src="https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_2.12/badge.svg" alt="Maven Central" /></a></p>
-<p><code>http4s-jdk-http-client</code> is a <a href="https://http4s.org/v0.21.0-M1/client/">http4s-client</a> implementation based on the <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpClient.html"><code>java.net.http.HttpClient</code></a> introduced in Java 11.</p>
-<h2><a href="#installation" name="installation" class="anchor"><span class="anchor-link"></span></a>Installation</h2>
+<p><a href="https://travis-ci.com/http4s/http4s-jdk-http-client"><img src="https://travis-ci.com/http4s/http4s-jdk-http-client.svg?branch=master" alt="Build Status" /></a> <a href="https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_2.12"><img src="https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_2.12/badge.svg" alt="Maven Central" /></a> <a href="https://javadoc-badge.appspot.com/org.http4s/http4s-jdk-http-client_2.12"><img src="https://javadoc-badge.appspot.com/org.http4s/http4s-jdk-http-client_2.12.svg?label=scaladoc" alt="Scaladoc" /></a></p>
+<h2><a href="#http-client" name="http-client" class="anchor"><span class="anchor-link"></span></a>HTTP client</h2>
+<p><code>http4s-jdk-http-client</code> contains a <a href="https://http4s.org/v0.21/client/">http4s-client</a> implementation based on the <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpClient.html"><code>java.net.http.HttpClient</code></a> introduced in Java 11.</p>
+<h3><a href="#installation" name="installation" class="anchor"><span class="anchor-link"></span></a>Installation</h3>
 <p>To use http4s-jdk-http-client in an existing SBT project, add the following dependency to your <code>build.sbt</code>:</p>
 <pre class="prettyprint"><code class="language-scala">libraryDependencies ++= Seq(
   &quot;org.http4s&quot; %% &quot;http4s-jdk-http-client&quot; % &quot;0.2.0-SNAPSHOT&quot;
 )
 </code></pre>
-<h2><a href="#compatibility" name="compatibility" class="anchor"><span class="anchor-link"></span></a>Compatibility</h2>
+<h3><a href="#compatibility" name="compatibility" class="anchor"><span class="anchor-link"></span></a>Compatibility</h3>
 <ul>
   <li>Requires Java 11 or greater</li>
-  <li>Built for Scala 2.11, 2.12 and 2.13</li>
+  <li>Built for Scala 2.12 and 2.13</li>
   <li>Works with http4s-client-0.21.0-M1</li>
 </ul>
-<h2><a href="#creating-the-client" name="creating-the-client" class="anchor"><span class="anchor-link"></span></a>Creating the client</h2>
-<h3><a href="#simple" name="simple" class="anchor"><span class="anchor-link"></span></a>Simple</h3>
+<h3><a href="#creating-the-client" name="creating-the-client" class="anchor"><span class="anchor-link"></span></a>Creating the client</h3>
+<h4><a href="#simple" name="simple" class="anchor"><span class="anchor-link"></span></a>Simple</h4>
 <p>A default JDK HTTP client can be created with a call to <code>simple</code> for any <a href="https://typelevel.org/cats-effect/typeclasses/concurrent-effect.html"><code>ConcurrentEffect</code></a> type, such as <a href="https://typelevel.org/cats-effect/datatypes/io.html"><code>cats.effect.IO</code></a>:</p>
 <pre class="prettyprint"><code class="language-scala">import cats.effect.IO
 import org.http4s.client.Client
@@ -212,7 +205,7 @@ implicit val cs: cats.effect.ContextShift[IO] = IO.contextShift(global)
 
 val client: IO[Client[IO]] = JdkHttpClient.simple[IO]
 </code></pre>
-<h3><a href="#custom-clients" name="custom-clients" class="anchor"><span class="anchor-link"></span></a>Custom clients</h3>
+<h4><a href="#custom-clients" name="custom-clients" class="anchor"><span class="anchor-link"></span></a>Custom clients</h4>
 <p>A JDK HTTP client can be passed to <code>JdkHttpClient.apply</code> for use as an http4s-client backend. It is a good idea to create the <code>HttpClient</code> in an effect, as it creates a default executor and SSL context:</p>
 <pre class="prettyprint"><code class="language-scala">import java.net.{InetSocketAddress, ProxySelector}
 import java.net.http.HttpClient
@@ -224,7 +217,7 @@ val client0: IO[Client[IO]] = IO {
     .build()
 }.map(JdkHttpClient(_))
 </code></pre>
-<h2><a href="#sharing" name="sharing" class="anchor"><span class="anchor-link"></span></a>Sharing</h2>
+<h3><a href="#sharing" name="sharing" class="anchor"><span class="anchor-link"></span></a>Sharing</h3>
 <p>The client instance contains shared resources such as a connection pool, and should be passed as an argument to code that uses it:</p>
 <pre class="prettyprint"><code class="language-scala">import cats.effect._
 import cats.implicits._
@@ -237,16 +230,86 @@ client
   .flatMap(c =&gt; fetchStatus(c, uri&quot;https://http4s.org/&quot;))
   .attempt
   .unsafeRunSync()
-// res0: Either[Throwable, Status] = Right(Status(200))
+// res1: Either[Throwable, Status] = Right(Status(200))
 </code></pre><div class="callout warning "><div class="callout-title">Failure to share</div>
 <p>Contrast with this alternate definition of <code>fetchStatus</code>, which would create a new <code>HttpClient</code> instance on every invocation:</p>
 <pre class="prettyprint"><code class="language-scala">def fetchStatusInefficiently[F[_]: ConcurrentEffect](uri: Uri): F[Status] =
   JdkHttpClient.simple[F].flatMap(_.status(Request[F](Method.GET, uri = uri)))
 </code></pre></div>
-<h2><a href="#shutdown" name="shutdown" class="anchor"><span class="anchor-link"></span></a>Shutdown</h2>
+<h3><a href="#shutdown" name="shutdown" class="anchor"><span class="anchor-link"></span></a>Shutdown</h3>
 <p>Clients created with this back end do not need to be shut down.</p>
-<h2><a href="#further-reading" name="further-reading" class="anchor"><span class="anchor-link"></span></a>Further reading</h2>
-<p>For more details on the http4s-client, please see the [core client documentation][client].</p>
+<h3><a href="#further-reading" name="further-reading" class="anchor"><span class="anchor-link"></span></a>Further reading</h3>
+<p>For more details on the http4s-client, please see the <a href="https://http4s.org/v0.21/client/">core client documentation</a>.</p>
+<h2><a href="#websocket-client" name="websocket-client" class="anchor"><span class="anchor-link"></span></a>Websocket client</h2>
+<p>This package also contains a functional websocket client. Please note that the API may change in the future.</p>
+<h3><a href="#creation" name="creation" class="anchor"><span class="anchor-link"></span></a>Creation</h3>
+<p>A <code>WSClient</code> is created using an <code>HttpClient</code> as above. It is encouraged to use the same <code>HttpClient</code> to construct a <code>Client[F]</code> and a <code>WSClient[F]</code>.</p>
+<pre class="prettyprint"><code class="language-scala">import org.http4s.client.jdkhttpclient._
+
+val (http, webSocket) =
+  IO(HttpClient.newHttpClient())
+    .map { httpClient =&gt;
+      (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient))
+    }
+    .unsafeRunSync()
+// http: Client[IO] = org.http4s.client.Client$$anon$1@1190cd93
+// webSocket: WSClient[IO] = org.http4s.client.jdkhttpclient.WSClient$$anon$1@27c34d84
+</code></pre>
+<p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
+<h3><a href="#overview" name="overview" class="anchor"><span class="anchor-link"></span></a>Overview</h3>
+<p>We have the following websocket frame hierarchy:</p>
+<ul>
+  <li><code>WSFrame</code></li>
+  <li><code>WSControlFrame</code>
+    <ul>
+      <li><code>WSFrame.Close</code></li>
+      <li><code>WSFrame.Ping</code></li>
+      <li><code>WSFrame.Pong</code></li>
+    </ul>
+  </li>
+  <li><code>WSDataFrame</code>
+    <ul>
+      <li><code>WSFrame.Text</code></li>
+      <li><code>WSFrame.Binary</code></li>
+    </ul>
+  </li>
+</ul>
+<p>There are two connection modes: &ldquo;low-level&rdquo; and &ldquo;high-level&rdquo;. Both manage the lifetime of a websocket connection via a <a href="https://typelevel.org/cats-effect/datatypes/resource.html"><code>Resource</code></a>. In the low-level mode, you can send and have to receive arbitrary <code>WSFrame</code>s. The high-level mode does the following things for you:</p>
+<ul>
+  <li>Hides the control frames (you can still send Ping and Close frames).</li>
+  <li>Responds to Ping frames with Pongs and echoes Close frames (the received Close frame is exposed  as a <a href="https://typelevel.org/cats-effect/api/cats/effect/concurrent/TryableDeferred.html"><code>TryableDeferred</code></a>). In fact, this currently also the case for the  &ldquo;low-level&rdquo; mode, but this will change when other websocket backends are added.</li>
+  <li>Groups the data frames by their <code>last</code> attribute.</li>
+</ul>
+<h3><a href="#usage-example" name="usage-example" class="anchor"><span class="anchor-link"></span></a>Usage example</h3>
+<p>We use the &ldquo;high-level&rdquo; connection mode to build a simple websocket app.</p>
+<pre class="prettyprint"><code class="language-scala">webSocket
+  .connectHighLevel(WSRequest(uri&quot;wss://echo.websocket.org&quot;))
+  .use { conn =&gt;
+    for {
+      // send a single Text frame
+      _ &lt;- conn.send(WSFrame.Text(&quot;reality&quot;))
+      // send multiple frames (both Text and Binary are possible)
+      // &quot;faster&quot; than individual `send` calls
+      _ &lt;- conn.sendMany(List(
+        WSFrame.Text(&quot;is often&quot;),
+        WSFrame.Text(&quot;disappointing.&quot;)
+      ))
+      received &lt;- conn
+        // a backpressured stream of incoming frames
+        .receiveStream
+        // we do not care about Binary frames (and will never receive any)
+        .collect { case WSFrame.Text(str, _) =&gt; str }
+        // send back the modified text
+        .evalTap(str =&gt; conn.send(WSFrame.Text(str.toUpperCase)))
+        .take(6)
+        .compile
+        .toList
+    } yield received.mkString(&quot; &quot;)
+  } // the connection is closed here
+  .unsafeRunSync()
+// res2: String = &quot;reality is often disappointing. REALITY IS OFTEN DISAPPOINTING.&quot;
+</code></pre>
+<p>For an overview of all options and functions visit the <a href="https://static.javadoc.io/org.http4s/http4s-jdk-http-client_2.12/0.2.0-SNAPSHOT/org/http4s/client/jdkhttpclient/index.html">scaladoc</a>.</p>
 </div>
 <div>
 <a href="https://github.com/http4s/http4s-jdk-http-client/tree/master/docs/target/mdoc/index.md" title="Edit this page" class="md-source-file md-edit">
