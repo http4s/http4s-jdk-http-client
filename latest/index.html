@@ -187,7 +187,7 @@ http4s/http4s-jdk-http-client
 <ul>
   <li>Requires Java 11 or greater</li>
   <li>Built for Scala 2.12 and 2.13</li>
-  <li>Works with http4s-client-0.21.0-M1</li>
+  <li>Works with http4s-client-0.21.0-M4</li>
 </ul>
 <h3><a href="#creating-the-client" name="creating-the-client" class="anchor"><span class="anchor-link"></span></a>Creating the client</h3>
 <h4><a href="#simple" name="simple" class="anchor"><span class="anchor-link"></span></a>Simple</h4>
@@ -222,6 +222,7 @@ val client0: IO[Client[IO]] = IO {
 <pre class="prettyprint"><code class="language-scala">import cats.effect._
 import cats.implicits._
 import org.http4s._
+import org.http4s.implicits._
   
 def fetchStatus[F[_]](c: Client[F], uri: Uri): F[Status] =
   c.status(Request[F](Method.GET, uri = uri))
@@ -252,8 +253,8 @@ val (http, webSocket) =
       (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient))
     }
     .unsafeRunSync()
-// http: Client[IO] = org.http4s.client.Client$$anon$1@1190cd93
-// webSocket: WSClient[IO] = org.http4s.client.jdkhttpclient.WSClient$$anon$1@27c34d84
+// http: Client[IO] = org.http4s.client.Client$$anon$1@55e0c972
+// webSocket: WSClient[IO] = org.http4s.client.jdkhttpclient.WSClient$$anon$1@1a9e3552
 </code></pre>
 <p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
 <h3><a href="#overview" name="overview" class="anchor"><span class="anchor-link"></span></a>Overview</h3>
