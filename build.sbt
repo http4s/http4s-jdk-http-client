@@ -43,7 +43,7 @@ val betterMonadicForV = "0.3.1"
 lazy val commonSettings = Seq(
   organization := "org.http4s",
 
-  scalaVersion := "2.12.8",
+  scalaVersion := "2.12.9",
   crossScalaVersions := Seq(scalaVersion.value, "2.13.0"),
   scalacOptions += "-Yrangepos",
 
