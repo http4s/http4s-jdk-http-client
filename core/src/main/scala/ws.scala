@@ -70,10 +70,9 @@ private[http4s] class Http4sWSStage[F[_]](
         case Closed => (Closed, false)
       }
       .flatMap {
-        case true => writeFrame(c, trampoline)
+        case true => writeFrame(c, trampoline).guarantee(deadSignal.set(true))
         case false => F.unit
       }
-      .guarantee(deadSignal.set(true))
 
   /** Read from our websocket.
     *
@@ -118,15 +117,12 @@ private[http4s] class Http4sWSStage[F[_]](
   override protected def stageStartup(): Unit = {
     super.stageStartup()
 
-    // Effect to send a close to the other endpoint
-    val sendClose: F[Unit] = F.delay(closePipeline(None))
-
     val wsStream = inputstream
       .through(ws.receive)
       .concurrently(ws.send.through(snk).drain) //We don't need to terminate if the send stream terminates.
       .interruptWhen(deadSignal)
       .onFinalize(ws.onClose.attempt.void) //Doing it this way ensures `sendClose` is sent no matter what
-      .onFinalize(sendClose)
+      .onFinalize(maybeSendClose(NormalClose))
       .compile
       .drain
 
@@ -140,19 +136,6 @@ private[http4s] class Http4sWSStage[F[_]](
         IO.unit
     }
   }
-
-  // #2735
-  // stageShutdown can be called from within an effect, at which point there exists the risk of a deadlock if
-  // 'unsafeRunSync' is called and all threads are involved in tearing down a connection.
-  override protected def stageShutdown(): Unit =
-    F.toIO(maybeSendClose(NormalClose)).unsafeRunAsync {
-      case Left(t) =>
-        logger.error(t)("Error setting dead signal")
-        super.stageShutdown()
-      case Right(_) =>
-        ()
-        super.stageShutdown()
-    }
 }
 
 object Http4sWSStage {
