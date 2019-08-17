@@ -64,13 +64,16 @@ private[http4s] class Http4sWSStage[F[_]](
   }
 
   private def maybeSendClose(c: Close): F[Unit] =
-    state.modify {
-      case Open => (Closed, true)
-      case Closed => (Closed, false)
-    }.flatMap {
-      case true => writeFrame(c, trampoline)
-      case false => F.unit
-    }.guarantee(deadSignal.set(true))
+    state
+      .modify {
+        case Open => (Closed, true)
+        case Closed => (Closed, false)
+      }
+      .flatMap {
+        case true => writeFrame(c, trampoline)
+        case false => F.unit
+      }
+      .guarantee(deadSignal.set(true))
 
   /** Read from our websocket.
     *
