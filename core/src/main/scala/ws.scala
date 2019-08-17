@@ -3,6 +3,8 @@ package blazecore
 package websocket
 
 import cats.effect._
+import cats.effect.concurrent.Ref
+import cats.effect.implicits._
 import cats.implicits._
 import fs2._
 import fs2.concurrent.SignallingRef
@@ -18,28 +20,31 @@ import scala.util.{Failure, Success}
 
 private[http4s] class Http4sWSStage[F[_]](
     ws: WebSocket[F],
-    sentClose: AtomicBoolean,
+    _sentClose: AtomicBoolean,
     deadSignal: SignallingRef[F, Boolean]
 )(implicit F: ConcurrentEffect[F], val ec: ExecutionContext)
     extends TailStage[WebSocketFrame] {
+  import Http4sWSStage._
+
+  val _ = _sentClose
 
   def name: String = "Http4s WebSocket Stage"
 
+  private val state = Ref.unsafe[F, State](Open)
+
   //////////////////////// Source and Sink generators ////////////////////////
   def snk: Pipe[F, WebSocketFrame, Unit] = _.evalMap { frame =>
-    F.delay(sentClose.get()).flatMap { wasCloseSent =>
-      if (!wasCloseSent) {
+    state.get.flatMap {
+      case Open =>
         frame match {
           case c: Close =>
-            F.delay(sentClose.compareAndSet(false, true))
-              .flatMap(cond => if (cond) writeFrame(c, directec) else F.unit)
+            maybeSendClose(c)
           case _ =>
             writeFrame(frame, directec)
         }
-      } else {
+      case Closed =>
         //Close frame has been sent. Send no further data
         F.unit
-      }
     }
   }
 
@@ -53,10 +58,19 @@ private[http4s] class Http4sWSStage[F[_]](
 
   private[this] def readFrameTrampoline: F[WebSocketFrame] = F.async[WebSocketFrame] { cb =>
     channelRead().onComplete {
-      case Success(ws) => println("READ " + ws); cb(Right(ws))
+      case Success(ws) => cb(Right(ws))
       case Failure(exception) => cb(Left(exception))
     }(trampoline)
   }
+
+  private def maybeSendClose(c: Close): F[Unit] =
+    state.modify {
+      case Open => (Closed, true)
+      case Closed => (Closed, false)
+    }.flatMap {
+      case true => writeFrame(c, trampoline)
+      case false => F.unit
+    }.guarantee(deadSignal.set(true))
 
   /** Read from our websocket.
     *
@@ -72,20 +86,10 @@ private[http4s] class Http4sWSStage[F[_]](
     *
     * @return A websocket frame, or a possible IO error.
     */
-  private[this] def handleRead(): F[WebSocketFrame] = {
-    def maybeSendClose(c: Close): F[Unit] =
-      F.delay(sentClose.compareAndSet(false, true)).flatMap { cond =>
-        if (cond) writeFrame(c, trampoline)
-        else F.unit
-      } >> deadSignal.set(true)
-
+  private[this] def handleRead(): F[WebSocketFrame] =
     readFrameTrampoline.flatMap {
       case c: Close =>
-        for {
-          s <- F.delay(sentClose.get())
-          //If we sent a close signal, we don't need to reply with one
-          _ <- if (s) deadSignal.set(true) else maybeSendClose(c)
-        } yield c
+        maybeSendClose(c).as(c)
       case Ping(d) =>
         //Reply to ping frame immediately
         writeFrame(Pong(d), trampoline) >> handleRead()
@@ -95,7 +99,6 @@ private[http4s] class Http4sWSStage[F[_]](
       case rest =>
         F.pure(rest)
     }
-  }
 
   /** The websocket input stream
     *
@@ -139,7 +142,6 @@ private[http4s] class Http4sWSStage[F[_]](
   // stageShutdown can be called from within an effect, at which point there exists the risk of a deadlock if
   // 'unsafeRunSync' is called and all threads are involved in tearing down a connection.
   override protected def stageShutdown(): Unit = {
-    println("STAGE SHUTTING DOWN")
     F.toIO(deadSignal.set(true)).unsafeRunAsync {
       case Left(t) => logger.error(t)("Error setting dead signal")
       case Right(_) => ()
@@ -151,4 +153,8 @@ private[http4s] class Http4sWSStage[F[_]](
 object Http4sWSStage {
   def bufferingSegment[F[_]](stage: Http4sWSStage[F]): LeafBuilder[WebSocketFrame] =
     TrunkBuilder(new SerializingStage[WebSocketFrame]).cap(stage)
+
+  private sealed trait State
+  private case object Open extends State
+  private case object Closed extends State
 }
