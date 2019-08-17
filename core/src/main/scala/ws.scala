@@ -93,8 +93,6 @@ private[http4s] class Http4sWSStage[F[_]](
     */
   private[this] def handleRead(): F[WebSocketFrame] =
     readFrameTrampoline.flatMap {
-      case c: Close =>
-        F.delay(println("Read a close")) *> maybeSendClose(c).as(c)
       case Ping(d) =>
         //Reply to ping frame immediately
         writeFrame(Pong(d), trampoline) >> handleRead()
@@ -122,19 +120,16 @@ private[http4s] class Http4sWSStage[F[_]](
 
     val wsStream = inputstream
       .through(ws.receive)
-      .concurrently(ws.send.through(snk).drain) //We don't need to terminate if the send stream terminates.
+      .concurrently(ws.send.through(snk).drain) // We don't need to terminate if the send stream terminates.
       .interruptWhen(deadSignal)
-      .onFinalize(ws.onClose.attempt.void) //Doing it this way ensures `sendClose` is sent no matter what
+      .onFinalize(ws.onClose.attempt.void) // Doing it this way ensures `Close` is sent no matter what
       .onFinalize(maybeSendClose(NormalClose))
       .compile
       .drain
 
     unsafeRunAsync(wsStream) {
       case Left(EOF) =>
-        IO {
-          println("Shutting down after EOF")
-          stageShutdown()
-        }
+        IO(stageShutdown())
       case Left(t) =>
         IO(logger.error(t)("Error closing Web Socket"))
       case Right(_) =>
