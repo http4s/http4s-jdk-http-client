@@ -70,8 +70,11 @@ private[http4s] class Http4sWSStage[F[_]](
         case Closed => (Closed, false)
       }
       .flatMap {
-        case true => writeFrame(c, trampoline).guarantee(deadSignal.set(true))
-        case false => F.unit
+        case true =>
+          F.delay(println("Sent a close")) *> writeFrame(c, trampoline).guarantee(
+            deadSignal.set(true)
+          )
+        case false => F.delay(println("Skipped sending a close"))
       }
 
   /** Read from our websocket.
@@ -91,7 +94,7 @@ private[http4s] class Http4sWSStage[F[_]](
   private[this] def handleRead(): F[WebSocketFrame] =
     readFrameTrampoline.flatMap {
       case c: Close =>
-        maybeSendClose(c).as(c)
+        F.delay(println("Read a close")) *> maybeSendClose(c).as(c)
       case Ping(d) =>
         //Reply to ping frame immediately
         writeFrame(Pong(d), trampoline) >> handleRead()
@@ -128,7 +131,10 @@ private[http4s] class Http4sWSStage[F[_]](
 
     unsafeRunAsync(wsStream) {
       case Left(EOF) =>
-        IO(stageShutdown())
+        IO {
+          println("Shutting down after EOF")
+          stageShutdown()
+        }
       case Left(t) =>
         IO(logger.error(t)("Error closing Web Socket"))
       case Right(_) =>
