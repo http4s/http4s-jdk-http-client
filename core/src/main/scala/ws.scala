@@ -3,7 +3,6 @@ package blazecore
 package websocket
 
 import cats.effect._
-import cats.effect.concurrent.Deferred
 import cats.implicits._
 import fs2._
 import fs2.concurrent.SignallingRef
@@ -19,29 +18,29 @@ import scala.util.{Failure, Success}
 
 private[http4s] class Http4sWSStage[F[_]](
     ws: WebSocket[F],
-    _sentClose: AtomicBoolean,
-    _deadSignal: SignallingRef[F, Boolean]
+    sentClose: AtomicBoolean,
+    deadSignal: SignallingRef[F, Boolean]
 )(implicit F: ConcurrentEffect[F], val ec: ExecutionContext)
     extends TailStage[WebSocketFrame] {
 
-  val _ = (_sentClose, _deadSignal)
-
   def name: String = "Http4s WebSocket Stage"
 
-  private val pendingClose = Deferred.unsafe[F, Close]
-
   //////////////////////// Source and Sink generators ////////////////////////
-  def snk: Pipe[F, WebSocketFrame, Unit] = {
-    def go(s: Stream[F, WebSocketFrame]): Pull[F, Unit, Unit] =
-      s.pull.uncons1.flatMap {
-        case Some((close: Close, _)) =>
-          Pull.eval(pendingClose.complete(close)).attempt >> Pull.done
-        case Some((frame, tail)) =>
-          Pull.eval(writeFrame(frame, directec)) >> go(tail)
-        case None =>
-          Pull.done
+  def snk: Pipe[F, WebSocketFrame, Unit] = _.evalMap { frame =>
+    F.delay(sentClose.get()).flatMap { wasCloseSent =>
+      if (!wasCloseSent) {
+        frame match {
+          case c: Close =>
+            F.delay(sentClose.compareAndSet(false, true))
+              .flatMap(cond => if (cond) writeFrame(c, directec) else F.unit)
+          case _ =>
+            writeFrame(frame, directec)
+        }
+      } else {
+        //Close frame has been sent. Send no further data
+        F.unit
       }
-    go(_).stream
+    }
   }
 
   private[this] def writeFrame(frame: WebSocketFrame, ec: ExecutionContext): F[Unit] =
@@ -73,10 +72,20 @@ private[http4s] class Http4sWSStage[F[_]](
     *
     * @return A websocket frame, or a possible IO error.
     */
-  private[this] def handleRead(): F[WebSocketFrame] =
+  private[this] def handleRead(): F[WebSocketFrame] = {
+    def maybeSendClose(c: Close): F[Unit] =
+      F.delay(sentClose.compareAndSet(false, true)).flatMap { cond =>
+        if (cond) writeFrame(c, trampoline)
+        else F.unit
+      } >> deadSignal.set(true)
+
     readFrameTrampoline.flatMap {
-      case close: Close =>
-        pendingClose.complete(close).attempt.as(close)
+      case c: Close =>
+        for {
+          s <- F.delay(sentClose.get())
+          //If we sent a close signal, we don't need to reply with one
+          _ <- if (s) deadSignal.set(true) else maybeSendClose(c)
+        } yield c
       case Ping(d) =>
         //Reply to ping frame immediately
         writeFrame(Pong(d), trampoline) >> handleRead()
@@ -86,6 +95,7 @@ private[http4s] class Http4sWSStage[F[_]](
       case rest =>
         F.pure(rest)
     }
+  }
 
   /** The websocket input stream
     *
@@ -102,12 +112,15 @@ private[http4s] class Http4sWSStage[F[_]](
   override protected def stageStartup(): Unit = {
     super.stageStartup()
 
+    // Effect to send a close to the other endpoint
+    val sendClose: F[Unit] = F.delay(closePipeline(None))
+
     val wsStream = inputstream
       .through(ws.receive)
-      .onFinalize(F.delay(println("Running onClose")))
-      .onFinalize(ws.onClose.attempt.void)
-      .onFinalize(pendingClose.complete(Close(1000, "").fold(throw _, identity)).attempt.void)
-      .onFinalize(pendingClose.get.flatMap(writeFrame(_, directec)))
+      .concurrently(ws.send.through(snk).drain) //We don't need to terminate if the send stream terminates.
+      .interruptWhen(deadSignal)
+      .onFinalize(ws.onClose.attempt.void) //Doing it this way ensures `sendClose` is sent no matter what
+      .onFinalize(sendClose)
       .compile
       .drain
 
@@ -120,6 +133,17 @@ private[http4s] class Http4sWSStage[F[_]](
         // Nothing to do here
         IO.unit
     }
+  }
+
+  // #2735
+  // stageShutdown can be called from within an effect, at which point there exists the risk of a deadlock if
+  // 'unsafeRunSync' is called and all threads are involved in tearing down a connection.
+  override protected def stageShutdown(): Unit = {
+    F.toIO(deadSignal.set(true)).unsafeRunAsync {
+      case Left(t) => logger.error(t)("Error setting dead signal")
+      case Right(_) => ()
+    }
+    super.stageShutdown()
   }
 }
 
