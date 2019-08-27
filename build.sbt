@@ -1,6 +1,12 @@
+import sbtrelease._
+import com.typesafe.sbt.git.JGit
+
 lazy val `http4s-jdk-http-client` = project.in(file("."))
+  .disablePlugins(MimaPlugin)
   .settings(commonSettings, releaseSettings, skipOnPublishSettings)
-  .settings(crossScalaVersions := Nil)
+  .settings(
+    crossScalaVersions := Nil,
+  )
   .aggregate(core)
 
 lazy val core = project.in(file("core"))
@@ -20,23 +26,25 @@ lazy val contributors = Seq(
   "rossabaker"            -> "Ross A. Baker",
 )
 
-val catsV = "2.0.0-M4"
-val catsEffectV = "2.0.0-M4"
+val catsV = "2.0.0-RC1"
+val catsEffectV = "2.0.0-RC1"
 val fs2V = "1.1.0-M1"
-val http4sV = "0.21.0-M1"
+val http4sV = "0.21.0-M4"
 val reactiveStreamsV = "1.0.2"
 
-val specs2V = "4.6.0"
+val specs2V = "4.7.0"
+val catsEffectTestingV = "0.1.0"
+val javaWebsocketV = "1.4.0"
 
 val kindProjectorV = "0.10.3"
-val betterMonadicForV = "0.3.0"
+val betterMonadicForV = "0.3.1"
 
 // General Settings
 lazy val commonSettings = Seq(
   organization := "org.http4s",
 
   scalaVersion := "2.12.8",
-  crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0"),
+  crossScalaVersions := Seq(scalaVersion.value, "2.13.0"),
   scalacOptions += "-Yrangepos",
 
   scalacOptions in (Compile, doc) ++= Seq(
@@ -56,9 +64,13 @@ lazy val commonSettings = Seq(
     "org.http4s"                  %% "http4s-client"                  % http4sV,
     "org.reactivestreams"         %  "reactive-streams-flow-adapters" % reactiveStreamsV,
     
-    "org.http4s"                  %% "http4s-testing"                 % http4sV       % Test,
-    "org.specs2"                  %% "specs2-core"                    % specs2V       % Test,
-    "org.specs2"                  %% "specs2-scalacheck"              % specs2V       % Test
+    "org.http4s"                  %% "http4s-testing"                 % http4sV            % Test,
+    "org.specs2"                  %% "specs2-core"                    % specs2V            % Test,
+    "org.specs2"                  %% "specs2-scalacheck"              % specs2V            % Test,
+    "com.codecommit"              %% "cats-effect-testing-specs2"     % catsEffectTestingV % Test,
+    "org.http4s"                  %% "http4s-dsl"                     % http4sV            % Test,
+    "org.http4s"                  %% "http4s-blaze-server"            % http4sV            % Test,
+    "org.java-websocket"          %  "Java-WebSocket"                 % javaWebsocketV     % Test
   ),
 
   git.remoteRepo := "git@github.com:http4s/http4s-jdk-http-client.git",
@@ -179,6 +191,7 @@ lazy val mimaSettings = {
   lazy val extraVersions: Set[String] = Set()
 
   Seq(
+    mimaFailOnNoPrevious := false,
     mimaFailOnProblem := mimaVersions(version.value).toList.headOption.isDefined,
     mimaPreviousArtifacts := (mimaVersions(version.value) ++ extraVersions)
       .filterNot(excludedVersions.contains(_))
@@ -190,7 +203,7 @@ lazy val mimaSettings = {
       import com.typesafe.tools.mima.core._
       import com.typesafe.tools.mima.core.ProblemFilters._
       Seq()
-    }
+    },
   )
 }
 
@@ -205,6 +218,8 @@ lazy val docsSettings = {
       "VERSION" -> version.value,
       "BINARY_VERSION" -> binaryVersion(version.value),
       "HTTP4S_VERSION" -> http4sV,
+      "HTTP4S_VERSION_SHORT" -> http4sV.split("\\.").take(2).mkString("."),
+      "SCALA_VERSION" -> CrossVersion.binaryScalaVersion(scalaVersion.value),
       "SCALA_VERSIONS" -> formatCrossScalaVersions((core / crossScalaVersions).value.toList)
     ),
     scalacOptions in mdoc --= Seq(
@@ -217,13 +232,22 @@ lazy val docsSettings = {
     ),
 
     generateNetlifyToml := {
-      val toml = s"""
+      var toml = s"""
            |[[redirects]]
            |  from = "/*"
            |  to = "/latest/:splat"
            |  force = false
            |  status = 302
            |""".stripMargin
+      latestStableVersion(baseDirectory.value).foreach { v =>
+        toml += s"""
+           |[[redirects]]
+           |  from = "/stable/*"
+           |  to = "/${v.string}/:splat"
+           |  force = false
+           |  status = 200
+        """.stripMargin
+      }
       IO.write(target.value / "netlify.toml", toml)
     },
 
@@ -282,5 +306,19 @@ def formatCrossScalaVersions(crossScalaVersions: List[String]): String = {
   }
   go(crossScalaVersions.map(CrossVersion.binaryScalaVersion))
 }
+
+def latestStableVersion(base: File): Option[Version] =
+  JGit(base).tags.collect {
+    case ref if ref.getName.startsWith("refs/tags/v") =>
+      Version(ref.getName.substring("refs/tags/v".size))
+  }.foldLeft(Option.empty[Version]) {
+    case (latest, Some(v)) if v.qualifier.isEmpty =>
+      def patch(v: Version) = v.subversions.drop(1).headOption.getOrElse(0)
+      import Ordering.Implicits._
+      implicit val versionOrdering: Ordering[Version] =
+        Ordering[Seq[Int]].on(v => v.major +: v.subversions)
+      Ordering[Option[Version]].max(latest, Option(v))
+    case (latest, _) => latest
+  }
 
 addCommandAlias("validate", ";test ;mimaBinaryIssueFilters ;scalafmtCheckAll ;docs/makeSite")

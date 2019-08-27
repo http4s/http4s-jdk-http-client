@@ -4,6 +4,24 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.2.0-M2 (2019-08-14)
+
+### Enhancements
+
+* [#53](https://github.com/http4s/http4s-jdk-http-client/pull/53): Adds an experimental WebSocket client. In the long term, the plan is to move the `WSClient` interface into http4s-core and unify the client and server frame ADT, but we encourage users to give this a try.
+
+### Documentation
+
+* [#44](https://github.com/http4s/http4s-jdk-http-client/pull/44): Fix supported Scala versions in docs
+* [#45](https://github.com/http4s/http4s-jdk-http-client/pull/45): Generate `/stable` redirect in docs
+
+### Dependency updates
+
+* better-monadic-for-0.3.1
+* cats-2.0.0-RC1
+* cats-effect-2.0.0-RC1
+* http4s-0.21.0-M4
+
 ## v0.2.0-M1 (2019-06-20)
 
 ### Cross-build changes

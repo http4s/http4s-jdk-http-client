@@ -1,12 +1,14 @@
 # http4s-jdk-http-client
 
-[![Build Status](https://travis-ci.com/http4s/http4s-jdk-http-client.svg?branch=master)](https://travis-ci.com/http4s/http4s-jdk-http-client) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_2.12)
+[![Build Status](https://travis-ci.com/http4s/http4s-jdk-http-client.svg?branch=master)](https://travis-ci.com/http4s/http4s-jdk-http-client) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@) [![Scaladoc](https://javadoc-badge.appspot.com/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@.svg?label=scaladoc)](https://javadoc-badge.appspot.com/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@)
 
-`http4s-jdk-http-client` is a [http4s-client] implementation based on
+## HTTP client
+
+`http4s-jdk-http-client` contains a [http4s-client] implementation based on
 the [`java.net.http.HttpClient`][Java HttpClient] introduced in Java
 11.
 
-## Installation
+### Installation
 
 To use http4s-jdk-http-client in an existing SBT project, add the
 following dependency to your `build.sbt`:
@@ -17,21 +19,21 @@ libraryDependencies ++= Seq(
 )
 ```
 
-## Compatibility
+### Compatibility
 
 * Requires Java 11 or greater
 * Built for Scala @SCALA_VERSIONS@
 * Works with http4s-client-@HTTP4S_VERSION@
 
-## Creating the client
+### Creating the client
 
-### Simple
+#### Simple
 
 A default JDK HTTP client can be created with a call to `simple` for
 any [`ConcurrentEffect`][ConcurrentEffect] type, such as
 [`cats.effect.IO`][IO]:
 
-```scala mdoc:silent
+```scala mdoc:silent:reset-class
 import cats.effect.IO
 import org.http4s.client.Client
 import org.http4s.client.jdkhttpclient.JdkHttpClient
@@ -46,7 +48,7 @@ implicit val cs: cats.effect.ContextShift[IO] = IO.contextShift(global)
 val client: IO[Client[IO]] = JdkHttpClient.simple[IO]
 ```
 
-### Custom clients
+#### Custom clients
 
 A JDK HTTP client can be passed to `JdkHttpClient.apply` for use as an
 http4s-client backend.  It is a good idea to create the `HttpClient`
@@ -64,7 +66,7 @@ val client0: IO[Client[IO]] = IO {
 }.map(JdkHttpClient(_))
 ```
 
-## Sharing
+### Sharing
 
 The client instance contains shared resources such as a connection
 pool, and should be passed as an argument to code that uses it:
@@ -73,6 +75,7 @@ pool, and should be passed as an argument to code that uses it:
 import cats.effect._
 import cats.implicits._
 import org.http4s._
+import org.http4s.implicits._
   
 def fetchStatus[F[_]](c: Client[F], uri: Uri): F[Status] =
   c.status(Request[F](Method.GET, uri = uri))
@@ -95,16 +98,101 @@ def fetchStatusInefficiently[F[_]: ConcurrentEffect](uri: Uri): F[Status] =
 
 @@@
 
-## Shutdown
+### Shutdown
 
 Clients created with this back end do not need to be shut down.
 
-## Further reading
+### Further reading
 
 For more details on the http4s-client, please see the [core client
-documentation][client].
+documentation][http4s-client].
 
-[http4s-client]: https://http4s.org/v@HTTP4S_VERSION@/client/
+## Websocket client
+
+This package also contains a functional websocket client. Please note that
+the API may change in the future.
+
+### Creation
+
+A `WSClient` is created
+using an `HttpClient` as above. It is encouraged to use the same `HttpClient`
+to construct a `Client[F]` and a `WSClient[F]`.
+
+```scala mdoc
+import org.http4s.client.jdkhttpclient._
+
+val (http, webSocket) =
+  IO(HttpClient.newHttpClient())
+    .map { httpClient =>
+      (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient))
+    }
+    .unsafeRunSync()
+```
+
+If you do not need an HTTP client, you can also call `JdkWSClient.simple[IO]` as above.
+
+### Overview
+
+We have the following websocket frame hierarchy:
+
+ - `WSFrame`
+   - `WSControlFrame`
+     - `WSFrame.Close`
+     - `WSFrame.Ping`
+     - `WSFrame.Pong`
+   - `WSDataFrame`
+     - `WSFrame.Text`
+     - `WSFrame.Binary`
+
+There are two connection modes: "low-level" and "high-level". Both manage the lifetime of a
+websocket connection via a [`Resource`][Resource].
+In the low-level mode, you can send and have to receive arbitrary `WSFrame`s.
+The high-level mode does the following things for you:
+
+ - Hides the control frames (you can still send Ping and Close frames).
+ - Responds to Ping frames with Pongs and echoes Close frames (the received Close frame is exposed
+   as a [`TryableDeferred`][TryableDeferred]). In fact, this currently also the case for the
+   "low-level" mode, but this will change when other websocket backends are added.
+ - Groups the data frames by their `last` attribute.
+
+### Usage example
+
+We use the "high-level" connection mode to build a simple websocket app.
+
+```scala mdoc
+webSocket
+  .connectHighLevel(WSRequest(uri"wss://echo.websocket.org"))
+  .use { conn =>
+    for {
+      // send a single Text frame
+      _ <- conn.send(WSFrame.Text("reality"))
+      // send multiple frames (both Text and Binary are possible)
+      // "faster" than individual `send` calls
+      _ <- conn.sendMany(List(
+        WSFrame.Text("is often"),
+        WSFrame.Text("disappointing.")
+      ))
+      received <- conn
+        // a backpressured stream of incoming frames
+        .receiveStream
+        // we do not care about Binary frames (and will never receive any)
+        .collect { case WSFrame.Text(str, _) => str }
+        // send back the modified text
+        .evalTap(str => conn.send(WSFrame.Text(str.toUpperCase)))
+        .take(6)
+        .compile
+        .toList
+    } yield received.mkString(" ")
+  } // the connection is closed here
+  .unsafeRunSync()
+```
+
+For an overview of all options and functions visit the [scaladoc].
+
+[http4s-client]: https://http4s.org/v@HTTP4S_VERSION_SHORT@/client/
 [Java HttpClient]: https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpClient.html
 [ConcurrentEffect]: https://typelevel.org/cats-effect/typeclasses/concurrent-effect.html
 [IO]: https://typelevel.org/cats-effect/datatypes/io.html
+[Resource]: https://typelevel.org/cats-effect/datatypes/resource.html
+[TryableDeferred]: https://typelevel.org/cats-effect/api/cats/effect/concurrent/TryableDeferred.html
+[scaladoc]: https://static.javadoc.io/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@/@VERSION@/org/http4s/client/jdkhttpclient/index.html
