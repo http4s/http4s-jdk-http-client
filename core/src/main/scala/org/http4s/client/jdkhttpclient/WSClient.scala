@@ -1,11 +1,11 @@
 package org.http4s.client.jdkhttpclient
 
 import cats._
-import cats.data.Chain
+import cats.data.{Chain, OptionT}
 import cats.effect._
 import cats.effect.concurrent.{Deferred, Ref, TryableDeferred}
 import cats.implicits._
-import fs2.{Pipe, Pull, Stream}
+import fs2.{Pipe, Stream}
 import org.http4s.{Headers, Method, Uri}
 import scodec.bits.ByteVector
 
@@ -76,8 +76,13 @@ trait WSConnectionHighLevel[F[_]] {
   /** Send a Close frame. The sending side of this connection will be closed. */
   def sendClose(reason: String = ""): F[Unit]
 
+  /** Wait for a websocket frame to be received. Returns `None` if the receiving side is closed.
+    * Fragmentation is handled automatically, the `last` attribute can be ignored.
+    */
+  def receive: F[Option[WSDataFrame]]
+
   /** A stream of the incoming websocket frames. */
-  def receiveStream: Stream[F, WSDataFrame]
+  final def receiveStream: Stream[F, WSDataFrame] = Stream.repeatEval(receive).unNoneTerminate
 
   /** The negotiated subprotocol, if any. */
   def subprocotol: Option[String]
@@ -119,50 +124,40 @@ object WSClient {
           override def sendPing(data: ByteVector) = conn.send(WSFrame.Ping(data))
           override def sendClose(reason: String) =
             conn.send(WSFrame.Close(1000, reason)) *> outputOpen.set(false)
-          override def receiveStream: Stream[F, WSDataFrame] =
-            conn.receiveStream
-              .evalTap {
+          override def receive: F[Option[WSDataFrame]] = {
+            def receiveDataFrame: OptionT[F, WSDataFrame] = OptionT(conn.receive).flatMap { wsf =>
+              OptionT.liftF(wsf match {
                 case WSFrame.Ping(data) if respondToPings => conn.send(WSFrame.Pong(data))
                 case wsf: WSFrame.Close =>
                   recvCloseFrame.complete(wsf) *> outputOpen.get.flatMap(conn.send(wsf).whenA(_))
                 case _ => F.unit
+              }) >> (wsf match {
+                case wsdf: WSDataFrame => OptionT.pure[F](wsdf)
+                case _ => receiveDataFrame
+              })
+            }
+            def defrag(text: Chain[String], binary: ByteVector): OptionT[F, WSDataFrame] =
+              receiveDataFrame.flatMap {
+                case WSFrame.Text(t, finalFrame) =>
+                  val nextText = text :+ t
+                  if (finalFrame) {
+                    val sb = new StringBuilder(nextText.foldMap(_.length))
+                    nextText.iterator.foreach(sb ++= _)
+                    OptionT.pure[F](WSFrame.Text(sb.mkString))
+                  } else
+                    defrag(nextText, binary)
+                case WSFrame.Binary(b, finalFrame) =>
+                  val nextBinary = binary ++ b
+                  if (finalFrame)
+                    OptionT.pure[F](WSFrame.Binary(nextBinary))
+                  else
+                    defrag(text, nextBinary)
               }
-              .collect { case wsdf: WSDataFrame => wsdf }
-              .through(groupFrames[F])
+            defrag(Chain.empty, ByteVector.empty).value
+          }
           override def subprocotol: Option[String] = conn.subprotocol
           override def closeFrame: TryableDeferred[F, WSFrame.Close] = recvCloseFrame
         }
     }
-
-  private[jdkhttpclient] def groupFrames[F[_]]: Pipe[F, WSDataFrame, WSDataFrame] = {
-    def go(
-        s: Stream[F, WSDataFrame],
-        text: Chain[String],
-        binary: ByteVector
-    ): Pull[F, WSDataFrame, Unit] =
-      s.pull.uncons1.flatMap {
-        case Some((wsf, ss)) =>
-          wsf match {
-            case WSFrame.Text(t, finalFrame) =>
-              val nextText = text :+ t
-              if (finalFrame)
-                Pull.output1 {
-                  val sb = new StringBuilder(nextText.foldMap(_.length))
-                  nextText.iterator.foreach(sb ++= _)
-                  WSFrame.Text(sb.mkString)
-                } >> go(ss, Chain.empty, binary)
-              else
-                go(ss, nextText, binary)
-            case WSFrame.Binary(b, finalFrame) =>
-              val nextBinary = binary ++ b
-              if (finalFrame)
-                Pull.output1(WSFrame.Binary(nextBinary)) >> go(ss, text, ByteVector.empty)
-              else
-                go(ss, text, nextBinary)
-          }
-        case None => Pull.done
-      }
-    in => go(in, Chain.empty, ByteVector.empty).stream
-  }
 
 }
