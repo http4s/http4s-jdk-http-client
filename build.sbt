@@ -26,14 +26,16 @@ lazy val contributors = Seq(
   "rossabaker"            -> "Ross A. Baker",
 )
 
-val catsV = "2.0.0-RC2"
-val catsEffectV = "2.0.0-RC2"
-val fs2V = "1.1.0-M1"
+val catsV = "2.0.0"
+val catsEffectV = "2.0.0"
+val fs2V = "2.0.0"
+val scodecV = "1.1.12"
 val http4sV = "0.21.0-M4"
-val reactiveStreamsV = "1.0.2"
+val reactiveStreamsV = "1.0.3"
+val vaultV = "2.0.0"
 
 val specs2V = "4.7.1"
-val catsEffectTestingV = "0.1.0"
+val catsEffectTestingV = "0.2.0"
 val javaWebsocketV = "1.4.0"
 
 val kindProjectorV = "0.10.3"
@@ -57,12 +59,15 @@ lazy val commonSettings = Seq(
   addCompilerPlugin("com.olegpy" %% "better-monadic-for" % betterMonadicForV),
   libraryDependencies ++= Seq(
     "org.typelevel"               %% "cats-core"                      % catsV,
+    "org.typelevel"               %% "cats-kernel"                    % catsV,
     "org.typelevel"               %% "cats-effect"                    % catsEffectV,
     "co.fs2"                      %% "fs2-core"                       % fs2V,
-    "co.fs2"                      %% "fs2-io"                         % fs2V,
     "co.fs2"                      %% "fs2-reactive-streams"           % fs2V,
+    "org.scodec"                  %% "scodec-bits"                    % scodecV,
+    "org.http4s"                  %% "http4s-core"                    % http4sV,
     "org.http4s"                  %% "http4s-client"                  % http4sV,
-    "org.reactivestreams"         %  "reactive-streams-flow-adapters" % reactiveStreamsV,
+    "org.reactivestreams"         %  "reactive-streams"               % reactiveStreamsV,
+    "io.chrisdavenport"           %% "vault"                          % vaultV,
     
     "org.http4s"                  %% "http4s-testing"                 % http4sV            % Test,
     "org.specs2"                  %% "specs2-core"                    % specs2V            % Test,
