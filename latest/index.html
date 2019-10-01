@@ -187,7 +187,7 @@ http4s/http4s-jdk-http-client
 <ul>
   <li>Requires Java 11 or greater</li>
   <li>Built for Scala 2.12 and 2.13</li>
-  <li>Works with http4s-client-0.21.0-M4</li>
+  <li>Works with http4s-client-0.21.0-M5</li>
 </ul>
 <h3><a href="#creating-the-client" name="creating-the-client" class="anchor"><span class="anchor-link"></span></a>Creating the client</h3>
 <h4><a href="#simple" name="simple" class="anchor"><span class="anchor-link"></span></a>Simple</h4>
@@ -253,8 +253,8 @@ val (http, webSocket) =
       (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient))
     }
     .unsafeRunSync()
-// http: Client[IO] = org.http4s.client.Client$$anon$1@55951c3b
-// webSocket: WSClient[IO] = org.http4s.client.jdkhttpclient.WSClient$$anon$1@41547cc9
+// http: Client[IO] = org.http4s.client.Client$$anon$1@351730fd
+// webSocket: WSClient[IO] = org.http4s.client.jdkhttpclient.WSClient$$anon$1@4100dbc9
 </code></pre>
 <p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
 <h3><a href="#overview" name="overview" class="anchor"><span class="anchor-link"></span></a>Overview</h3>
