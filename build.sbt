@@ -34,8 +34,8 @@ val http4sV = "0.21.0-M5"
 val reactiveStreamsV = "1.0.3"
 val vaultV = "2.0.0"
 
-val specs2V = "4.7.1"
-val catsEffectTestingV = "0.3.0"
+val specs2V = "4.8.1"
+val catsEffectTestingV = "0.2.0"
 val javaWebsocketV = "1.4.0"
 
 val kindProjectorV = "0.10.3"
