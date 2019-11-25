@@ -1,4 +1,4 @@
-addSbtPlugin("com.github.cb372" % "sbt-explicit-dependencies" % "0.2.10")
+addSbtPlugin("com.github.cb372" % "sbt-explicit-dependencies" % "0.2.11")
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.12")
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.2")
 addSbtPlugin("com.lightbend.paradox" % "sbt-paradox" % "0.6.7")
