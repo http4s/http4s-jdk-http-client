@@ -38,7 +38,6 @@ object WSFrame {
 }
 
 trait WSConnection[F[_]] {
-
   /** Send a single websocket frame. The sending side of this connection has to be open. */
   def send(wsf: WSFrame): F[Unit]
 
@@ -56,11 +55,9 @@ trait WSConnection[F[_]] {
 
   /** The negotiated subprotocol, if any. */
   def subprotocol: Option[String]
-
 }
 
 trait WSConnectionHighLevel[F[_]] {
-
   /** Send a single websocket frame. The sending side of this connection has to be open. */
   def send(wsf: WSDataFrame): F[Unit]
 
@@ -89,11 +86,9 @@ trait WSConnectionHighLevel[F[_]] {
 
   /** The close frame, if available. */
   def closeFrame: TryableDeferred[F, WSFrame.Close]
-
 }
 
 trait WSClient[F[_]] {
-
   /** Establish a websocket connection. It will be closed automatically if necessary. */
   def connect(request: WSRequest): Resource[F, WSConnection[F]]
 
@@ -105,7 +100,6 @@ trait WSClient[F[_]] {
 }
 
 object WSClient {
-
   def defaultImpl[F[_]](
       respondToPings: Boolean
   )(f: WSRequest => Resource[F, WSConnection[F]])(implicit F: Concurrent[F]): WSClient[F] =
@@ -159,5 +153,4 @@ object WSClient {
           override def closeFrame: TryableDeferred[F, WSFrame.Close] = recvCloseFrame
         }
     }
-
 }
