@@ -24,7 +24,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
 class JdkWSClientSpec extends Specification with CatsEffect {
-
   implicit val timer: cats.effect.Timer[IO] = IO.timer(global)
   implicit val cs: cats.effect.ContextShift[IO] = IO.contextShift(global)
 
@@ -179,5 +178,4 @@ class JdkWSClientSpec extends Specification with CatsEffect {
         .map(_ must beSome(true))
     }
   }
-
 }
