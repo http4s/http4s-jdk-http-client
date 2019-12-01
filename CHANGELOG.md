@@ -4,6 +4,26 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.2.0-M4 (2019-12-01)
+
+### Dependency updates
+
+* fs2-2.1.0
+* http4s-0.21.0-M6
+
+## v0.2.0-M3 (2019-10-02)
+
+### Breaking changes
+
+* [#65](https://github.com/http4s/http4s-jdk-http-client/pull/65): Add `receive[F[Option[WSDataFrame]]]` to the high-level interface. `receiveStream` is now final.
+
+### Dependency updates
+
+* cats-2.0.0-RC2
+* fs2-2.0.1
+* http4s-0.21.0-M5
+* scala-2.12.9 (2.12 cross build)
+
 ## v0.2.0-M2 (2019-08-14)
 
 ### Enhancements
