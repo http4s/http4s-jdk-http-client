@@ -20,7 +20,6 @@ import org.http4s.{Header, Headers, HttpVersion, Request, Response, Status}
 import org.reactivestreams.FlowAdapters
 
 object JdkHttpClient {
-
   /**
     * Creates a `Client` from an `HttpClient`. Note that the creation of an `HttpClient` is a
     * side effect.
@@ -34,7 +33,6 @@ object JdkHttpClient {
       jdkHttpClient: HttpClient,
       ignoredHeaders: Set[CaseInsensitiveString] = restrictedHeaders
   )(implicit F: ConcurrentEffect[F]): Client[F] = {
-
     def convertRequest(req: Request[F]): F[HttpRequest] =
       convertHttpVersionFromHttp4s[F](req.httpVersion).map { version =>
         val rb = HttpRequest.newBuilder
@@ -120,5 +118,4 @@ object JdkHttpClient {
       "via",
       "warning"
     ).map(CaseInsensitiveString(_))
-
 }

@@ -19,7 +19,6 @@ import scodec.bits.ByteVector
   * Custom (non-GET) HTTP methods are ignored.
   */
 object JdkWSClient {
-
   /** Create a new `WSClient` backed by a JDK 11+ http client. */
   def apply[F[_]](jdkHttpClient: HttpClient)(implicit F: ConcurrentEffect[F]): WSClient[F] =
     WSClient.defaultImpl(respondToPings = false) {
@@ -132,5 +131,4 @@ object JdkWSClient {
       .unsafeRunSync()
     cf
   }
-
 }
