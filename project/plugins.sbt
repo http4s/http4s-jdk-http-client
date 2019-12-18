@@ -1,6 +1,6 @@
 addSbtPlugin("com.github.cb372" % "sbt-explicit-dependencies" % "0.2.11")
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.12")
-addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.0")
+addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.1")
 addSbtPlugin("com.lightbend.paradox" % "sbt-paradox" % "0.6.7")
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.6.1")
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.3")
