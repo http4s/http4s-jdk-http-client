@@ -253,8 +253,8 @@ val (http, webSocket) =
       (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient))
     }
     .unsafeRunSync()
-// http: Client[IO] = org.http4s.client.Client$$anon$1@5afe092b
-// webSocket: WSClient[IO] = org.http4s.client.jdkhttpclient.WSClient$$anon$1@717e277c
+// http: Client[IO] = org.http4s.client.Client$$anon$1@30454e8c
+// webSocket: WSClient[IO] = org.http4s.client.jdkhttpclient.WSClient$$anon$1@64a0bc8b
 </code></pre>
 <p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
 <h3><a href="#overview" name="overview" class="anchor"><span class="anchor-link"></span></a>Overview</h3>
@@ -311,6 +311,11 @@ val (http, webSocket) =
 // res2: String = &quot;reality is often disappointing. REALITY IS OFTEN DISAPPOINTING.&quot;
 </code></pre>
 <p>For an overview of all options and functions visit the <a href="https://static.javadoc.io/org.http4s/http4s-jdk-http-client_2.12/0.2.0-SNAPSHOT/org/http4s/client/jdkhttpclient/index.html">scaladoc</a>.</p>
+</div>
+<div>
+<a href="https://github.com/http4s/http4s-jdk-http-client/tree/master/docs/target/mdoc/index.md" title="Edit this page" class="md-source-file md-edit">
+Edit this page
+</a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
