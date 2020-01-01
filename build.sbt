@@ -35,7 +35,7 @@ val reactiveStreamsV = "1.0.3"
 val vaultV = "2.0.0"
 
 val specs2V = "4.8.1"
-val catsEffectTestingV = "0.3.0"
+val catsEffectTestingV = "0.4.0"
 val javaWebsocketV = "1.4.0"
 
 val kindProjectorV = "0.10.3"
