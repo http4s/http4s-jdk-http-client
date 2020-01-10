@@ -20,6 +20,7 @@ import org.http4s.{Header, Headers, HttpVersion, Request, Response, Status}
 import org.reactivestreams.FlowAdapters
 
 object JdkHttpClient {
+
   /**
     * Creates a `Client` from an `HttpClient`. Note that the creation of an `HttpClient` is a
     * side effect.
@@ -71,9 +72,8 @@ object JdkHttpClient {
           body = FlowAdapters
             .toPublisher(res.body)
             .toStream[F]
-            .flatMap(
-              bs =>
-                Stream.fromIterator(bs.asScala.map(Chunk.byteBuffer).iterator).flatMap(Stream.chunk)
+            .flatMap(bs =>
+              Stream.fromIterator(bs.asScala.map(Chunk.byteBuffer).iterator).flatMap(Stream.chunk)
             )
         )
       }
@@ -81,9 +81,8 @@ object JdkHttpClient {
     Client[F] { req =>
       Resource.liftF(
         convertRequest(req)
-          .flatMap(
-            r =>
-              fromCompletableFuture(F.delay(jdkHttpClient.sendAsync(r, BodyHandlers.ofPublisher)))
+          .flatMap(r =>
+            fromCompletableFuture(F.delay(jdkHttpClient.sendAsync(r, BodyHandlers.ofPublisher)))
           )
           .flatMap(convertResponse)
       )

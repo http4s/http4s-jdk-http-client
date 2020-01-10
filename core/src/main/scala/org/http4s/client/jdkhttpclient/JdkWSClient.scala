@@ -19,6 +19,7 @@ import scodec.bits.ByteVector
   * Custom (non-GET) HTTP methods are ignored.
   */
 object JdkWSClient {
+
   /** Create a new `WSClient` backed by a JDK 11+ http client. */
   def apply[F[_]](jdkHttpClient: HttpClient)(implicit F: ConcurrentEffect[F]): WSClient[F] =
     WSClient.defaultImpl(respondToPings = false) {
@@ -28,9 +29,8 @@ object JdkWSClient {
             for {
               wsBuilder <- F.delay {
                 val builder = jdkHttpClient.newWebSocketBuilder()
-                val (subprotocols, hs) = headers.toList.partitionEither(
-                  h =>
-                    `Sec-WebSocket-Protocol`.matchHeader(h).fold(h.asRight[String])(_.value.asLeft)
+                val (subprotocols, hs) = headers.toList.partitionEither(h =>
+                  `Sec-WebSocket-Protocol`.matchHeader(h).fold(h.asRight[String])(_.value.asLeft)
                 )
                 hs.foreach { h =>
                   builder.header(h.name.value, h.value); ()

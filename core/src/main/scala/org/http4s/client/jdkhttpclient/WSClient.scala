@@ -38,6 +38,7 @@ object WSFrame {
 }
 
 trait WSConnection[F[_]] {
+
   /** Send a single websocket frame. The sending side of this connection has to be open. */
   def send(wsf: WSFrame): F[Unit]
 
@@ -58,6 +59,7 @@ trait WSConnection[F[_]] {
 }
 
 trait WSConnectionHighLevel[F[_]] {
+
   /** Send a single websocket frame. The sending side of this connection has to be open. */
   def send(wsf: WSDataFrame): F[Unit]
 
@@ -89,6 +91,7 @@ trait WSConnectionHighLevel[F[_]] {
 }
 
 trait WSClient[F[_]] {
+
   /** Establish a websocket connection. It will be closed automatically if necessary. */
   def connect(request: WSRequest): Resource[F, WSConnection[F]]
 
