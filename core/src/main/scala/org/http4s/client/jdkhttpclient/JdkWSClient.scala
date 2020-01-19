@@ -1,14 +1,18 @@
 package org.http4s.client.jdkhttpclient
 
+import java.io.IOException
 import java.net.URI
 import java.net.http.{HttpClient, WebSocket => JWebSocket}
 import java.nio.ByteBuffer
 import java.util.concurrent.{CompletableFuture, CompletionStage}
 
 import cats._
+import cats.data.NonEmptyList
 import cats.effect._
 import cats.effect.concurrent.Semaphore
+import cats.effect.util.CompositeException
 import cats.implicits._
+import fs2.Chunk
 import fs2.concurrent.Queue
 import org.http4s.headers.`Sec-WebSocket-Protocol`
 import org.http4s.internal.fromCompletableFuture
@@ -83,13 +87,23 @@ object JdkWSClient {
               sendSem <- Semaphore[F](1L)
             } yield (webSocket, queue, sendSem)
           } {
-            case (webSocket, _, _) =>
+            case (webSocket, queue, _) =>
               for {
                 isOutputOpen <- F.delay(!webSocket.isOutputClosed)
                 closeOutput = fromCompletableFuture(
                   F.delay(webSocket.sendClose(JWebSocket.NORMAL_CLOSURE, ""))
                 )
-                _ <- closeOutput.whenA(isOutputOpen)
+                _ <- closeOutput.whenA(isOutputOpen).onError {
+                  case e: IOException =>
+                    for {
+                      chunk <- queue.tryDequeueChunk1(10)
+                      errs = Chunk(chunk.flatten.toSeq: _*).flatten.collect { case Left(e) => e }
+                      _ <- F.raiseError[Unit](NonEmptyList.fromFoldable(errs) match {
+                        case Some(nel) => new CompositeException(e, nel)
+                        case None => e
+                      })
+                    } yield ()
+                }
               } yield ()
           }
           .map {
