@@ -5,7 +5,7 @@ import java.nio.ByteBuffer
 
 import cats.effect._
 import cats.effect.concurrent.{Deferred, Ref}
-import cats.effect.specs2.CatsEffect
+import cats.effect.testing.specs2.CatsEffect
 import cats.implicits._
 import fs2.Stream
 import org.http4s._
