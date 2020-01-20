@@ -1,0 +1,31 @@
+name: Publish snapshots
+on:
+  push:
+    branches: [master]
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Cache SBT coursier cache
+        uses: actions/cache@v1
+        with:
+          path: ~/.cache/coursier
+          key: sbt-coursier-cache
+      - name: Cache SBT
+        uses: actions/cache@v1
+        with:
+          path: ~/.sbt
+          key: sbt-${{ hashFiles('**/build.sbt') }}
+      - name: Publish snapshot
+        env:
+          PGP_SECRET: ${{ secrets.pgpSecret }}
+          SSH_PRIVATE_KEY: ${{ secrets.sshPrivateKey }}
+        run: |
+          echo $PGP_SECRET | base64 --decode | gpg --import
+          eval \"$(ssh-agent -s)\"
+          echo $SSH_PRIVATE_KEY | base64 --decode | ssh-add -
+          sbt +publishSigned docs/makeSite docs/ghpagesPushSite

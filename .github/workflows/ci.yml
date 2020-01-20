@@ -20,7 +20,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.cache/coursier
-          key: scala-${{ matrix.scala }}-sbt-coursier-cache
+          key: sbt-coursier-cache
       - name: Cache SBT
         uses: actions/cache@v1
         with:

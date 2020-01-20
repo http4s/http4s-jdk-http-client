@@ -271,10 +271,10 @@ lazy val docsSettings = {
     ),
 
     ghpagesCommitOptions := {
-      val sha = sys.env.getOrElse("TRAVIS_COMMIT", "???")
-      val build = sys.env.getOrElse("TRAVIS_BUILD_NUMBER", "???")
+      val sha = sys.env.getOrElse("GITHUB_SHA", "???")
+      val build = sys.env.getOrElse("GITHUB_ACTION", "???")
       List(
-        s"--author=Travis CI <travis-ci@invalid>",
+        s"--author=GitHub Actions CI <ghactions@invalid>",
         "-m", s"Updated site: sha=${sha} build=${build}"
       )
     },
