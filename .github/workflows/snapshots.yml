@@ -22,8 +22,11 @@ jobs:
           key: sbt-${{ hashFiles('**/build.sbt') }}
       - name: Publish snapshot
         env:
-          PGP_SECRET: ${{ secrets.pgpSecret }}
-          SSH_PRIVATE_KEY: ${{ secrets.sshPrivateKey }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
         run: |
           echo $PGP_SECRET | base64 --decode | gpg --import
           eval \"$(ssh-agent -s)\"
