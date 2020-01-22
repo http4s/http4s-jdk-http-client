@@ -4,6 +4,18 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.2.0-RC1 (2020-01-22)
+
+### Enhancements
+
+* [#139](https://github.com/http4s/http4s-jdk-http-client/pull/139): Re-raise error in finalizer of web socket listener
+
+### Dependency updates
+
+* cats-2.1.0
+* fs2-2.2.1
+* http4s-0.21.0-RC1
+
 ## v0.2.0-M4 (2019-12-01)
 
 ### Dependency updates
