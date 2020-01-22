@@ -4,6 +4,12 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.2.0-RC2 (2020-01-22)
+
+### Dependency updates
+
+* http4s-0.21.0-RC1
+
 ## v0.2.0-RC1 (2020-01-22)
 
 ### Enhancements
@@ -14,7 +20,6 @@ This file summarizes **notable** changes for each release, but does not describe
 
 * cats-2.1.0
 * fs2-2.2.1
-* http4s-0.21.0-RC1
 
 ## v0.2.0-M4 (2019-12-01)
 
