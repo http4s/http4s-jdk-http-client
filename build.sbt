@@ -28,7 +28,7 @@ lazy val contributors = Seq(
 
 val catsV = "2.1.0"
 val catsEffectV = "2.0.0"
-val fs2V = "2.2.1"
+val fs2V = "2.2.2"
 val scodecV = "1.1.12"
 val http4sV = "0.21.0-RC2"
 val reactiveStreamsV = "1.0.3"
