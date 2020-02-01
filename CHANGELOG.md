@@ -4,6 +4,15 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.2.0-RC3 (2020-02-01)
+
+This release is fully source compatible with v0.2.0-RC2, but has a binary-incompatible dependency on http4s.
+
+### Dependency updates
+
+* http4s-0.21.0-RC2
+* scodec-bits-1.1.13
+
 ## v0.2.0-RC2 (2020-01-22)
 
 ### Dependency updates
