@@ -29,6 +29,6 @@ jobs:
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
         run: |
           echo $PGP_SECRET | base64 --decode | gpg --import --no-tty --batch --yes
-          eval \"$(ssh-agent -s)\"
+          eval "$(ssh-agent -s)"
           echo $SSH_PRIVATE_KEY | base64 --decode | ssh-add -
           sbt +publishSigned docs/makeSite docs/ghpagesPushSite
