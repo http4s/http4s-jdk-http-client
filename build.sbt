@@ -97,7 +97,7 @@ lazy val releaseSettings = {
       releaseStepCommandAndRemaining("+publishSigned"),
       setNextVersion,
       commitNextVersion,
-      releaseStepCommand("sonatypeReleaseAll"),
+      releaseStepCommand("sonatypeBundleRelease"),
       pushChanges
     ),
     publishTo := {
