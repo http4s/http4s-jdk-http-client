@@ -11,6 +11,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
+      - uses: olafurpg/setup-gpg@v2
       - name: Cache SBT coursier cache
         uses: actions/cache@v1
         with:
@@ -29,12 +30,6 @@ jobs:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
         run: |
-          mkdir ~/.gnupg && chmod 700 ~/.gnupg
-          echo use-agent >> ~/.gnupg/gpg.conf
-          echo pinentry-mode loopback >> ~/.gnupg/gpg.conf
-          echo allow-loopback-pinentry >> ~/.gnupg/gpg-agent.conf
-          chmod 600 ~/.gnupg/*
-          echo RELOADAGENT | gpg-connect-agent
           echo "$PGP_SECRET" | base64 --decode | gpg --import --no-tty --batch --yes
           eval "$(ssh-agent -s)"
           echo "$SSH_PRIVATE_KEY" | ssh-add -
