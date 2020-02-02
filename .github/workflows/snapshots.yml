@@ -28,6 +28,7 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SBT_GHPAGES_COMMIT_MESSAGE: 'Updated site: sha=${{ github.sha }} build=${{ github.action }}'
         run: |
           mkdir ~/.gnupg && chmod 700 ~/.gnupg
           echo use-agent >> ~/.gnupg/gpg.conf
@@ -38,4 +39,7 @@ jobs:
           echo "$PGP_SECRET" | base64 --decode | gpg --import --no-tty --batch --yes
           eval "$(ssh-agent -s)"
           echo "$SSH_PRIVATE_KEY" | ssh-add -
+          git config --global user.name "GitHub Actions CI"
+          git config --global user.email "ghactions@invalid"
+
           sbt +publishSigned docs/makeSite docs/ghpagesPushSite

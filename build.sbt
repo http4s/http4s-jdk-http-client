@@ -270,14 +270,6 @@ lazy val docsSettings = {
       target.value / "netlify.toml" -> "netlify.toml",
     ),
 
-    ghpagesCommitOptions := {
-      val sha = sys.env.getOrElse("GITHUB_SHA", "???")
-      val build = sys.env.getOrElse("GITHUB_ACTION", "???")
-      List(
-        s"--author=GitHub Actions CI <ghactions@invalid>",
-        "-m", s"Updated site: sha=${sha} build=${build}"
-      )
-    },
     includeFilter in ghpagesCleanSite :=
       new FileFilter{
         def accept(f: File) =
