@@ -95,6 +95,7 @@ lazy val releaseSettings = {
       tagRelease,
       // For non cross-build projects, use releaseStepCommand("publishSigned")
       releaseStepCommandAndRemaining("+publishSigned"),
+      releaseStepCommand("docs/ghpagesPushSite"),
       setNextVersion,
       commitNextVersion,
       releaseStepCommand("sonatypeBundleRelease"),
