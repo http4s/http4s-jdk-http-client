@@ -30,7 +30,7 @@ val catsV = "2.1.0"
 val catsEffectV = "2.1.0"
 val fs2V = "2.2.2"
 val scodecV = "1.1.13"
-val http4sV = "0.21.0-RC3"
+val http4sV = "0.21.0-RC4"
 val reactiveStreamsV = "1.0.3"
 val vaultV = "2.0.0"
 
