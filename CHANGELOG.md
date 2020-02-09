@@ -4,6 +4,14 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.2.0 (2020-02-09)
+
+This release is considered stable.
+
+### Dependency updates
+
+* http4s-0.21.0
+
 ## v0.2.0-RC5 (2020-02-03)
 
 This release is fully source compatible with v0.2.0-RC4, but has a binary-incompatible dependency on http4s.
