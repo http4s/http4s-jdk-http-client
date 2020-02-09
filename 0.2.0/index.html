@@ -180,14 +180,14 @@ http4s/http4s-jdk-http-client
 <h3><a href="#installation" name="installation" class="anchor"><span class="anchor-link"></span></a>Installation</h3>
 <p>To use http4s-jdk-http-client in an existing SBT project, add the following dependency to your <code>build.sbt</code>:</p>
 <pre class="prettyprint"><code class="language-scala">libraryDependencies ++= Seq(
-  &quot;org.http4s&quot; %% &quot;http4s-jdk-http-client&quot; % &quot;0.2.0-RC3&quot;
+  &quot;org.http4s&quot; %% &quot;http4s-jdk-http-client&quot; % &quot;0.2.0&quot;
 )
 </code></pre>
 <h3><a href="#compatibility" name="compatibility" class="anchor"><span class="anchor-link"></span></a>Compatibility</h3>
 <ul>
   <li>Requires Java 11 or greater</li>
   <li>Built for Scala 2.12 and 2.13</li>
-  <li>Works with http4s-client-0.21.0-RC2</li>
+  <li>Works with http4s-client-0.21.0</li>
 </ul>
 <h3><a href="#creating-the-client" name="creating-the-client" class="anchor"><span class="anchor-link"></span></a>Creating the client</h3>
 <h4><a href="#simple" name="simple" class="anchor"><span class="anchor-link"></span></a>Simple</h4>
@@ -253,8 +253,8 @@ val (http, webSocket) =
       (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient))
     }
     .unsafeRunSync()
-// http: Client[IO] = org.http4s.client.Client$$anon$1@27fdc7bd
-// webSocket: WSClient[IO] = org.http4s.client.jdkhttpclient.WSClient$$anon$1@4bc2cb3f
+// http: Client[IO] = org.http4s.client.Client$$anon$1@1b5703ec
+// webSocket: WSClient[IO] = org.http4s.client.jdkhttpclient.WSClient$$anon$1@7b2b8737
 </code></pre>
 <p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
 <h3><a href="#overview" name="overview" class="anchor"><span class="anchor-link"></span></a>Overview</h3>
@@ -310,7 +310,7 @@ val (http, webSocket) =
   .unsafeRunSync()
 // res2: String = &quot;reality is often disappointing. REALITY IS OFTEN DISAPPOINTING.&quot;
 </code></pre>
-<p>For an overview of all options and functions visit the <a href="https://static.javadoc.io/org.http4s/http4s-jdk-http-client_2.12/0.2.0-RC3/org/http4s/client/jdkhttpclient/index.html">scaladoc</a>.</p>
+<p>For an overview of all options and functions visit the <a href="https://static.javadoc.io/org.http4s/http4s-jdk-http-client_2.12/0.2.0/org/http4s/client/jdkhttpclient/index.html">scaladoc</a>.</p>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
