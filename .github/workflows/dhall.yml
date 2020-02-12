@@ -1,0 +1,24 @@
+name: Check Dhall configs
+on:
+  - push
+  - pull_request
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Dhall
+        env:
+          DHALL: 1.29.0
+          DHALL_TO_YAML: 1.6.1
+        run: |
+          cd $(mktemp -d)
+          curl https://github.com/dhall-lang/dhall-haskell/releases/download/$DHALL/dhall-json-$DHALL_TO_YAML-x86_64-linux.tar.bz2 | tar xj
+          mkdir -p $HOME/bin
+          mv bin/dhall-to-yaml $HOME/bin/
+          echo "::add-path::$HOME/bin"
+      - name: Check generated YAML files
+        run: |
+          cd dhall
+          ./generateYaml.sh
+          [[ $(git status --porcelain | wc -l) -eq 0 ]]
