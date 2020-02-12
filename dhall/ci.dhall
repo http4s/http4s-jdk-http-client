@@ -37,7 +37,7 @@ in  { name = "CI"
                   { fail-fast = False
                   , matrix =
                       { java = c.javaVersions.all
-                      , scala = ./../../scalaVersions.dhall
+                      , scala = ./../scalaVersions.dhall
                       }
                   }
               , env = { SCALA_VERSION = "\${{ matrix.scala }}" }
