@@ -13,7 +13,7 @@ jobs:
           DHALL_TO_YAML: 1.6.1
         run: |
           cd $(mktemp -d)
-          curl https://github.com/dhall-lang/dhall-haskell/releases/download/$DHALL/dhall-json-$DHALL_TO_YAML-x86_64-linux.tar.bz2 | tar xj
+          curl -L https://github.com/dhall-lang/dhall-haskell/releases/download/$DHALL/dhall-json-$DHALL_TO_YAML-x86_64-linux.tar.bz2 | tar xj
           mkdir -p $HOME/bin
           mv bin/dhall-to-yaml $HOME/bin/
           echo "::add-path::$HOME/bin"
