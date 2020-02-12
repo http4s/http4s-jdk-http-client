@@ -1,0 +1,10 @@
+pull_request_rules:
+  actions:
+    merge:
+      method: merge
+  conditions:
+    - author=scala-steward
+    - "body~=labels:.*semver-patch.*"
+    - "status-success=Scala 2.12.10, Java 11"
+    - "status-success=Scala 2.13.1, Java 11"
+  name: "automatically merge scala-steward's PRs"

@@ -1,3 +1,7 @@
+set -e
+
 for f in ci snapshots; do
-    cat $f.dhall | dhall | dhall-to-yaml --omitEmpty > ../.github/workflows/$f.yml
+    dhall-to-yaml --omit-empty --file $f.dhall --output ../.github/workflows/$f.yml
 done
+
+dhall-to-yaml --omit-empty --file mergify.dhall --output ../.mergify.yml

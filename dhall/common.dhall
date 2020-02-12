@@ -23,6 +23,13 @@ let baseJob =
 
 let javaVersions = let dv = "11" in { default = dv, all = [ dv ] }
 
+let scalaVersions = ./../scalaVersions.dhall
+
+let ciJobName =
+        λ(scalaVersion : Text)
+      → λ(javaVersion : Text)
+      → "Scala ${scalaVersion}, Java ${javaVersion}"
+
 let steps =
       let uses = λ(uses : Text) → BuildStep.Uses Uses::{ uses = uses }
 
@@ -76,5 +83,7 @@ in  { Uses = Uses
     , BuildStep = BuildStep
     , baseJob = baseJob
     , javaVersions = javaVersions
+    , scalaVersions = scalaVersions
+    , ciJobName = ciJobName
     , steps = steps
     }
