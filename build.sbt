@@ -41,15 +41,18 @@ val javaWebsocketV = "1.4.0"
 val kindProjectorV = "0.10.3"
 val betterMonadicForV = "0.3.1"
 
-lazy val scalaVersions = scala.io.Source.fromFile("scalaVersions.dhall")
-  .mkString.replaceAll("""\[|\]|"| """, "").trim.split(",")
+lazy val scalaVersions = {
+  import cats.data.NonEmptyList
+  val str = scala.io.Source.fromFile("scalaVersions.json").mkString
+  _root_.io.circe.parser.decode[NonEmptyList[String]](str).fold(throw _, identity)
+}
 
 // General Settings
 lazy val commonSettings = Seq(
   organization := "org.http4s",
 
   scalaVersion := scalaVersions.head,
-  crossScalaVersions := scalaVersions,
+  crossScalaVersions := scalaVersions.toList.toSeq,
   scalacOptions += "-Yrangepos",
 
   scalacOptions in (Compile, doc) ++= Seq(

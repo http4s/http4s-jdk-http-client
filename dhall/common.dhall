@@ -23,7 +23,7 @@ let baseJob =
 
 let javaVersions = let dv = "11" in { default = dv, all = [ dv ] }
 
-let scalaVersions = ./../scalaVersions.dhall
+let scalaVersions = ./scalaVersions.dhall
 
 let ciJobName =
         λ(scalaVersion : Text)
