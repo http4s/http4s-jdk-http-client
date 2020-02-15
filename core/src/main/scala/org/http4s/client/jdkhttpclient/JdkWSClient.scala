@@ -36,9 +36,7 @@ object JdkWSClient {
                 val (subprotocols, hs) = headers.toList.partitionEither(h =>
                   `Sec-WebSocket-Protocol`.matchHeader(h).fold(h.asRight[String])(_.value.asLeft)
                 )
-                hs.foreach { h =>
-                  builder.header(h.name.value, h.value); ()
-                }
+                hs.foreach { h => builder.header(h.name.value, h.value); () }
                 subprotocols match {
                   case head :: tail => builder.subprotocols(head, tail: _*)
                   case Nil =>
