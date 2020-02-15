@@ -9,8 +9,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup Dhall
         env:
-          DHALL: 1.29.0
-          DHALL_TO_YAML: 1.6.1
+          DHALL: 1.30.0
+          DHALL_TO_YAML: 1.6.2
         run: |
           cd $(mktemp -d)
           curl -L https://github.com/dhall-lang/dhall-haskell/releases/download/$DHALL/dhall-$DHALL-x86_64-linux.tar.bz2 | tar xj

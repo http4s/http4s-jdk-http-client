@@ -22,7 +22,7 @@ in  { pull_request_rules =
         , conditions =
               [ "author=scala-steward", "body~=labels:.*semver-patch.*" ]
             # ciJobNameRules
-        , actions = { merge = { method = "merge" } }
+        , actions.merge.method = "merge"
         }
       ]
     }

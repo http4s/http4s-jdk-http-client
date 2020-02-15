@@ -34,6 +34,6 @@ let steps =
         ]
 
 in  { name = "Publish snapshots"
-    , on = { push = { branches = [ "master" ] } }
-    , jobs = { publish = c.baseJob steps }
+    , on.push.branches = [ "master" ]
+    , jobs.publish = c.baseJob steps
     }

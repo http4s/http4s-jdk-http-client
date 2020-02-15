@@ -29,16 +29,13 @@ let steps =
 
 in  { name = "CI"
     , on = [ "push", "pull_request" ]
-    , jobs =
-        { build =
-              c.baseJob steps
-            ∧ { name = c.ciJobName "\${{ matrix.scala }}" "\${{ matrix.java }}"
-              , strategy =
-                  { fail-fast = False
-                  , matrix =
-                      { java = c.javaVersions.all, scala = c.scalaVersions }
-                  }
-              , env = { SCALA_VERSION = "\${{ matrix.scala }}" }
+    , jobs.build =
+          c.baseJob steps
+        ∧ { name = c.ciJobName "\${{ matrix.scala }}" "\${{ matrix.java }}"
+          , strategy =
+              { fail-fast = False
+              , matrix = { java = c.javaVersions.all, scala = c.scalaVersions }
               }
-        }
+          , env.SCALA_VERSION = "\${{ matrix.scala }}"
+          }
     }
