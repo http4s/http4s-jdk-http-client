@@ -1,28 +1,25 @@
-name: Check Dhall configs
-on:
-  - push
-  - pull_request
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Dhall
-        env:
-          DHALL: 1.30.0
-          DHALL_TO_YAML: 1.6.2
+      - uses: "actions/checkout@v2"
+      - name: "Setup Dhall"
         run: |
           cd $(mktemp -d)
-          curl -L https://github.com/dhall-lang/dhall-haskell/releases/download/$DHALL/dhall-$DHALL-x86_64-linux.tar.bz2 | tar xj
-          curl -L https://github.com/dhall-lang/dhall-haskell/releases/download/$DHALL/dhall-json-$DHALL_TO_YAML-x86_64-linux.tar.bz2 | tar xj
+          curl -L https://github.com/dhall-lang/dhall-haskell/releases/download/1.30.0/dhall-1.30.0-x86_64-linux.tar.bz2 | tar xj
+          curl -L https://github.com/dhall-lang/dhall-haskell/releases/download/1.30.0/dhall-json-1.6.2-x86_64-linux.tar.bz2 | tar xj
           mkdir -p $HOME/bin
           mv bin/* $HOME/bin/
           echo "::add-path::$HOME/bin"
-      - name: Check Dhall formatting
+      - name: "Check Dhall formatting"
         run: |
           [[ $(find -name '*.dhall*' -exec sh -c 'dhall format --check < {}' \; |& wc -c) -eq 0 ]]
-      - name: Check generated YAML files
+      - name: "Check generated YAML files"
         run: |
           cd dhall
           ./generateYaml.sh
           [[ $(git status --porcelain | wc -l) -eq 0 ]]
+name: "Check Dhall configs"
+on:
+  - push
+  - pull_request
