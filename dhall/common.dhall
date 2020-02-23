@@ -63,10 +63,12 @@ let steps =
                       Run::{
                       , name = "Get current week"
                       , run =
-                          ''
-                          echo "::set-env name=current_week::$(( $(date +%U) ))"
-                          echo "::set-env name=last_week::$(( $(date +%U) - 1 ))"
-                          ''
+                          let currentWeek = "10#\$(date +%U)"
+
+                          in  ''
+                              echo "::set-env name=current_week::$(( ${currentWeek} ))"
+                              echo "::set-env name=last_week::$(( ${currentWeek} - 1 ))"
+                              ''
                       }
                   , cacheConfig
                       { name = "Cache SBT coursier cache"
