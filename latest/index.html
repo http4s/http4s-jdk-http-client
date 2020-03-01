@@ -253,8 +253,8 @@ val (http, webSocket) =
       (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient))
     }
     .unsafeRunSync()
-// http: Client[IO] = org.http4s.client.Client$$anon$1@3c65a01
-// webSocket: WSClient[IO] = org.http4s.client.jdkhttpclient.WSClient$$anon$1@216691ec
+// http: Client[IO] = org.http4s.client.Client$$anon$1@216190d8
+// webSocket: WSClient[IO] = org.http4s.client.jdkhttpclient.WSClient$$anon$1@d5812fc
 </code></pre>
 <p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
 <h3><a href="#overview" name="overview" class="anchor"><span class="anchor-link"></span></a>Overview</h3>
