@@ -4,6 +4,52 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.2.0 (2020-02-09)
+
+This release is considered stable.
+
+### Dependency updates
+
+* http4s-0.21.0
+
+## v0.2.0-RC5 (2020-02-03)
+
+This release is fully source compatible with v0.2.0-RC4, but has a binary-incompatible dependency on http4s.
+
+### Dependency updates
+
+* http4s-0.21.0-RC3
+
+## v0.2.0-RC4 (2020-02-01)
+
+This release is fully source compatible with v0.2.0-RC2, but has a binary-incompatible dependency on http4s.
+
+### Dependency updates
+
+* http4s-0.21.0-RC2
+* scodec-bits-1.1.13
+
+~~## v0.2.0-RC3 (2020-02-01)~~
+
+Cursed release. Sonatype says it's there, Maven Central says it's not.
+
+## v0.2.0-RC2 (2020-01-22)
+
+### Dependency updates
+
+* http4s-0.21.0-RC1
+
+## v0.2.0-RC1 (2020-01-22)
+
+### Enhancements
+
+* [#139](https://github.com/http4s/http4s-jdk-http-client/pull/139): Re-raise error in finalizer of web socket listener
+
+### Dependency updates
+
+* cats-2.1.0
+* fs2-2.2.1
+
 ## v0.2.0-M4 (2019-12-01)
 
 ### Dependency updates

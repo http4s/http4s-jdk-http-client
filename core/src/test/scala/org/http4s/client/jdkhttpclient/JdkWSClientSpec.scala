@@ -5,7 +5,7 @@ import java.nio.ByteBuffer
 
 import cats.effect._
 import cats.effect.concurrent.{Deferred, Ref}
-import cats.effect.specs2.CatsEffect
+import cats.effect.testing.specs2.CatsEffect
 import cats.implicits._
 import fs2.Stream
 import org.http4s._
@@ -130,9 +130,7 @@ class JdkWSClientSpec extends Specification with CatsEffect {
           override def onStart() = {
             val req = WSRequest(uri"ws://localhost:8080")
             val p = for {
-              _ <- webSocket.connect(req).use { conn =>
-                conn.send(WSFrame.Text("hi blaze"))
-              }
+              _ <- webSocket.connect(req).use(conn => conn.send(WSFrame.Text("hi blaze")))
               _ <- Timer[IO].sleep(1.seconds)
               _ <- webSocket.connectHighLevel(req).use { conn =>
                 conn.send(WSFrame.Text("hey blaze"))

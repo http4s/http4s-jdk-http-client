@@ -26,16 +26,16 @@ lazy val contributors = Seq(
   "rossabaker"            -> "Ross A. Baker",
 )
 
-val catsV = "2.0.0"
-val catsEffectV = "2.0.0"
-val fs2V = "2.1.0"
-val scodecV = "1.1.12"
-val http4sV = "0.21.0-M6"
+val catsV = "2.1.1"
+val catsEffectV = "2.1.1"
+val fs2V = "2.2.2"
+val scodecV = "1.1.14"
+val http4sV = "0.21.1"
 val reactiveStreamsV = "1.0.3"
 val vaultV = "2.0.0"
 
-val specs2V = "4.8.1"
-val catsEffectTestingV = "0.3.0"
+val specs2V = "4.9.1"
+val catsEffectTestingV = "0.4.0"
 val javaWebsocketV = "1.4.0"
 
 val kindProjectorV = "0.10.3"
@@ -45,8 +45,8 @@ val betterMonadicForV = "0.3.1"
 lazy val commonSettings = Seq(
   organization := "org.http4s",
 
-  scalaVersion := "2.12.9",
-  crossScalaVersions := Seq(scalaVersion.value, "2.13.0"),
+  scalaVersion := "2.12.10",
+  crossScalaVersions := Seq(scalaVersion.value, "2.13.1"),
   scalacOptions += "-Yrangepos",
 
   scalacOptions in (Compile, doc) ++= Seq(
@@ -93,11 +93,11 @@ lazy val releaseSettings = {
       setReleaseVersion,
       commitReleaseVersion,
       tagRelease,
-      // For non cross-build projects, use releaseStepCommand("publishSigned")
       releaseStepCommandAndRemaining("+publishSigned"),
+      releaseStepCommand("sonatypeBundleRelease"),
+      releaseStepCommand("docs/ghpagesPushSite"),
       setNextVersion,
       commitNextVersion,
-      releaseStepCommand("sonatypeReleaseAll"),
       pushChanges
     ),
     publishTo := {
@@ -105,7 +105,7 @@ lazy val releaseSettings = {
       if (isSnapshot.value)
         Some("snapshots" at nexus + "content/repositories/snapshots")
       else
-        Some("releases" at nexus + "service/local/staging/deploy/maven2")
+        sonatypePublishToBundle.value
     },
     credentials ++= (
       for {
@@ -270,14 +270,6 @@ lazy val docsSettings = {
       target.value / "netlify.toml" -> "netlify.toml",
     ),
 
-    ghpagesCommitOptions := {
-      val sha = sys.env.getOrElse("TRAVIS_COMMIT", "???")
-      val build = sys.env.getOrElse("TRAVIS_BUILD_NUMBER", "???")
-      List(
-        s"--author=Travis CI <travis-ci@invalid>",
-        "-m", s"Updated site: sha=${sha} build=${build}"
-      )
-    },
     includeFilter in ghpagesCleanSite :=
       new FileFilter{
         def accept(f: File) =

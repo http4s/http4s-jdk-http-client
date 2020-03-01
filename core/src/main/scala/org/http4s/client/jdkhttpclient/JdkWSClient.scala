@@ -1,14 +1,18 @@
 package org.http4s.client.jdkhttpclient
 
+import java.io.IOException
 import java.net.URI
 import java.net.http.{HttpClient, WebSocket => JWebSocket}
 import java.nio.ByteBuffer
 import java.util.concurrent.{CompletableFuture, CompletionStage}
 
 import cats._
+import cats.data.NonEmptyList
 import cats.effect._
 import cats.effect.concurrent.Semaphore
+import cats.effect.util.CompositeException
 import cats.implicits._
+import fs2.Chunk
 import fs2.concurrent.Queue
 import org.http4s.headers.`Sec-WebSocket-Protocol`
 import org.http4s.internal.fromCompletableFuture
@@ -19,6 +23,7 @@ import scodec.bits.ByteVector
   * Custom (non-GET) HTTP methods are ignored.
   */
 object JdkWSClient {
+
   /** Create a new `WSClient` backed by a JDK 11+ http client. */
   def apply[F[_]](jdkHttpClient: HttpClient)(implicit F: ConcurrentEffect[F]): WSClient[F] =
     WSClient.defaultImpl(respondToPings = false) {
@@ -28,13 +33,10 @@ object JdkWSClient {
             for {
               wsBuilder <- F.delay {
                 val builder = jdkHttpClient.newWebSocketBuilder()
-                val (subprotocols, hs) = headers.toList.partitionEither(
-                  h =>
-                    `Sec-WebSocket-Protocol`.matchHeader(h).fold(h.asRight[String])(_.value.asLeft)
+                val (subprotocols, hs) = headers.toList.partitionEither(h =>
+                  `Sec-WebSocket-Protocol`.matchHeader(h).fold(h.asRight[String])(_.value.asLeft)
                 )
-                hs.foreach { h =>
-                  builder.header(h.name.value, h.value); ()
-                }
+                hs.foreach { h => builder.header(h.name.value, h.value); () }
                 subprotocols match {
                   case head :: tail => builder.subprotocols(head, tail: _*)
                   case Nil =>
@@ -83,13 +85,23 @@ object JdkWSClient {
               sendSem <- Semaphore[F](1L)
             } yield (webSocket, queue, sendSem)
           } {
-            case (webSocket, _, _) =>
+            case (webSocket, queue, _) =>
               for {
                 isOutputOpen <- F.delay(!webSocket.isOutputClosed)
                 closeOutput = fromCompletableFuture(
                   F.delay(webSocket.sendClose(JWebSocket.NORMAL_CLOSURE, ""))
                 )
-                _ <- closeOutput.whenA(isOutputOpen)
+                _ <- closeOutput.whenA(isOutputOpen).onError {
+                  case e: IOException =>
+                    for {
+                      chunk <- queue.tryDequeueChunk1(10)
+                      errs = Chunk(chunk.flatten.toSeq: _*).flatten.collect { case Left(e) => e }
+                      _ <- F.raiseError[Unit](NonEmptyList.fromFoldable(errs) match {
+                        case Some(nel) => new CompositeException(e, nel)
+                        case None => e
+                      })
+                    } yield ()
+                }
               } yield ()
           }
           .map {
