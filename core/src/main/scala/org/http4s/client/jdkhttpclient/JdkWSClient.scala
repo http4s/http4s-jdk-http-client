@@ -15,7 +15,6 @@ import cats.implicits._
 import fs2.Chunk
 import fs2.concurrent.Queue
 import org.http4s.headers.`Sec-WebSocket-Protocol`
-import org.http4s.internal.fromCompletableFuture
 import scodec.bits.ByteVector
 
 /** A `WSClient` wrapper for the JDK 11+ websocket client.
@@ -25,7 +24,9 @@ import scodec.bits.ByteVector
 object JdkWSClient {
 
   /** Create a new `WSClient` backed by a JDK 11+ http client. */
-  def apply[F[_]](jdkHttpClient: HttpClient)(implicit F: ConcurrentEffect[F]): WSClient[F] =
+  def apply[F[_]](
+      jdkHttpClient: HttpClient
+  )(implicit F: ConcurrentEffect[F], CS: ContextShift[F]): WSClient[F] =
     WSClient.defaultImpl(respondToPings = false) {
       case WSRequest(uri, headers, _) =>
         Resource
@@ -79,7 +80,7 @@ object JdkWSClient {
                   handleReceive(error.asLeft); ()
                 }
               }
-              webSocket <- fromCompletableFuture(
+              webSocket <- fromCompletionStage(
                 F.delay(wsBuilder.buildAsync(URI.create(uri.renderString), wsListener))
               )
               sendSem <- Semaphore[F](1L)
@@ -88,7 +89,7 @@ object JdkWSClient {
             case (webSocket, queue, _) =>
               for {
                 isOutputOpen <- F.delay(!webSocket.isOutputClosed)
-                closeOutput = fromCompletableFuture(
+                closeOutput = fromCompletionStage(
                   F.delay(webSocket.sendClose(JWebSocket.NORMAL_CLOSURE, ""))
                 )
                 _ <- closeOutput.whenA(isOutputOpen).onError {
@@ -108,7 +109,7 @@ object JdkWSClient {
             case (webSocket, queue, sendSem) =>
               // sending will throw if done in parallel
               val rawSend = (wsf: WSFrame) =>
-                fromCompletableFuture(F.delay(wsf match {
+                fromCompletionStage(F.delay(wsf match {
                   case WSFrame.Text(text, last) => webSocket.sendText(text, last)
                   case WSFrame.Binary(data, last) => webSocket.sendBinary(data.toByteBuffer, last)
                   case WSFrame.Ping(data) => webSocket.sendPing(data.toByteBuffer)
@@ -129,18 +130,6 @@ object JdkWSClient {
     }
 
   /** A `WSClient` wrapping the default `HttpClient`. */
-  def simple[F[_]](implicit F: ConcurrentEffect[F]): F[WSClient[F]] =
+  def simple[F[_]](implicit F: ConcurrentEffect[F], CS: ContextShift[F]): F[WSClient[F]] =
     F.delay(HttpClient.newHttpClient()).map(apply(_))
-
-  private def unsafeToCompletionStage[F[_], A](
-      fa: F[A]
-  )(implicit F: Effect[F]): CompletionStage[A] = {
-    val cf = new CompletableFuture[A]()
-    F.runAsync(fa) {
-        case Right(a) => IO { cf.complete(a); () }
-        case Left(e) => IO { cf.completeExceptionally(e); () }
-      }
-      .unsafeRunSync()
-    cf
-  }
 }
