@@ -20,7 +20,7 @@ let BuildStep = < Uses : Uses.Type | Run : Run.Type >
 
 let baseJob = \(steps : List BuildStep) -> { runs-on = "ubuntu-latest", steps }
 
-let javaVersions = let dv = "11" in { default = dv, all = [ dv ] }
+let javaVersions = let dv = "11" in { default = dv, all = [ dv, "14" ] }
 
 let scalaVersions = ./scalaVersions.dhall
 
