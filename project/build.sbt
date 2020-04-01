@@ -1,3 +1,3 @@
 libraryDependencies ++= Seq(
-  "io.circe" %% "circe-parser" % "0.13.0"
+  "com.lihaoyi" %% "upickle" % "0.9.5"
 )
