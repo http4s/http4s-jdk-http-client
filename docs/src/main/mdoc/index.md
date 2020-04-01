@@ -98,6 +98,17 @@ def fetchStatusInefficiently[F[_]: ConcurrentEffect](uri: Uri): F[Status] =
 
 @@@
 
+### Restricted headers
+
+The underlying `HttpClient` may disallow certain request headers like `Host`
+or `Content-Length` to be set directly by the user. Therefore, you can pass a set
+of ignored headers to `JdkHttpClient.apply`. By default, the set of restricted
+headers of OpenJDK 11 is used.
+
+In OpenJDK 12+, there are less restricted headers by default, and you can disable
+the restriction for certain headers by passing
+`-Djdk.httpclient.allowRestrictedHeaders=host,content-length` etc. to `java`.
+
 ### Shutdown
 
 Clients created with this back end do not need to be shut down.
