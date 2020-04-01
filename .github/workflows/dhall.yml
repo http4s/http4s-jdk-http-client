@@ -13,7 +13,7 @@ jobs:
           echo "::add-path::$HOME/bin"
       - name: Check Dhall formatting
         run: |
-          [[ $(find -name '*.dhall*' -exec sh -c 'dhall format --check < {}' \; |& wc -c) -eq 0 ]]
+          [[ $(find -name '*.dhall' -exec sh -c 'dhall --ascii format --check < {}' \; |& wc -c) -eq 0 ]]
       - name: Check generated YAML files
         run: |
           cd dhall

@@ -6,14 +6,14 @@ let ciJobNameRules =
       L.concatMap
         Text
         Text
-        (   λ(scalaVersion : Text)
-          → L.map
-              Text
-              Text
-              (   λ(javaVersion : Text)
-                → "status-success=${c.ciJobName scalaVersion javaVersion}"
-              )
-              c.javaVersions.all
+        (     \(scalaVersion : Text)
+          ->  L.map
+                Text
+                Text
+                (     \(javaVersion : Text)
+                  ->  "status-success=${c.ciJobName scalaVersion javaVersion}"
+                )
+                c.javaVersions.all
         )
         c.scalaVersions
 

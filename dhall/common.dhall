@@ -18,45 +18,46 @@ let Run =
 
 let BuildStep = < Uses : Uses.Type | Run : Run.Type >
 
-let baseJob = λ(steps : List BuildStep) → { runs-on = "ubuntu-latest", steps }
+let baseJob = \(steps : List BuildStep) -> { runs-on = "ubuntu-latest", steps }
 
 let javaVersions = let dv = "11" in { default = dv, all = [ dv ] }
 
 let scalaVersions = ./scalaVersions.dhall
 
 let ciJobName =
-        λ(scalaVersion : Text)
-      → λ(javaVersion : Text)
-      → "Scala ${scalaVersion}, Java ${javaVersion}"
+          \(scalaVersion : Text)
+      ->  \(javaVersion : Text)
+      ->  "Scala ${scalaVersion}, Java ${javaVersion}"
 
 let steps =
-      let uses = λ(uses : Text) → BuildStep.Uses Uses::{ uses = uses }
+      let uses = \(uses : Text) -> BuildStep.Uses Uses::{ uses = uses }
 
       in  { uses
           , checkout = uses "actions/checkout@v2"
           , java =
-                λ(version : Text)
-              → BuildStep.Uses
-                  Uses::{
-                  , uses = "actions/setup-java@v1"
-                  , with = Some (toMap { java-version = version })
-                  }
+                  \(version : Text)
+              ->  BuildStep.Uses
+                    Uses::{
+                    , uses = "actions/setup-java@v1"
+                    , with = Some (toMap { java-version = version })
+                    }
           , cache =
               let cacheConfig =
-                      λ(config : { name : Text, path : Text, id : Text })
-                    → BuildStep.Uses
-                        Uses::{
-                        , name = Some config.name
-                        , uses = "actions/cache@v1"
-                        , with = Some
-                            ( toMap
-                                { path = config.path
-                                , key = "${config.id}-\${{ env.current_week }}"
-                                , restore-keys =
-                                    "${config.id}-\${{ env.last_week }}"
-                                }
-                            )
-                        }
+                        \(config : { name : Text, path : Text, id : Text })
+                    ->  BuildStep.Uses
+                          Uses::{
+                          , name = Some config.name
+                          , uses = "actions/cache@v1"
+                          , with = Some
+                              ( toMap
+                                  { path = config.path
+                                  , key =
+                                      "${config.id}-\${{ env.current_week }}"
+                                  , restore-keys =
+                                      "${config.id}-\${{ env.last_week }}"
+                                  }
+                              )
+                          }
 
               in  [ BuildStep.Run
                       Run::{

@@ -2,14 +2,14 @@ let c = ./common.dhall
 
 let steps =
       let sbtStep =
-              λ(run : c.Run.Type)
-            → c.BuildStep.Run
-                (run ⫽ { run = "sbt -client ++\$SCALA_VERSION ${run.run}" })
+                \(run : c.Run.Type)
+            ->  c.BuildStep.Run
+                  (run // { run = "sbt -client ++\$SCALA_VERSION ${run.run}" })
 
       let sbtSimpleStep =
-              λ(name : Text)
-            → λ(task : Text)
-            → sbtStep c.Run::{ name = name, run = task }
+                \(name : Text)
+            ->  \(task : Text)
+            ->  sbtStep c.Run::{ name = name, run = task }
 
       in    [ c.steps.checkout, c.steps.java "\${{ matrix.java }}" ]
           # c.steps.cache
@@ -30,12 +30,12 @@ let steps =
 in  { name = "CI"
     , on = [ "push", "pull_request" ]
     , jobs.build =
-          c.baseJob steps
-        ∧ { name = c.ciJobName "\${{ matrix.scala }}" "\${{ matrix.java }}"
-          , strategy =
-            { fail-fast = False
-            , matrix = { java = c.javaVersions.all, scala = c.scalaVersions }
+            c.baseJob steps
+        /\  { name = c.ciJobName "\${{ matrix.scala }}" "\${{ matrix.java }}"
+            , strategy =
+              { fail-fast = False
+              , matrix = { java = c.javaVersions.all, scala = c.scalaVersions }
+              }
+            , env.SCALA_VERSION = "\${{ matrix.scala }}"
             }
-          , env.SCALA_VERSION = "\${{ matrix.scala }}"
-          }
     }

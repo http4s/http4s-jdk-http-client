@@ -3,11 +3,11 @@ let c = ./common.dhall
 let versions = { dhall = "1.31.1", dhallToYaml = "1.6.3" }
 
 let dhallDownload =
-        λ(file : Text)
-      → let baseUrl =
-              "https://github.com/dhall-lang/dhall-haskell/releases/download"
+          \(file : Text)
+      ->  let baseUrl =
+                "https://github.com/dhall-lang/dhall-haskell/releases/download"
 
-        in  "curl -L ${baseUrl}/${versions.dhall}/${file}-x86_64-linux.tar.bz2 | tar xj"
+          in  "curl -L ${baseUrl}/${versions.dhall}/${file}-x86_64-linux.tar.bz2 | tar xj"
 
 let steps =
       [ c.steps.checkout
@@ -29,7 +29,7 @@ let steps =
           , name = "Check Dhall formatting"
           , run =
               ''
-              [[ $(find -name '*.dhall*' -exec sh -c 'dhall format --check < {}' \; |& wc -c) -eq 0 ]]
+              [[ $(find -name '*.dhall' -exec sh -c 'dhall --ascii format --check < {}' \; |& wc -c) -eq 0 ]]
               ''
           }
       , c.BuildStep.Run
