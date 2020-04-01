@@ -1,6 +1,6 @@
 let c = ./common.dhall
 
-let versions = { dhall = "1.30.0", dhallToYaml = "1.6.2" }
+let versions = { dhall = "1.31.1", dhallToYaml = "1.6.3" }
 
 let dhallDownload =
         λ(file : Text)

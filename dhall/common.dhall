@@ -18,8 +18,7 @@ let Run =
 
 let BuildStep = < Uses : Uses.Type | Run : Run.Type >
 
-let baseJob =
-      λ(steps : List BuildStep) → { runs-on = "ubuntu-latest", steps = steps }
+let baseJob = λ(steps : List BuildStep) → { runs-on = "ubuntu-latest", steps }
 
 let javaVersions = let dv = "11" in { default = dv, all = [ dv ] }
 
@@ -33,7 +32,7 @@ let ciJobName =
 let steps =
       let uses = λ(uses : Text) → BuildStep.Uses Uses::{ uses = uses }
 
-      in  { uses = uses
+      in  { uses
           , checkout = uses "actions/checkout@v2"
           , java =
                 λ(version : Text)
@@ -80,12 +79,12 @@ let steps =
                   ]
           }
 
-in  { Uses = Uses
-    , Run = Run
-    , BuildStep = BuildStep
-    , baseJob = baseJob
-    , javaVersions = javaVersions
-    , scalaVersions = scalaVersions
-    , ciJobName = ciJobName
-    , steps = steps
+in  { Uses
+    , Run
+    , BuildStep
+    , baseJob
+    , javaVersions
+    , scalaVersions
+    , ciJobName
+    , steps
     }

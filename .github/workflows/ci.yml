@@ -9,23 +9,23 @@ jobs:
       - uses: "actions/setup-java@v1"
         with:
           java-version: "${{ matrix.java }}"
-      - name: "Get current week"
+      - name: Get current week
         run: |
           echo "::set-env name=current_week::$(( 10#$(date +%U) ))"
           echo "::set-env name=last_week::$(( 10#$(date +%U) - 1 ))"
-      - name: "Cache SBT coursier cache"
+      - name: Cache SBT coursier cache
         uses: "actions/cache@v1"
         with:
           key: "coursier-${{ env.current_week }}"
           path: "~/.cache/coursier"
           restore-keys: "coursier-${{ env.last_week }}"
-      - name: "Cache SBT"
+      - name: Cache SBT
         uses: "actions/cache@v1"
         with:
           key: "sbt-${{ env.current_week }}"
           path: "~/.sbt"
           restore-keys: "sbt-${{ env.last_week }}"
-      - name: "Start SBT Server"
+      - name: Start SBT Server
         run: "sbt -client ++$SCALA_VERSION clean"
       - name: Tests
         run: "sbt -client ++$SCALA_VERSION test"
@@ -36,18 +36,18 @@ jobs:
       - name: Scalafmt
         run: "sbt -client ++$SCALA_VERSION scalafmtCheckAll"
       - if: "startsWith(matrix.scala, '2.12')"
-        name: "Test docs"
+        name: Test docs
         run: "sbt -client ++$SCALA_VERSION docs/makeSite"
-      - name: "Stop SBT Server"
+      - name: Stop SBT Server
         run: "sbt -client ++$SCALA_VERSION shutdown"
     strategy:
       fail-fast: false
       matrix:
         java:
-          - "11"
+          - '11'
         scala:
-          - "2.12.10"
-          - "2.13.1"
+          - '2.12.10'
+          - '2.13.1'
 name: CI
 on:
   - push
