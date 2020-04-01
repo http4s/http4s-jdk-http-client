@@ -237,6 +237,9 @@ client
 <pre class="prettyprint"><code class="language-scala">def fetchStatusInefficiently[F[_]: ConcurrentEffect](uri: Uri): F[Status] =
   JdkHttpClient.simple[F].flatMap(_.status(Request[F](Method.GET, uri = uri)))
 </code></pre></div>
+<h3><a href="#restricted-headers" name="restricted-headers" class="anchor"><span class="anchor-link"></span></a>Restricted headers</h3>
+<p>The underlying <code>HttpClient</code> may disallow certain request headers like <code>Host</code> or <code>Content-Length</code> to be set directly by the user. Therefore, you can pass a set of ignored headers to <code>JdkHttpClient.apply</code>. By default, the set of restricted headers of OpenJDK 11 is used.</p>
+<p>In OpenJDK 12+, there are less restricted headers by default, and you can disable the restriction for certain headers by passing <code>-Djdk.httpclient.allowRestrictedHeaders=host,content-length</code> etc. to <code>java</code>.</p>
 <h3><a href="#shutdown" name="shutdown" class="anchor"><span class="anchor-link"></span></a>Shutdown</h3>
 <p>Clients created with this back end do not need to be shut down.</p>
 <h3><a href="#further-reading" name="further-reading" class="anchor"><span class="anchor-link"></span></a>Further reading</h3>
@@ -253,8 +256,8 @@ val (http, webSocket) =
       (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient))
     }
     .unsafeRunSync()
-// http: Client[IO] = org.http4s.client.Client$$anon$1@5439c45e
-// webSocket: WSClient[IO] = org.http4s.client.jdkhttpclient.WSClient$$anon$1@1229729b
+// http: Client[IO] = org.http4s.client.Client$$anon$1@38f1a363
+// webSocket: WSClient[IO] = org.http4s.client.jdkhttpclient.WSClient$$anon$1@653c8cb6
 </code></pre>
 <p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
 <h3><a href="#overview" name="overview" class="anchor"><span class="anchor-link"></span></a>Overview</h3>
