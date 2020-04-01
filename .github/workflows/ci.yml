@@ -25,21 +25,17 @@ jobs:
           key: "sbt-${{ env.current_week }}"
           path: "~/.sbt"
           restore-keys: "sbt-${{ env.last_week }}"
-      - name: Start SBT Server
-        run: "sbt -client ++$SCALA_VERSION clean"
       - name: Tests
-        run: "sbt -client ++$SCALA_VERSION test"
+        run: "sbt ++$SCALA_VERSION test"
       - name: Scaladocs
-        run: "sbt -client ++$SCALA_VERSION doc"
+        run: "sbt ++$SCALA_VERSION doc"
       - name: MiMa
-        run: "sbt -client ++$SCALA_VERSION mimaReportBinaryIssues"
+        run: "sbt ++$SCALA_VERSION mimaReportBinaryIssues"
       - name: Scalafmt
-        run: "sbt -client ++$SCALA_VERSION scalafmtCheckAll"
+        run: "sbt ++$SCALA_VERSION scalafmtCheckAll"
       - if: "startsWith(matrix.scala, '2.12')"
         name: Test docs
-        run: "sbt -client ++$SCALA_VERSION docs/makeSite"
-      - name: Stop SBT Server
-        run: "sbt -client ++$SCALA_VERSION shutdown"
+        run: "sbt ++$SCALA_VERSION docs/makeSite"
     strategy:
       fail-fast: false
       matrix:

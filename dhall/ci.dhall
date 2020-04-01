@@ -4,7 +4,7 @@ let steps =
       let sbtStep =
                 \(run : c.Run.Type)
             ->  c.BuildStep.Run
-                  (run // { run = "sbt -client ++\$SCALA_VERSION ${run.run}" })
+                  (run // { run = "sbt ++\$SCALA_VERSION ${run.run}" })
 
       let sbtSimpleStep =
                 \(name : Text)
@@ -13,8 +13,7 @@ let steps =
 
       in    [ c.steps.checkout, c.steps.java "\${{ matrix.java }}" ]
           # c.steps.cache
-          # [ sbtSimpleStep "Start SBT Server" "clean"
-            , sbtSimpleStep "Tests" "test"
+          # [ sbtSimpleStep "Tests" "test"
             , sbtSimpleStep "Scaladocs" "doc"
             , sbtSimpleStep "MiMa" "mimaReportBinaryIssues"
             , sbtSimpleStep "Scalafmt" "scalafmtCheckAll"
@@ -24,7 +23,6 @@ let steps =
                 , run = "docs/makeSite"
                 , if = Some "startsWith(matrix.scala, '2.12')"
                 }
-            , sbtSimpleStep "Stop SBT Server" "shutdown"
             ]
 
 in  { name = "CI"
