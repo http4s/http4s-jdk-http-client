@@ -25,6 +25,15 @@ libraryDependencies ++= Seq(
 * Built for Scala @SCALA_VERSIONS@
 * Works with http4s-client-@HTTP4S_VERSION@
 
+@@@warning { title='TLS 1.3 on Java 11' }
+On Java 11, you might experience very spurious deadlocks if you use TLS 1.3
+which is enabled by default. See [here](https://github.com/http4s/http4s-jdk-http-client/issues/200)
+for a report.
+
+You can fix this by using a [custom client](#custom-clients) or by upgrading to
+a newer Java version.
+@@@
+
 ### Creating the client
 
 #### Simple
