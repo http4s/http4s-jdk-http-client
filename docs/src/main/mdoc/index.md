@@ -30,8 +30,8 @@ On Java 11, you might experience very spurious deadlocks if you use TLS 1.3
 which is enabled by default. See [here](https://github.com/http4s/http4s-jdk-http-client/issues/200)
 for a report.
 
-You can work around this by using a [custom client](#custom-clients) or by upgrading to
-a newer Java version.
+You can work around this by using a [custom client](#custom-clients)
+with TLS 1.3 disabled or by upgrading to a newer Java version (e.g. Java 14 LTS).
 @@@
 
 ### Creating the client
