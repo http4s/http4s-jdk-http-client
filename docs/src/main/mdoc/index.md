@@ -92,7 +92,7 @@ Contrast with this alternate definition of `fetchStatus`, which would
 create a new `HttpClient` instance on every invocation:
 
 ```scala mdoc
-def fetchStatusInefficiently[F[_]: ConcurrentEffect](uri: Uri): F[Status] =
+def fetchStatusInefficiently[F[_]: ConcurrentEffect: ContextShift](uri: Uri): F[Status] =
   JdkHttpClient.simple[F].flatMap(_.status(Request[F](Method.GET, uri = uri)))
 ```
 

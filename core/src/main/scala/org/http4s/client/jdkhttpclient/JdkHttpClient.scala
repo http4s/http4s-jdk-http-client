@@ -14,7 +14,7 @@ import java.util
 import java.util.concurrent.Flow
 import org.http4s.client.Client
 import org.http4s.client.jdkhttpclient.compat.CollectionConverters._
-import org.http4s.internal.fromCompletableFuture
+import org.http4s.internal.fromCompletionStage
 import org.http4s.util.CaseInsensitiveString
 import org.http4s.{Header, Headers, HttpVersion, Request, Response, Status}
 import org.reactivestreams.FlowAdapters
@@ -33,7 +33,7 @@ object JdkHttpClient {
   def apply[F[_]](
       jdkHttpClient: HttpClient,
       ignoredHeaders: Set[CaseInsensitiveString] = restrictedHeaders
-  )(implicit F: ConcurrentEffect[F]): Client[F] = {
+  )(implicit F: ConcurrentEffect[F], CS: ContextShift[F]): Client[F] = {
     def convertRequest(req: Request[F]): F[HttpRequest] =
       convertHttpVersionFromHttp4s[F](req.httpVersion).map { version =>
         val rb = HttpRequest.newBuilder
@@ -82,7 +82,7 @@ object JdkHttpClient {
       Resource.liftF(
         convertRequest(req)
           .flatMap(r =>
-            fromCompletableFuture(F.delay(jdkHttpClient.sendAsync(r, BodyHandlers.ofPublisher)))
+            fromCompletionStage(F.delay(jdkHttpClient.sendAsync(r, BodyHandlers.ofPublisher)))
           )
           .flatMap(convertResponse)
       )
@@ -92,7 +92,7 @@ object JdkHttpClient {
   /**
     * A `Client` wrapping the default `HttpClient`.
     */
-  def simple[F[_]](implicit F: ConcurrentEffect[F]): F[Client[F]] =
+  def simple[F[_]](implicit F: ConcurrentEffect[F], CS: ContextShift[F]): F[Client[F]] =
     F.delay(HttpClient.newHttpClient()).map(apply(_))
 
   def convertHttpVersionFromHttp4s[F[_]](
