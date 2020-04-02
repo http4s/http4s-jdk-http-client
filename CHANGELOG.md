@@ -23,6 +23,7 @@ This release is considered stable.
 ### Documentation
 
 * [#187](https://github.com/http4s/http4s-jdk-http-client/pull/187) mention restricted headers
+* [#206](https://github.com/http4s/http4s-jdk-http-client/pull/206) document spurious deadlocks with Java 11 and TLS 1.3
 
 ## v0.2.0 (2020-02-09)
 
