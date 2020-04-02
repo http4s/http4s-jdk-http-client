@@ -16,6 +16,7 @@ import fs2.Chunk
 import fs2.concurrent.Queue
 import org.http4s.headers.`Sec-WebSocket-Protocol`
 import scodec.bits.ByteVector
+import org.http4s.internal.{fromCompletionStage, unsafeToCompletionStage}
 
 /** A `WSClient` wrapper for the JDK 11+ websocket client.
   * It will reply to Pongs with Pings even in "low-level" mode.

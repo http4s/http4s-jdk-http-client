@@ -17,6 +17,7 @@ import org.http4s.client.jdkhttpclient.compat.CollectionConverters._
 import org.http4s.util.CaseInsensitiveString
 import org.http4s.{Header, Headers, HttpVersion, Request, Response, Status}
 import org.reactivestreams.FlowAdapters
+import org.http4s.internal.fromCompletionStage
 
 object JdkHttpClient {
 
