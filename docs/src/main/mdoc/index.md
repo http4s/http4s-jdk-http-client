@@ -31,7 +31,7 @@ which is enabled by default. See [here](https://github.com/http4s/http4s-jdk-htt
 for a report.
 
 You can work around this by using a [custom client](#custom-clients)
-with TLS 1.3 disabled or by upgrading to a newer Java version (e.g. Java 14 LTS).
+with TLS 1.3 disabled or by upgrading to a Java version > 11.
 @@@
 
 ### Creating the client
