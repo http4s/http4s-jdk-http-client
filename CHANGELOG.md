@@ -4,6 +4,28 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.3.0 (2020-04-05)
+
+This release is considered stable.
+
+### Bugfixes
+
+* [#191](https://github.com/http4s/http4s-jdk-http-client/pull/191) Now shifting back from the HTTP thread pool. This adds `ContextShift` bounds to client creation.
+* [#207](https://github.com/http4s/http4s-jdk-http-client/pull/207) Fix connection leak if body is not consumed
+
+### Dependency updates
+
+* cats-core-2.1.1
+* fs2-2.3.0
+* http4s-0.21.3
+* scodec-bits-1.1.14
+* scala-2.12.11
+
+### Documentation
+
+* [#187](https://github.com/http4s/http4s-jdk-http-client/pull/187) mention restricted headers
+* [#206](https://github.com/http4s/http4s-jdk-http-client/pull/206) document spurious deadlocks with Java 11 and TLS 1.3
+
 ## v0.2.0 (2020-02-09)
 
 This release is considered stable.
