@@ -4,3 +4,10 @@
   to = "/latest/:splat"
   force = false
   status = 302
+
+[[redirects]]
+  from = "/stable/*"
+  to = "/0.3.0/:splat"
+  force = false
+  status = 200
+        
