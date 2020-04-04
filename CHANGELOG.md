@@ -8,9 +8,10 @@ This file summarizes **notable** changes for each release, but does not describe
 
 This release is considered stable.
 
-### Bufixes
+### Bugfixes
 
 * [#191](https://github.com/http4s/http4s-jdk-http-client/pull/191) Now shifting back from the HTTP thread pool. This adds `ContextShift` bounds to client creation.
+* [#207](https://github.com/http4s/http4s-jdk-http-client/pull/207) Fix connection leak if body is not consumed
 
 ### Dependency updates
 
