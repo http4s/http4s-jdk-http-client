@@ -4,7 +4,7 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
-## v0.3.0 (2020-04-02)
+## v0.3.0 (2020-04-05)
 
 This release is considered stable.
 
