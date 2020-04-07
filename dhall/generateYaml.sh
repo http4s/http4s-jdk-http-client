@@ -1,6 +1,6 @@
 cd $(dirname "$0")
 
-for f in ci snapshots dhall; do
+for f in ci release dhall; do
     dhall-to-yaml --omit-empty --file $f.dhall --output ../.github/workflows/$f.yml
 done
 

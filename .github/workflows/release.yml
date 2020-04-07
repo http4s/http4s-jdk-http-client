@@ -3,6 +3,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: "actions/checkout@v2"
+      - name: Unshallow
+        run: git fetch --unshallow
       - uses: "actions/setup-java@v1"
         with:
           java-version: '11'
@@ -30,7 +32,7 @@ jobs:
           SONATYPE_PASSWORD: "${{ secrets.SONATYPE_PASSWORD }}"
           SONATYPE_USERNAME: "${{ secrets.SONATYPE_USERNAME }}"
           SSH_PRIVATE_KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
-        name: Publish snapshot
+        name: Release
         run: |
           echo "$PGP_SECRET" | base64 --decode | gpg --import --no-tty --batch --yes
           eval "$(ssh-agent -s)"
@@ -38,9 +40,11 @@ jobs:
           git config --global user.name "GitHub Actions CI"
           git config --global user.email "ghactions@invalid"
           
-          sbt +publishSigned docs/makeSite docs/ghpagesPushSite
-name: Publish snapshots
+          sbt ci-release docs/makeSite docs/ghpagesPushSite
+name: Publish releases and snapshots
 on:
   push:
     branches:
       - master
+    tags:
+      - "*"
