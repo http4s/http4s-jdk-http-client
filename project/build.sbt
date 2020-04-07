@@ -1,3 +1,3 @@
 libraryDependencies ++= Seq(
-  "com.lihaoyi" %% "upickle" % "0.9.9"
+  "com.lihaoyi" %% "upickle" % "1.0.0"
 )
