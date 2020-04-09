@@ -1,5 +1,11 @@
 
 [[redirects]]
+  from = "/stable/*"
+  to = "/0.3.0/:splat"
+  force = false
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/latest/:splat"
   force = false
