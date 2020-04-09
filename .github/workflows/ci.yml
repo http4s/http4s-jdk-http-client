@@ -1,40 +1,51 @@
-name: CI
-on: [push, pull_request]
 jobs:
   build:
-    name: Scala ${{ matrix.scala }}, Java ${{ matrix.java }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        java: [11]
-        scala: [2.12.10, 2.13.1]
     env:
-      SCALA_VERSION: ${{ matrix.scala }}
+      SCALA_VERSION: "${{ matrix.scala }}"
+    name: "Scala ${{ matrix.scala }}, Java ${{ matrix.java }}"
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v1
+      - uses: "actions/checkout@v2"
+      - uses: "actions/setup-java@v1"
         with:
-          java-version: ${{ matrix.java }}
+          java-version: "${{ matrix.java }}"
       - name: Get current week
         run: |
           echo "::set-env name=current_week::$(( 10#$(date +%U) ))"
           echo "::set-env name=last_week::$(( 10#$(date +%U) - 1 ))"
       - name: Cache SBT coursier cache
-        uses: actions/cache@v1
+        uses: "actions/cache@v1"
         with:
-          path: ~/.cache/coursier
-          key: coursier-${{ env.current_week }}
-          restore-keys: coursier-${{ env.last_week }}
+          key: "coursier-${{ env.current_week }}"
+          path: "~/.cache/coursier"
+          restore-keys: "coursier-${{ env.last_week }}"
       - name: Cache SBT
-        uses: actions/cache@v1
+        uses: "actions/cache@v1"
         with:
-          path: ~/.sbt
-          key: sbt-${{ env.current_week }}
-          restore-keys: sbt-${{ env.last_week }}
+          key: "sbt-${{ env.current_week }}"
+          path: "~/.sbt"
+          restore-keys: "sbt-${{ env.last_week }}"
       - name: Tests
-        run: sbt ++$SCALA_VERSION test doc mimaReportBinaryIssues scalafmtCheckAll
-      - name: Test docs
-        # paradox requires 2.12
-        if: startsWith(matrix.scala, '2.12')
-        run: sbt ++$SCALA_VERSION docs/makeSite
+        run: "sbt ++$SCALA_VERSION test"
+      - name: Scaladocs
+        run: "sbt ++$SCALA_VERSION doc"
+      - name: MiMa
+        run: "sbt ++$SCALA_VERSION mimaReportBinaryIssues"
+      - name: Scalafmt
+        run: "sbt ++$SCALA_VERSION scalafmtCheckAll"
+      - if: "startsWith(matrix.scala, '2.12')"
+        name: Test docs
+        run: "sbt ++$SCALA_VERSION docs/makeSite"
+    strategy:
+      fail-fast: false
+      matrix:
+        java:
+          - '11'
+          - '14'
+        scala:
+          - '2.12.11'
+          - '2.13.1'
+name: CI
+on:
+  - push
+  - pull_request

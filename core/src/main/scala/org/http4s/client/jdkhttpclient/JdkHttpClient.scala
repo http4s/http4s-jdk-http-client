@@ -1,10 +1,5 @@
 package org.http4s.client.jdkhttpclient
 
-import cats.ApplicativeError
-import cats.effect._
-import cats.implicits._
-import fs2.interop.reactivestreams._
-import fs2.{Chunk, Stream}
 import java.net.URI
 import java.net.http.HttpRequest.BodyPublishers
 import java.net.http.HttpResponse.BodyHandlers
@@ -12,9 +7,16 @@ import java.net.http.{HttpClient, HttpRequest, HttpResponse}
 import java.nio.ByteBuffer
 import java.util
 import java.util.concurrent.Flow
+
+import cats.ApplicativeError
+import cats.effect._
+import cats.implicits._
+import fs2.concurrent.SignallingRef
+import fs2.interop.reactivestreams._
+import fs2.{Chunk, Stream}
 import org.http4s.client.Client
 import org.http4s.client.jdkhttpclient.compat.CollectionConverters._
-import org.http4s.internal.fromCompletableFuture
+import org.http4s.internal.fromCompletionStage
 import org.http4s.util.CaseInsensitiveString
 import org.http4s.{Header, Headers, HttpVersion, Request, Response, Status}
 import org.reactivestreams.FlowAdapters
@@ -33,7 +35,7 @@ object JdkHttpClient {
   def apply[F[_]](
       jdkHttpClient: HttpClient,
       ignoredHeaders: Set[CaseInsensitiveString] = restrictedHeaders
-  )(implicit F: ConcurrentEffect[F]): Client[F] = {
+  )(implicit F: ConcurrentEffect[F], CS: ContextShift[F]): Client[F] = {
     def convertRequest(req: Request[F]): F[HttpRequest] =
       convertHttpVersionFromHttp4s[F](req.httpVersion).map { version =>
         val rb = HttpRequest.newBuilder
@@ -58,41 +60,46 @@ object JdkHttpClient {
         (if (headers.isEmpty) rb else rb.headers(headers: _*)).build
       }
 
-    def convertResponse(res: HttpResponse[Flow.Publisher[util.List[ByteBuffer]]]): F[Response[F]] =
-      F.fromEither(Status.fromInt(res.statusCode)).map { status =>
-        Response(
-          status = status,
-          headers = Headers(res.headers.map.asScala.flatMap {
-            case (k, vs) => vs.asScala.map(Header(k, _))
-          }.toList),
-          httpVersion = res.version match {
-            case HttpClient.Version.HTTP_1_1 => HttpVersion.`HTTP/1.1`
-            case HttpClient.Version.HTTP_2 => HttpVersion.`HTTP/2.0`
-          },
-          body = FlowAdapters
-            .toPublisher(res.body)
-            .toStream[F]
-            .flatMap(bs =>
-              Stream.fromIterator(bs.asScala.map(Chunk.byteBuffer).iterator).flatMap(Stream.chunk)
-            )
-        )
-      }
+    def convertResponse(
+        res: HttpResponse[Flow.Publisher[util.List[ByteBuffer]]]
+    ): Resource[F, Response[F]] =
+      Resource(
+        (F.fromEither(Status.fromInt(res.statusCode)), SignallingRef[F, Boolean](false)).mapN {
+          case (status, signal) =>
+            Response(
+              status = status,
+              headers = Headers(res.headers.map.asScala.flatMap {
+                case (k, vs) => vs.asScala.map(Header(k, _))
+              }.toList),
+              httpVersion = res.version match {
+                case HttpClient.Version.HTTP_1_1 => HttpVersion.`HTTP/1.1`
+                case HttpClient.Version.HTTP_2 => HttpVersion.`HTTP/2.0`
+              },
+              body = FlowAdapters
+                .toPublisher(res.body)
+                .toStream[F]
+                .interruptWhen(signal)
+                .flatMap(bs => Stream.fromIterator(bs.iterator.asScala.map(Chunk.byteBuffer)))
+                .flatMap(Stream.chunk)
+            ) -> signal.set(true)
+        }
+      )
 
     Client[F] { req =>
-      Resource.liftF(
-        convertRequest(req)
-          .flatMap(r =>
-            fromCompletableFuture(F.delay(jdkHttpClient.sendAsync(r, BodyHandlers.ofPublisher)))
-          )
-          .flatMap(convertResponse)
-      )
+      for {
+        req <- Resource.liftF(convertRequest(req))
+        res <- Resource.liftF(
+          fromCompletionStage(F.delay(jdkHttpClient.sendAsync(req, BodyHandlers.ofPublisher)))
+        )
+        res <- convertResponse(res)
+      } yield res
     }
   }
 
   /**
     * A `Client` wrapping the default `HttpClient`.
     */
-  def simple[F[_]](implicit F: ConcurrentEffect[F]): F[Client[F]] =
+  def simple[F[_]](implicit F: ConcurrentEffect[F], CS: ContextShift[F]): F[Client[F]] =
     F.delay(HttpClient.newHttpClient()).map(apply(_))
 
   def convertHttpVersionFromHttp4s[F[_]](

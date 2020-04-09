@@ -25,6 +25,15 @@ libraryDependencies ++= Seq(
 * Built for Scala @SCALA_VERSIONS@
 * Works with http4s-client-@HTTP4S_VERSION@
 
+@@@warning { title='TLS 1.3 on Java 11' }
+On Java 11, you might experience very spurious deadlocks if you use TLS 1.3
+which is enabled by default. See [here](https://github.com/http4s/http4s-jdk-http-client/issues/200)
+for a report.
+
+You can work around this by using a [custom client](#custom-clients)
+with TLS 1.3 disabled or by upgrading to a Java version > 11.
+@@@
+
 ### Creating the client
 
 #### Simple
@@ -92,11 +101,22 @@ Contrast with this alternate definition of `fetchStatus`, which would
 create a new `HttpClient` instance on every invocation:
 
 ```scala mdoc
-def fetchStatusInefficiently[F[_]: ConcurrentEffect](uri: Uri): F[Status] =
+def fetchStatusInefficiently[F[_]: ConcurrentEffect: ContextShift](uri: Uri): F[Status] =
   JdkHttpClient.simple[F].flatMap(_.status(Request[F](Method.GET, uri = uri)))
 ```
 
 @@@
+
+### Restricted headers
+
+The underlying `HttpClient` may disallow certain request headers like `Host`
+or `Content-Length` to be set directly by the user. Therefore, you can pass a set
+of ignored headers to `JdkHttpClient.apply`. By default, the set of restricted
+headers of OpenJDK 11 is used.
+
+In OpenJDK 12+, there are less restricted headers by default, and you can disable
+the restriction for certain headers by passing
+`-Djdk.httpclient.allowRestrictedHeaders=host,content-length` etc. to `java`.
 
 ### Shutdown
 
