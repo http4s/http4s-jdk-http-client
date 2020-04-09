@@ -13,7 +13,10 @@ let steps =
 
       in    [ c.steps.checkout, c.steps.java "\${{ matrix.java }}" ]
           # c.steps.cache
-          # [ sbtSimpleStep "Tests" "test"
+          # [ sbtSimpleStep
+                "Unused and undeclared dependencies"
+                "unusedCompileDependenciesTest undeclaredCompileDependenciesTest"
+            , sbtSimpleStep "Tests" "test"
             , sbtSimpleStep "Scaladocs" "doc"
             , sbtSimpleStep "MiMa" "mimaReportBinaryIssues"
             , sbtSimpleStep "Scalafmt" "scalafmtCheckAll"
