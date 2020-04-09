@@ -11,7 +11,8 @@ lazy val core = project
   .in(file("core"))
   .settings(commonSettings, mimaSettings)
   .settings(
-    name := "http4s-jdk-http-client"
+    name := "http4s-jdk-http-client",
+    libraryDependencies ++= coreDeps
   )
 
 lazy val docs = project
@@ -38,6 +39,26 @@ val betterMonadicForV = "0.3.1"
 lazy val scalaVersions =
   upickle.default.read[List[String]](new File("scalaVersions.json"))
 
+val coreDeps = Seq(
+  "org.typelevel" %% "cats-core" % catsV,
+  "org.typelevel" %% "cats-kernel" % catsV,
+  "org.typelevel" %% "cats-effect" % catsEffectV,
+  "co.fs2" %% "fs2-core" % fs2V,
+  "co.fs2" %% "fs2-reactive-streams" % fs2V,
+  "org.scodec" %% "scodec-bits" % scodecV,
+  "org.http4s" %% "http4s-core" % http4sV,
+  "org.http4s" %% "http4s-client" % http4sV,
+  "org.reactivestreams" % "reactive-streams" % reactiveStreamsV,
+  "io.chrisdavenport" %% "vault" % vaultV,
+  "org.http4s" %% "http4s-testing" % http4sV % Test,
+  "org.specs2" %% "specs2-core" % specs2V % Test,
+  "org.specs2" %% "specs2-scalacheck" % specs2V % Test,
+  "com.codecommit" %% "cats-effect-testing-specs2" % catsEffectTestingV % Test,
+  "org.http4s" %% "http4s-dsl" % http4sV % Test,
+  "org.http4s" %% "http4s-blaze-server" % http4sV % Test,
+  "org.java-websocket" % "Java-WebSocket" % javaWebsocketV % Test
+)
+
 // General Settings
 lazy val commonSettings = Seq(
   organization := "org.http4s",
@@ -55,25 +76,6 @@ lazy val commonSettings = Seq(
     ("org.typelevel" % "kind-projector" % kindProjectorV).cross(CrossVersion.binary)
   ),
   addCompilerPlugin("com.olegpy" %% "better-monadic-for" % betterMonadicForV),
-  libraryDependencies ++= Seq(
-    "org.typelevel" %% "cats-core" % catsV,
-    "org.typelevel" %% "cats-kernel" % catsV,
-    "org.typelevel" %% "cats-effect" % catsEffectV,
-    "co.fs2" %% "fs2-core" % fs2V,
-    "co.fs2" %% "fs2-reactive-streams" % fs2V,
-    "org.scodec" %% "scodec-bits" % scodecV,
-    "org.http4s" %% "http4s-core" % http4sV,
-    "org.http4s" %% "http4s-client" % http4sV,
-    "org.reactivestreams" % "reactive-streams" % reactiveStreamsV,
-    "io.chrisdavenport" %% "vault" % vaultV,
-    "org.http4s" %% "http4s-testing" % http4sV % Test,
-    "org.specs2" %% "specs2-core" % specs2V % Test,
-    "org.specs2" %% "specs2-scalacheck" % specs2V % Test,
-    "com.codecommit" %% "cats-effect-testing-specs2" % catsEffectTestingV % Test,
-    "org.http4s" %% "http4s-dsl" % http4sV % Test,
-    "org.http4s" %% "http4s-blaze-server" % http4sV % Test,
-    "org.java-websocket" % "Java-WebSocket" % javaWebsocketV % Test
-  ),
   unmanagedSourceDirectories in Compile ++= {
     (unmanagedSourceDirectories in Compile).value.map { dir =>
       val sv = scalaVersion.value
