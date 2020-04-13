@@ -39,25 +39,28 @@ val betterMonadicForV = "0.3.1"
 lazy val scalaVersions =
   upickle.default.read[List[String]](new File("scalaVersions.json"))
 
+// format: off
 val coreDeps = Seq(
-  "org.typelevel" %% "cats-core" % catsV,
-  "org.typelevel" %% "cats-kernel" % catsV,
-  "org.typelevel" %% "cats-effect" % catsEffectV,
-  "co.fs2" %% "fs2-core" % fs2V,
-  "co.fs2" %% "fs2-reactive-streams" % fs2V,
-  "org.scodec" %% "scodec-bits" % scodecV,
-  "org.http4s" %% "http4s-core" % http4sV,
-  "org.http4s" %% "http4s-client" % http4sV,
-  "org.reactivestreams" % "reactive-streams" % reactiveStreamsV,
-  "io.chrisdavenport" %% "vault" % vaultV,
-  "org.http4s" %% "http4s-testing" % http4sV % Test,
-  "org.specs2" %% "specs2-core" % specs2V % Test,
-  "org.specs2" %% "specs2-scalacheck" % specs2V % Test,
-  "com.codecommit" %% "cats-effect-testing-specs2" % catsEffectTestingV % Test,
-  "org.http4s" %% "http4s-dsl" % http4sV % Test,
-  "org.http4s" %% "http4s-blaze-server" % http4sV % Test,
-  "org.java-websocket" % "Java-WebSocket" % javaWebsocketV % Test
-)
+  "org.typelevel"       %% "cats-core"                  % catsV,
+  "org.typelevel"       %% "cats-effect"                % catsEffectV,
+  "org.typelevel"       %% "cats-kernel"                % catsV,
+  "co.fs2"              %% "fs2-core"                   % fs2V,
+  "co.fs2"              %% "fs2-reactive-streams"       % fs2V,
+  "org.http4s"          %% "http4s-client"              % http4sV,
+  "org.http4s"          %% "http4s-core"                % http4sV,
+  "org.reactivestreams" %  "reactive-streams"           % reactiveStreamsV,
+  "org.scodec"          %% "scodec-bits"                % scodecV,
+  "io.chrisdavenport"   %% "vault"                      % vaultV,
+) ++ Seq(
+  "com.codecommit"      %% "cats-effect-testing-specs2" % catsEffectTestingV,
+  "org.http4s"          %% "http4s-blaze-server"        % http4sV,
+  "org.http4s"          %% "http4s-dsl"                 % http4sV,
+  "org.http4s"          %% "http4s-testing"             % http4sV,
+  "org.java-websocket"  %  "Java-WebSocket"             % javaWebsocketV,
+  "org.specs2"          %% "specs2-core"                % specs2V,
+  "org.specs2"          %% "specs2-scalacheck"          % specs2V,
+).map(_ % Test)
+// format: on
 
 // General Settings
 lazy val commonSettings = Seq(
