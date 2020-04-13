@@ -25,6 +25,8 @@ jobs:
           key: "sbt-${{ env.current_week }}"
           path: "~/.sbt"
           restore-keys: "sbt-${{ env.last_week }}"
+      - name: Unused and undeclared dependencies
+        run: "sbt ++$SCALA_VERSION unusedCompileDependenciesTest undeclaredCompileDependenciesTest"
       - name: Tests
         run: "sbt ++$SCALA_VERSION test"
       - name: Scaladocs
