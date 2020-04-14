@@ -2,25 +2,25 @@ let SimpleObject = List { mapKey : Text, mapValue : Text }
 
 let Uses =
       { Type =
-          { name : Optional Text, uses : Text, with : Optional SimpleObject }
-      , default = { name = None Text, with = None SimpleObject }
+          { name : Optional Text, uses : Text, `with` : Optional SimpleObject }
+      , default = { name = None Text, `with` = None SimpleObject }
       }
 
 let Run =
       { Type =
           { name : Text
           , run : Text
-          , if : Optional Text
+          , `if` : Optional Text
           , env : Optional SimpleObject
           }
-      , default = { if = None Text, env = None SimpleObject }
+      , default = { `if` = None Text, env = None SimpleObject }
       }
 
 let BuildStep = < Uses : Uses.Type | Run : Run.Type >
 
 let baseJob = \(steps : List BuildStep) -> { runs-on = "ubuntu-latest", steps }
 
-let javaVersions = let dv = "11" in { default = dv, all = [ dv, "14" ] }
+let javaVersions = ./javaVersions.dhall
 
 let scalaVersions = ./scalaVersions.dhall
 
@@ -39,7 +39,7 @@ let steps =
               ->  BuildStep.Uses
                     Uses::{
                     , uses = "actions/setup-java@v1"
-                    , with = Some (toMap { java-version = version })
+                    , `with` = Some (toMap { java-version = version })
                     }
           , cache =
               let cacheConfig =
@@ -48,7 +48,7 @@ let steps =
                           Uses::{
                           , name = Some config.name
                           , uses = "actions/cache@v1"
-                          , with = Some
+                          , `with` = Some
                               ( toMap
                                   { path = config.path
                                   , key =
@@ -63,7 +63,7 @@ let steps =
                       Run::{
                       , name = "Get current week"
                       , run =
-                          let currentWeek = "10#\$(date +%U)"
+                          let currentWeek = "10\u0023\$(date +%U)"
 
                           in  ''
                               echo "::set-env name=current_week::$(( ${currentWeek} ))"

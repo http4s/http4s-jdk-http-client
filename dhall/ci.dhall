@@ -24,7 +24,7 @@ let steps =
                 c.Run::{
                 , name = "Test docs"
                 , run = "docs/makeSite"
-                , if = Some "startsWith(matrix.scala, '2.12')"
+                , `if` = Some "startsWith(matrix.scala, '2.12')"
                 }
             ]
 
@@ -35,7 +35,8 @@ in  { name = "CI"
         /\  { name = c.ciJobName "\${{ matrix.scala }}" "\${{ matrix.java }}"
             , strategy =
               { fail-fast = False
-              , matrix = { java = c.javaVersions.all, scala = c.scalaVersions }
+              , matrix =
+                { java = c.javaVersions.all, scala = c.scalaVersions.all }
               }
             , env.SCALA_VERSION = "\${{ matrix.scala }}"
             }

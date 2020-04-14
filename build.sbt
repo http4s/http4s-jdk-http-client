@@ -3,7 +3,8 @@ lazy val `http4s-jdk-http-client` = project
   .disablePlugins(MimaPlugin)
   .settings(commonSettings, skipOnPublishSettings)
   .settings(
-    crossScalaVersions := Nil
+    crossScalaVersions := Nil,
+    Dhall.convertDhallTask
   )
   .aggregate(core)
 
@@ -36,9 +37,6 @@ val javaWebsocketV = "1.4.1"
 val kindProjectorV = "0.10.3"
 val betterMonadicForV = "0.3.1"
 
-lazy val scalaVersions =
-  upickle.default.read[List[String]](new File("scalaVersions.json"))
-
 // format: off
 val coreDeps = Seq(
   "org.typelevel"       %% "cats-core"                  % catsV,
@@ -65,8 +63,9 @@ val coreDeps = Seq(
 // General Settings
 lazy val commonSettings = Seq(
   organization := "org.http4s",
-  scalaVersion := scalaVersions.head,
-  crossScalaVersions := scalaVersions,
+  Dhall.scalaVersionsImpl,
+  scalaVersion := Dhall.scalaVersions.value.default,
+  crossScalaVersions := Dhall.scalaVersions.value.all,
   scalacOptions += "-Yrangepos",
   scalacOptions in (Compile, doc) ++= Seq(
     "-groups",

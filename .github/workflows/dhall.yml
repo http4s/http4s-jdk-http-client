@@ -2,24 +2,14 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@v2"
-      - name: Setup Dhall
-        run: |
-          cd $(mktemp -d)
-          curl -L https://github.com/dhall-lang/dhall-haskell/releases/download/1.31.1/dhall-1.31.1-x86_64-linux.tar.bz2 | tar xj
-          curl -L https://github.com/dhall-lang/dhall-haskell/releases/download/1.31.1/dhall-json-1.6.3-x86_64-linux.tar.bz2 | tar xj
-          mkdir -p $HOME/bin
-          mv bin/* $HOME/bin/
-          echo "::add-path::$HOME/bin"
-      - name: Check Dhall formatting
-        run: |
-          [[ $(find -name '*.dhall' -exec sh -c 'dhall --ascii format --check < {}' \; |& wc -c) -eq 0 ]]
-      - name: Check generated YAML files
-        run: |
-          cd dhall
-          ./generateYaml.sh
-          [[ $(git status --porcelain | wc -l) -eq 0 ]]
+    - uses: actions/checkout@v2
+    - uses: actions/setup-java@v1
+      with:
+        java-version: '11'
+    - name: Check generated YAML files
+      run: \nbash -c 'sbt convertDhall'\n\n[[ $(git status --porcelain | wc -l) -eq
+        0 ]]\n
 name: Check Dhall configs
-on:
-  - push
-  - pull_request
+'on':
+- push
+- pull_request
