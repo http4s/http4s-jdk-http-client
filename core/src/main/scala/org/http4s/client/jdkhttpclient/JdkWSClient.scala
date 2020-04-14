@@ -93,17 +93,20 @@ object JdkWSClient {
                 closeOutput = fromCompletionStage(
                   F.delay(webSocket.sendClose(JWebSocket.NORMAL_CLOSURE, ""))
                 )
-                _ <- closeOutput.whenA(isOutputOpen).onError {
-                  case e: IOException =>
-                    for {
-                      chunk <- queue.tryDequeueChunk1(10)
-                      errs = Chunk(chunk.flatten.toSeq: _*).flatten.collect { case Left(e) => e }
-                      _ <- F.raiseError[Unit](NonEmptyList.fromFoldable(errs) match {
-                        case Some(nel) => new CompositeException(e, nel)
-                        case None => e
-                      })
-                    } yield ()
-                }
+                _ <- closeOutput
+                  .whenA(isOutputOpen)
+                  .recover { case e: IOException if e.getMessage == "closed output" => () }
+                  .onError {
+                    case e: IOException =>
+                      for {
+                        chunk <- queue.tryDequeueChunk1(10)
+                        errs = Chunk(chunk.flatten.toSeq: _*).flatten.collect { case Left(e) => e }
+                        _ <- F.raiseError[Unit](NonEmptyList.fromFoldable(errs) match {
+                          case Some(nel) => new CompositeException(e, nel)
+                          case None => e
+                        })
+                      } yield ()
+                  }
               } yield ()
           }
           .map {
