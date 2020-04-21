@@ -15,14 +15,14 @@ let ciJobNameRules =
                 )
                 c.javaVersions.all
         )
-        c.scalaVersions
+        c.scalaVersions.all
 
 in  { pull_request_rules =
       [ { name = "automatically merge scala-steward's PRs"
         , conditions =
               [ "author=scala-steward", "body~=labels:.*semver-patch.*" ]
             # ciJobNameRules
-        , actions.merge.method = "merge"
+        , actions.`merge`.method = "merge"
         }
       ]
     }

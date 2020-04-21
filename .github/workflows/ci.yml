@@ -1,53 +1,53 @@
 jobs:
   build:
     env:
-      SCALA_VERSION: "${{ matrix.scala }}"
-    name: "Scala ${{ matrix.scala }}, Java ${{ matrix.java }}"
+      SCALA_VERSION: ${{ matrix.scala }}
+    name: Scala ${{ matrix.scala }}, Java ${{ matrix.java }}
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@v2"
-      - uses: "actions/setup-java@v1"
-        with:
-          java-version: "${{ matrix.java }}"
-      - name: Get current week
-        run: |
-          echo "::set-env name=current_week::$(( 10#$(date +%U) ))"
-          echo "::set-env name=last_week::$(( 10#$(date +%U) - 1 ))"
-      - name: Cache SBT coursier cache
-        uses: "actions/cache@v1"
-        with:
-          key: "coursier-${{ env.current_week }}"
-          path: "~/.cache/coursier"
-          restore-keys: "coursier-${{ env.last_week }}"
-      - name: Cache SBT
-        uses: "actions/cache@v1"
-        with:
-          key: "sbt-${{ env.current_week }}"
-          path: "~/.sbt"
-          restore-keys: "sbt-${{ env.last_week }}"
-      - name: Unused and undeclared dependencies
-        run: "sbt ++$SCALA_VERSION unusedCompileDependenciesTest undeclaredCompileDependenciesTest"
-      - name: Tests
-        run: "sbt ++$SCALA_VERSION test"
-      - name: Scaladocs
-        run: "sbt ++$SCALA_VERSION doc"
-      - name: MiMa
-        run: "sbt ++$SCALA_VERSION mimaReportBinaryIssues"
-      - name: Scalafmt
-        run: "sbt ++$SCALA_VERSION scalafmtCheckAll"
-      - if: "startsWith(matrix.scala, '2.12')"
-        name: Test docs
-        run: "sbt ++$SCALA_VERSION docs/makeSite"
+    - uses: actions/checkout@v2
+    - uses: actions/setup-java@v1
+      with:
+        java-version: ${{ matrix.java }}
+    - name: Get current week
+      run: |
+        echo \"::set-env name=current_week::$(( 10#$(date +%U) ))\"
+        echo \"::set-env name=last_week::$(( 10#$(date +%U) - 1 ))\"
+    - name: Cache SBT coursier cache
+      uses: actions/cache@v1
+      with:
+        key: coursier-${{ env.current_week }}
+        path: ~/.cache/coursier
+        restore-keys: coursier-${{ env.last_week }}
+    - name: Cache SBT
+      uses: actions/cache@v1
+      with:
+        key: sbt-${{ env.current_week }}
+        path: ~/.sbt
+        restore-keys: sbt-${{ env.last_week }}
+    - name: Unused and undeclared dependencies
+      run: sbt ++$SCALA_VERSION unusedCompileDependenciesTest undeclaredCompileDependenciesTest
+    - name: Tests
+      run: sbt ++$SCALA_VERSION test
+    - name: Scaladocs
+      run: sbt ++$SCALA_VERSION doc
+    - name: MiMa
+      run: sbt ++$SCALA_VERSION mimaReportBinaryIssues
+    - name: Scalafmt
+      run: sbt ++$SCALA_VERSION scalafmtCheckAll
+    - if: startsWith(matrix.scala, '2.12')
+      name: Test docs
+      run: sbt ++$SCALA_VERSION docs/makeSite
     strategy:
       fail-fast: false
       matrix:
         java:
-          - '11'
-          - '14'
+        - '11'
+        - '14'
         scala:
-          - '2.12.11'
-          - '2.13.1'
+        - 2.12.11
+        - 2.13.1
 name: CI
-on:
-  - push
-  - pull_request
+'on':
+- push
+- pull_request
