@@ -2,49 +2,50 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@v2"
-      - name: Unshallow
-        run: git fetch --unshallow
-      - uses: "actions/setup-java@v1"
-        with:
-          java-version: '11'
-      - uses: "olafurpg/setup-gpg@v2"
-      - name: Get current week
-        run: |
-          echo "::set-env name=current_week::$(( 10#$(date +%U) ))"
-          echo "::set-env name=last_week::$(( 10#$(date +%U) - 1 ))"
-      - name: Cache SBT coursier cache
-        uses: "actions/cache@v1"
-        with:
-          key: "coursier-${{ env.current_week }}"
-          path: "~/.cache/coursier"
-          restore-keys: "coursier-${{ env.last_week }}"
-      - name: Cache SBT
-        uses: "actions/cache@v1"
-        with:
-          key: "sbt-${{ env.current_week }}"
-          path: "~/.sbt"
-          restore-keys: "sbt-${{ env.last_week }}"
-      - env:
-          PGP_PASSPHRASE: "${{ secrets.PGP_PASSPHRASE }}"
-          PGP_SECRET: "${{ secrets.PGP_SECRET }}"
-          SBT_GHPAGES_COMMIT_MESSAGE: "Updated site: sha=${{ github.sha }} build=${{ github.run_id }}"
-          SONATYPE_PASSWORD: "${{ secrets.SONATYPE_PASSWORD }}"
-          SONATYPE_USERNAME: "${{ secrets.SONATYPE_USERNAME }}"
-          SSH_PRIVATE_KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
-        name: Release
-        run: |
-          echo "$PGP_SECRET" | base64 --decode | gpg --import --no-tty --batch --yes
-          eval "$(ssh-agent -s)"
-          echo "$SSH_PRIVATE_KEY" | ssh-add -
-          git config --global user.name "GitHub Actions CI"
-          git config --global user.email "ghactions@invalid"
-          
-          sbt ci-release docs/makeSite docs/ghpagesPushSite
+    - uses: actions/checkout@v2
+    - name: Unshallow
+      run: git fetch --unshallow
+    - uses: actions/setup-java@v1
+      with:
+        java-version: '11'
+    - uses: olafurpg/setup-gpg@v2
+    - name: Get current week
+      run: |
+        echo \"::set-env name=current_week::$(( 10#$(date +%U) ))\"
+        echo \"::set-env name=last_week::$(( 10#$(date +%U) - 1 ))\"
+    - name: Cache SBT coursier cache
+      uses: actions/cache@v1
+      with:
+        key: coursier-${{ env.current_week }}
+        path: ~/.cache/coursier
+        restore-keys: coursier-${{ env.last_week }}
+    - name: Cache SBT
+      uses: actions/cache@v1
+      with:
+        key: sbt-${{ env.current_week }}
+        path: ~/.sbt
+        restore-keys: sbt-${{ env.last_week }}
+    - env:
+        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        PGP_SECRET: ${{ secrets.PGP_SECRET }}
+        SBT_GHPAGES_COMMIT_MESSAGE: 'Updated site: sha=${{ github.sha }} build=${{
+          github.run_id }}'
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      name: Release
+      run: |
+        echo \"$PGP_SECRET\" | base64 --decode | gpg --import --no-tty --batch --yes
+        eval \"$(ssh-agent -s)\"
+        echo \"$SSH_PRIVATE_KEY\" | ssh-add -
+        git config --global user.name \"GitHub Actions CI\"
+        git config --global user.email \"ghactions@invalid\"
+
+        sbt ci-release docs/makeSite docs/ghpagesPushSite
 name: Publish releases and snapshots
-on:
+'on':
   push:
     branches:
-      - master
+    - master
     tags:
-      - "*"
+    - '*'
