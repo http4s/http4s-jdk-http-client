@@ -30,7 +30,7 @@ val http4sV = "0.21.3"
 val reactiveStreamsV = "1.0.3"
 val vaultV = "2.0.0"
 
-val specs2V = "4.9.3"
+val specs2V = "4.9.4"
 val catsEffectTestingV = "0.4.0"
 val javaWebsocketV = "1.4.1"
 
