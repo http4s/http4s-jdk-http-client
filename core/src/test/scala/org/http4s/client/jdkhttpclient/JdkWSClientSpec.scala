@@ -164,7 +164,7 @@ class JdkWSClientSpec extends Specification with CatsEffect {
             case r @ GET -> Root =>
               ref.set(r.headers.some) *> WebSocketBuilder[IO].build(Stream.empty, _ => Stream.empty)
           }
-          BlazeServerBuilder[IO]
+          BlazeServerBuilder[IO](global)
             .bindHttp(8081)
             .withHttpApp(routes.orNotFound)
             .resource
