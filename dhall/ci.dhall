@@ -19,7 +19,7 @@ let steps =
             , sbtSimpleStep "Tests" "test"
             , sbtSimpleStep "Scaladocs" "doc"
             , sbtSimpleStep "MiMa" "mimaReportBinaryIssues"
-            , sbtSimpleStep "Scalafmt" "scalafmtCheckAll"
+            , sbtSimpleStep "Scalafmt" "scalafmtCheckAll scalafmtSbtCheck"
             , sbtStep
                 c.Run::{
                 , name = "Test docs"
