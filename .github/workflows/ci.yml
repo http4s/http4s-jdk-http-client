@@ -34,7 +34,7 @@ jobs:
     - name: MiMa
       run: sbt ++$SCALA_VERSION mimaReportBinaryIssues
     - name: Scalafmt
-      run: sbt ++$SCALA_VERSION scalafmtCheckAll
+      run: sbt ++$SCALA_VERSION scalafmtCheckAll scalafmtSbtCheck
     - if: startsWith(matrix.scala, '2.12')
       name: Test docs
       run: sbt ++$SCALA_VERSION docs/makeSite

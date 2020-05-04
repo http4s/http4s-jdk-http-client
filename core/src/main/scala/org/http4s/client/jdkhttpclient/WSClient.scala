@@ -122,17 +122,18 @@ object WSClient {
           override def sendClose(reason: String) =
             conn.send(WSFrame.Close(1000, reason)) *> outputOpen.set(false)
           override def receive: F[Option[WSDataFrame]] = {
-            def receiveDataFrame: OptionT[F, WSDataFrame] = OptionT(conn.receive).flatMap { wsf =>
-              OptionT.liftF(wsf match {
-                case WSFrame.Ping(data) if respondToPings => conn.send(WSFrame.Pong(data))
-                case wsf: WSFrame.Close =>
-                  recvCloseFrame.complete(wsf) *> outputOpen.get.flatMap(conn.send(wsf).whenA(_))
-                case _ => F.unit
-              }) >> (wsf match {
-                case wsdf: WSDataFrame => OptionT.pure[F](wsdf)
-                case _ => receiveDataFrame
-              })
-            }
+            def receiveDataFrame: OptionT[F, WSDataFrame] =
+              OptionT(conn.receive).flatMap { wsf =>
+                OptionT.liftF(wsf match {
+                  case WSFrame.Ping(data) if respondToPings => conn.send(WSFrame.Pong(data))
+                  case wsf: WSFrame.Close =>
+                    recvCloseFrame.complete(wsf) *> outputOpen.get.flatMap(conn.send(wsf).whenA(_))
+                  case _ => F.unit
+                }) >> (wsf match {
+                  case wsdf: WSDataFrame => OptionT.pure[F](wsdf)
+                  case _ => receiveDataFrame
+                })
+              }
             def defrag(text: Chain[String], binary: ByteVector): OptionT[F, WSDataFrame] =
               receiveDataFrame.flatMap {
                 case WSFrame.Text(t, finalFrame) =>
