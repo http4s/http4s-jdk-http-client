@@ -6,7 +6,7 @@ import org.dhallj.imports.syntax._
 import org.dhallj.parser.DhallParser
 import org.dhallj.yaml.YamlConverter
 import org.http4s.client.Client
-import org.http4s.client.jdkhttpclient.JdkHttpClient
+import org.http4s.ember.client.EmberClientBuilder
 import sbt.{IO => _, _}
 import scala.concurrent.ExecutionContext
 import upickle.default.{ReadWriter, macroRW}
@@ -17,7 +17,8 @@ object Dhall {
 
   private lazy val http = {
     implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-    JdkHttpClient.simple[IO].unsafeRunSync()
+    implicit val t: Timer[IO] = IO.timer(ExecutionContext.global)
+    EmberClientBuilder.default[IO].build.allocated.unsafeRunSync()._1
   }
 
   private def loadDhall(expr: String): Expr = {
@@ -35,7 +36,7 @@ object Dhall {
     def convertYaml(from: String, to: String): Unit = {
       val dhall = loadDhall(s"$baseDir/dhall/$from.dhall")
       val yaml = YamlConverter.toYamlString(dhall)
-      Files.writeString(Paths.get(s"$baseDir/$to"), yaml)
+      Files.write(Paths.get(s"$baseDir/$to"), yaml.getBytes)
     }
     List("ci", "release", "dhall").foreach { file =>
       convertYaml(file, s".github/workflows/$file.yml")
