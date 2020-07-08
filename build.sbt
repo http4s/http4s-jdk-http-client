@@ -32,7 +32,7 @@ val vaultV = "2.0.0"
 
 val specs2V = "4.9.4"
 val catsEffectTestingV = "0.4.0"
-val javaWebsocketV = "1.5.0"
+val javaWebsocketV = "1.5.1"
 
 val kindProjectorV = "0.10.3"
 val betterMonadicForV = "0.3.1"
