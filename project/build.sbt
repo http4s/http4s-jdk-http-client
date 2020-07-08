@@ -1,4 +1,4 @@
-val dhalljV = "0.3.2"
+val dhalljV = "0.4.0"
 val http4sEmberClientV = "0.21.6"
 val upickleV = "1.1.0"
 
