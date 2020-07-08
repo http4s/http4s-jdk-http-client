@@ -46,15 +46,16 @@ object JdkWSClient {
                 builder
               }
               queue <- Queue.noneTerminated[F, Either[Throwable, WSFrame]]
-              handleReceive = (wsf: Either[Throwable, WSFrame]) =>
-                unsafeToCompletionStage(for {
-                  _ <- queue.enqueue1(wsf.some)
-                  // if we encounter an error or receive a Close frame, we close the queue
-                  _ <- wsf match {
-                    case Left(_) | Right(_: WSFrame.Close) => queue.enqueue1(none)
-                    case _ => F.unit
-                  }
-                } yield ())
+              handleReceive =
+                (wsf: Either[Throwable, WSFrame]) =>
+                  unsafeToCompletionStage(for {
+                    _ <- queue.enqueue1(wsf.some)
+                    // if we encounter an error or receive a Close frame, we close the queue
+                    _ <- wsf match {
+                      case Left(_) | Right(_: WSFrame.Close) => queue.enqueue1(none)
+                      case _ => F.unit
+                    }
+                  } yield ())
               wsListener = new JWebSocket.Listener {
                 override def onOpen(webSocket: JWebSocket): Unit = ()
                 override def onClose(webSocket: JWebSocket, statusCode: Int, reason: String)
@@ -93,17 +94,23 @@ object JdkWSClient {
                 closeOutput = fromCompletionStage(
                   F.delay(webSocket.sendClose(JWebSocket.NORMAL_CLOSURE, ""))
                 )
-                _ <- closeOutput.whenA(isOutputOpen).onError {
-                  case e: IOException =>
-                    for {
-                      chunk <- queue.tryDequeueChunk1(10)
-                      errs = Chunk(chunk.flatten.toSeq: _*).flatten.collect { case Left(e) => e }
-                      _ <- F.raiseError[Unit](NonEmptyList.fromFoldable(errs) match {
-                        case Some(nel) => new CompositeException(e, nel)
-                        case None => e
-                      })
-                    } yield ()
-                }
+                _ <-
+                  closeOutput
+                    .whenA(isOutputOpen)
+                    .recover { case e: IOException if e.getMessage == "closed output" => () }
+                    .onError {
+                      case e: IOException =>
+                        for {
+                          chunk <- queue.tryDequeueChunk1(10)
+                          errs = Chunk(chunk.flatten.toSeq: _*).flatten.collect {
+                            case Left(e) => e
+                          }
+                          _ <- F.raiseError[Unit](NonEmptyList.fromFoldable(errs) match {
+                            case Some(nel) => new CompositeException(e, nel)
+                            case None => e
+                          })
+                        } yield ()
+                    }
               } yield ()
           }
           .map {

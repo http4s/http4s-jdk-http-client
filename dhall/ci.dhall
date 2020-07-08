@@ -13,15 +13,18 @@ let steps =
 
       in    [ c.steps.checkout, c.steps.java "\${{ matrix.java }}" ]
           # c.steps.cache
-          # [ sbtSimpleStep "Tests" "test"
+          # [ sbtSimpleStep
+                "Unused and undeclared dependencies"
+                "unusedCompileDependenciesTest undeclaredCompileDependenciesTest"
+            , sbtSimpleStep "Tests" "test"
             , sbtSimpleStep "Scaladocs" "doc"
             , sbtSimpleStep "MiMa" "mimaReportBinaryIssues"
-            , sbtSimpleStep "Scalafmt" "scalafmtCheckAll"
+            , sbtSimpleStep "Scalafmt" "scalafmtCheckAll scalafmtSbtCheck"
             , sbtStep
                 c.Run::{
                 , name = "Test docs"
                 , run = "docs/makeSite"
-                , if = Some "startsWith(matrix.scala, '2.12')"
+                , `if` = Some "startsWith(matrix.scala, '2.12')"
                 }
             ]
 
@@ -32,7 +35,8 @@ in  { name = "CI"
         /\  { name = c.ciJobName "\${{ matrix.scala }}" "\${{ matrix.java }}"
             , strategy =
               { fail-fast = False
-              , matrix = { java = c.javaVersions.all, scala = c.scalaVersions }
+              , matrix =
+                { java = c.javaVersions.all, scala = c.scalaVersions.all }
               }
             , env.SCALA_VERSION = "\${{ matrix.scala }}"
             }

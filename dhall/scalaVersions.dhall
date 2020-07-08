@@ -1,1 +1,1 @@
-[ "2.12.11", "2.13.1" ]
+let default = "2.12.11" in { default, all = [ default, "2.13.2" ] }

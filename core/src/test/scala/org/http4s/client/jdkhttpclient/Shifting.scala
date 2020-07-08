@@ -4,7 +4,6 @@ import java.util.concurrent.Executors
 
 import cats.effect._
 import cats.effect.testing.specs2.CatsEffect
-import cats.implicits._
 import org.http4s.implicits._
 import org.specs2.mutable.Specification
 

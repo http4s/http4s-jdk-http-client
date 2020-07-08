@@ -3,7 +3,8 @@ lazy val `http4s-jdk-http-client` = project
   .disablePlugins(MimaPlugin)
   .settings(commonSettings, skipOnPublishSettings)
   .settings(
-    crossScalaVersions := Nil
+    crossScalaVersions := Nil,
+    Dhall.convertDhallTask
   )
   .aggregate(core)
 
@@ -11,7 +12,8 @@ lazy val core = project
   .in(file("core"))
   .settings(commonSettings, mimaSettings)
   .settings(
-    name := "http4s-jdk-http-client"
+    name := "http4s-jdk-http-client",
+    libraryDependencies ++= coreDeps
   )
 
 lazy val docs = project
@@ -21,28 +23,49 @@ lazy val docs = project
   .settings(commonSettings, skipOnPublishSettings, docsSettings)
 
 val catsV = "2.1.1"
-val catsEffectV = "2.1.2"
-val fs2V = "2.3.0"
-val scodecV = "1.1.14"
-val http4sV = "0.21.3"
+val catsEffectV = "2.1.3"
+val fs2V = "2.4.1"
+val scodecV = "1.1.16"
+val http4sV = "0.21.4"
 val reactiveStreamsV = "1.0.3"
 val vaultV = "2.0.0"
 
-val specs2V = "4.9.3"
+val specs2V = "4.9.4"
 val catsEffectTestingV = "0.4.0"
-val javaWebsocketV = "1.4.1"
+val javaWebsocketV = "1.5.0"
 
 val kindProjectorV = "0.10.3"
 val betterMonadicForV = "0.3.1"
 
-lazy val scalaVersions =
-  upickle.default.read[List[String]](new File("scalaVersions.json"))
+// scalafmt: { align.preset = most, trailingCommas = always }
+val coreDeps = Seq(
+  "org.typelevel"      %% "cats-core"            % catsV,
+  "org.typelevel"      %% "cats-effect"          % catsEffectV,
+  "org.typelevel"      %% "cats-kernel"          % catsV,
+  "co.fs2"             %% "fs2-core"             % fs2V,
+  "co.fs2"             %% "fs2-reactive-streams" % fs2V,
+  "org.http4s"         %% "http4s-client"        % http4sV,
+  "org.http4s"         %% "http4s-core"          % http4sV,
+  "org.reactivestreams" % "reactive-streams"     % reactiveStreamsV,
+  "org.scodec"         %% "scodec-bits"          % scodecV,
+  "io.chrisdavenport"  %% "vault"                % vaultV,
+) ++ Seq(
+  "com.codecommit"    %% "cats-effect-testing-specs2" % catsEffectTestingV,
+  "org.http4s"        %% "http4s-blaze-server"        % http4sV,
+  "org.http4s"        %% "http4s-dsl"                 % http4sV,
+  "org.http4s"        %% "http4s-testing"             % http4sV,
+  "org.java-websocket" % "Java-WebSocket"             % javaWebsocketV,
+  "org.specs2"        %% "specs2-core"                % specs2V,
+  "org.specs2"        %% "specs2-scalacheck"          % specs2V,
+).map(_ % Test)
+// scalafmt: { align.preset = none, trailingCommas = never }
 
 // General Settings
 lazy val commonSettings = Seq(
   organization := "org.http4s",
-  scalaVersion := scalaVersions.head,
-  crossScalaVersions := scalaVersions,
+  Dhall.scalaVersionsImpl,
+  scalaVersion := Dhall.scalaVersions.value.default,
+  crossScalaVersions := Dhall.scalaVersions.value.all,
   scalacOptions += "-Yrangepos",
   scalacOptions in (Compile, doc) ++= Seq(
     "-groups",
@@ -55,25 +78,6 @@ lazy val commonSettings = Seq(
     ("org.typelevel" % "kind-projector" % kindProjectorV).cross(CrossVersion.binary)
   ),
   addCompilerPlugin("com.olegpy" %% "better-monadic-for" % betterMonadicForV),
-  libraryDependencies ++= Seq(
-    "org.typelevel" %% "cats-core" % catsV,
-    "org.typelevel" %% "cats-kernel" % catsV,
-    "org.typelevel" %% "cats-effect" % catsEffectV,
-    "co.fs2" %% "fs2-core" % fs2V,
-    "co.fs2" %% "fs2-reactive-streams" % fs2V,
-    "org.scodec" %% "scodec-bits" % scodecV,
-    "org.http4s" %% "http4s-core" % http4sV,
-    "org.http4s" %% "http4s-client" % http4sV,
-    "org.reactivestreams" % "reactive-streams" % reactiveStreamsV,
-    "io.chrisdavenport" %% "vault" % vaultV,
-    "org.http4s" %% "http4s-testing" % http4sV % Test,
-    "org.specs2" %% "specs2-core" % specs2V % Test,
-    "org.specs2" %% "specs2-scalacheck" % specs2V % Test,
-    "com.codecommit" %% "cats-effect-testing-specs2" % catsEffectTestingV % Test,
-    "org.http4s" %% "http4s-dsl" % http4sV % Test,
-    "org.http4s" %% "http4s-blaze-server" % http4sV % Test,
-    "org.java-websocket" % "Java-WebSocket" % javaWebsocketV % Test
-  ),
   unmanagedSourceDirectories in Compile ++= {
     (unmanagedSourceDirectories in Compile).value.map { dir =>
       val sv = scalaVersion.value
