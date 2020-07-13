@@ -77,7 +77,7 @@ object JdkHttpClient {
               },
               body = FlowAdapters
                 .toPublisher(res.body)
-                .toStream[F]
+                .toStream[F]()
                 .interruptWhen(signal)
                 .flatMap(bs => Stream.fromIterator(bs.iterator.asScala.map(Chunk.byteBuffer)))
                 .flatMap(Stream.chunk)
