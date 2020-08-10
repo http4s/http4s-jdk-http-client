@@ -4,6 +4,22 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.3.1 (2020-08-10)
+
+This release is considered stable.
+
+### Bugfixes
+
+* [#260](https://github.com/http4s/http4s-jdk-http-client/pull/260) Workaround for a spurious deadlock with Java 11 and TLS 1.3
+
+### Dependency updates
+
+* cats-effect-2.1.3
+* fs2-2.4.2
+* http4s-0.21.7
+* scodec-bits-1.1.18
+* scala-2.12.12 and scala-2.13.3
+
 ## v0.3.0 (2020-04-05)
 
 This release is considered stable.
