@@ -14,7 +14,7 @@ This release is considered stable.
 
 ### Dependency updates
 
-* cats-effect-2.1.3
+* cats-effect-2.1.4
 * fs2-2.4.2
 * http4s-0.21.7
 * scodec-bits-1.1.18
