@@ -160,9 +160,8 @@ class JdkWSClientSpec extends Specification with CatsEffect {
       Ref[IO]
         .of(None: Option[Headers])
         .flatMap { ref =>
-          val routes = HttpRoutes.of[IO] {
-            case r @ GET -> Root =>
-              ref.set(r.headers.some) *> WebSocketBuilder[IO].build(Stream.empty, _ => Stream.empty)
+          val routes = HttpRoutes.of[IO] { case r @ GET -> Root =>
+            ref.set(r.headers.some) *> WebSocketBuilder[IO].build(Stream.empty, _ => Stream.empty)
           }
           BlazeServerBuilder[IO](global)
             .bindHttp(8081)
