@@ -253,8 +253,8 @@ def latestStableVersion(base: File): Option[VersionNumber] =
       val tagName = name.stripPrefix("refs/tags/v")
       if (name != tagName) Some(VersionNumber(tagName)) else None
     }
-    .collect {
-      case v @ VersionNumber(_, Seq(), Seq()) => v
+    .collect { case v @ VersionNumber(_, Seq(), Seq()) =>
+      v
     } match {
     case Seq() => None
     case vs => Some(vs.maxBy(_.numbers.toIterable))

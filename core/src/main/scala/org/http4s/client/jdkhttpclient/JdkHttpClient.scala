@@ -68,8 +68,8 @@ object JdkHttpClient {
           case (status, signal) =>
             Response(
               status = status,
-              headers = Headers(res.headers.map.asScala.flatMap {
-                case (k, vs) => vs.asScala.map(Header(k, _))
+              headers = Headers(res.headers.map.asScala.flatMap { case (k, vs) =>
+                vs.asScala.map(Header(k, _))
               }.toList),
               httpVersion = res.version match {
                 case HttpClient.Version.HTTP_1_1 => HttpVersion.`HTTP/1.1`
