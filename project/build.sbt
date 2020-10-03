@@ -1,6 +1,6 @@
 val dhalljV = "0.4.0"
 val http4sEmberClientV = "0.21.7"
-val upickleV = "1.2.0"
+val upickleV = "1.2.1"
 
 // scalafmt: { align.preset = most, trailingCommas = always }
 libraryDependencies ++= Seq(
