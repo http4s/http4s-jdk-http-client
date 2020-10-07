@@ -9,8 +9,7 @@ import fs2.{Pipe, Stream}
 import org.http4s.{Headers, Method, Uri}
 import scodec.bits.ByteVector
 
-/**
-  * A websocket request.
+/** A websocket request.
   *
   * @param uri The URI.
   * @param headers The headers to send. Put your `Sec-Websocket-Protocol` headers here if needed.
