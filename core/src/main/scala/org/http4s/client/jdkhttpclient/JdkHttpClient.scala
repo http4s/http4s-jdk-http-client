@@ -23,8 +23,7 @@ import org.reactivestreams.FlowAdapters
 
 object JdkHttpClient {
 
-  /**
-    * Creates a `Client` from an `HttpClient`. Note that the creation of an `HttpClient` is a
+  /** Creates a `Client` from an `HttpClient`. Note that the creation of an `HttpClient` is a
     * side effect.
     *
     * @param jdkHttpClient The `HttpClient`.
@@ -96,8 +95,7 @@ object JdkHttpClient {
     }
   }
 
-  /**
-    * A `Client` wrapping the default `HttpClient`.
+  /** A `Client` wrapping the default `HttpClient`.
     */
   def simple[F[_]](implicit F: ConcurrentEffect[F], CS: ContextShift[F]): F[Client[F]] =
     defaultHttpClient[F].map(apply(_))
