@@ -23,8 +23,7 @@ import org.reactivestreams.FlowAdapters
 
 object JdkHttpClient {
 
-  /**
-    * Creates a `Client` from an `HttpClient`. Note that the creation of an `HttpClient` is a
+  /** Creates a `Client` from an `HttpClient`. Note that the creation of an `HttpClient` is a
     * side effect.
     *
     * @param jdkHttpClient The `HttpClient`.
@@ -68,8 +67,8 @@ object JdkHttpClient {
           case (status, signal) =>
             Response(
               status = status,
-              headers = Headers(res.headers.map.asScala.flatMap {
-                case (k, vs) => vs.asScala.map(Header(k, _))
+              headers = Headers(res.headers.map.asScala.flatMap { case (k, vs) =>
+                vs.asScala.map(Header(k, _))
               }.toList),
               httpVersion = res.version match {
                 case HttpClient.Version.HTTP_1_1 => HttpVersion.`HTTP/1.1`
@@ -96,11 +95,22 @@ object JdkHttpClient {
     }
   }
 
-  /**
-    * A `Client` wrapping the default `HttpClient`.
+  /** A `Client` wrapping the default `HttpClient`.
     */
   def simple[F[_]](implicit F: ConcurrentEffect[F], CS: ContextShift[F]): F[Client[F]] =
-    F.delay(HttpClient.newHttpClient()).map(apply(_))
+    defaultHttpClient[F].map(apply(_))
+
+  private[jdkhttpclient] def defaultHttpClient[F[_]](implicit F: Sync[F]): F[HttpClient] =
+    F.delay {
+      val builder = HttpClient.newBuilder()
+      // workaround for https://github.com/http4s/http4s-jdk-http-client/issues/200
+      if (Runtime.version().feature() == 11) {
+        val params = javax.net.ssl.SSLContext.getDefault().getDefaultSSLParameters()
+        params.setProtocols(params.getProtocols().filter(_ != "TLSv1.3"))
+        builder.sslParameters(params)
+      }
+      builder.build()
+    }
 
   def convertHttpVersionFromHttp4s[F[_]](
       version: HttpVersion

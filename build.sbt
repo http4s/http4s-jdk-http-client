@@ -22,16 +22,16 @@ lazy val docs = project
   .dependsOn(core)
   .settings(commonSettings, skipOnPublishSettings, docsSettings)
 
-val catsV = "2.1.1"
-val catsEffectV = "2.1.3"
-val fs2V = "2.4.2"
-val scodecV = "1.1.17"
-val http4sV = "0.21.6"
+val catsV = "2.2.0"
+val catsEffectV = "2.2.0"
+val fs2V = "2.4.4"
+val scodecV = "1.1.20"
+val http4sV = "0.21.7"
 val reactiveStreamsV = "1.0.3"
 val vaultV = "2.0.0"
 
-val specs2V = "4.10.0"
-val catsEffectTestingV = "0.4.0"
+val specs2V = "4.10.3"
+val catsEffectTestingV = "0.4.1"
 val javaWebsocketV = "1.5.1"
 
 val kindProjectorV = "0.10.3"
@@ -253,8 +253,8 @@ def latestStableVersion(base: File): Option[VersionNumber] =
       val tagName = name.stripPrefix("refs/tags/v")
       if (name != tagName) Some(VersionNumber(tagName)) else None
     }
-    .collect {
-      case v @ VersionNumber(_, Seq(), Seq()) => v
+    .collect { case v @ VersionNumber(_, Seq(), Seq()) =>
+      v
     } match {
     case Seq() => None
     case vs => Some(vs.maxBy(_.numbers.toIterable))
