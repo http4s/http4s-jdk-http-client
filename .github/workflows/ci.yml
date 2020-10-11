@@ -9,26 +9,11 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: ${{ matrix.java }}
-    - name: Get current week
-      run: |
-        echo "::set-env name=current_week::$(( 10#$(date +%U) ))"
-        echo "::set-env name=last_week::$(( 10#$(date +%U) - 1 ))"
-    - name: Cache SBT coursier cache
-      uses: actions/cache@v1
-      with:
-        key: coursier-${{ env.current_week }}
-        path: ~/.cache/coursier
-        restore-keys: coursier-${{ env.last_week }}
-    - name: Cache SBT
-      uses: actions/cache@v1
-      with:
-        key: sbt-${{ env.current_week }}
-        path: ~/.sbt
-        restore-keys: sbt-${{ env.last_week }}
-    - name: Unused and undeclared dependencies
-      run: sbt ++$SCALA_VERSION unusedCompileDependenciesTest undeclaredCompileDependenciesTest
+    - uses: coursier/cache-action@v5
     - name: Tests
       run: sbt ++$SCALA_VERSION test
+    - name: Unused and undeclared dependencies
+      run: sbt ++$SCALA_VERSION unusedCompileDependenciesTest undeclaredCompileDependenciesTest
     - name: Scaladocs
       run: sbt ++$SCALA_VERSION doc
     - name: MiMa
@@ -43,7 +28,7 @@ jobs:
       matrix:
         java:
         - '11'
-        - '14'
+        - '15'
         scala:
         - 2.12.12
         - 2.13.3

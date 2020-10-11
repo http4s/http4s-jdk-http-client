@@ -9,22 +9,7 @@ jobs:
       with:
         java-version: '11'
     - uses: olafurpg/setup-gpg@v2
-    - name: Get current week
-      run: |
-        echo "::set-env name=current_week::$(( 10#$(date +%U) ))"
-        echo "::set-env name=last_week::$(( 10#$(date +%U) - 1 ))"
-    - name: Cache SBT coursier cache
-      uses: actions/cache@v1
-      with:
-        key: coursier-${{ env.current_week }}
-        path: ~/.cache/coursier
-        restore-keys: coursier-${{ env.last_week }}
-    - name: Cache SBT
-      uses: actions/cache@v1
-      with:
-        key: sbt-${{ env.current_week }}
-        path: ~/.sbt
-        restore-keys: sbt-${{ env.last_week }}
+    - uses: coursier/cache-action@v5
     - env:
         PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
         PGP_SECRET: ${{ secrets.PGP_SECRET }}
