@@ -26,11 +26,11 @@ val catsV = "2.2.0"
 val catsEffectV = "2.2.0"
 val fs2V = "2.4.4"
 val scodecV = "1.1.20"
-val http4sV = "0.21.7"
+val http4sV = "0.21.8"
 val reactiveStreamsV = "1.0.3"
 val vaultV = "2.0.0"
 
-val specs2V = "4.10.3"
+val specs2V = "4.10.5"
 val catsEffectTestingV = "0.4.1"
 val javaWebsocketV = "1.5.1"
 

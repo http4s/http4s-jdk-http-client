@@ -6,7 +6,7 @@ pull_request_rules:
   - author=scala-steward
   - body~=labels:.*semver-patch.*
   - status-success=Scala 2.12.12, Java 11
-  - status-success=Scala 2.12.12, Java 14
+  - status-success=Scala 2.12.12, Java 15
   - status-success=Scala 2.13.3, Java 11
-  - status-success=Scala 2.13.3, Java 14
+  - status-success=Scala 2.13.3, Java 15
   name: automatically merge scala-steward's PRs
