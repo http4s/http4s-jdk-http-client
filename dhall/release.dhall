@@ -5,7 +5,7 @@ let steps =
       , c.BuildStep.Run
           c.Run::{ name = "Unshallow", run = "git fetch --unshallow" }
       , c.steps.java c.javaVersions.default
-      , c.steps.uses "olafurpg/setup-gpg@v2"
+      , c.steps.uses "olafurpg/setup-gpg@v3"
       , c.steps.cache
       , c.BuildStep.Run
           c.Run::{
