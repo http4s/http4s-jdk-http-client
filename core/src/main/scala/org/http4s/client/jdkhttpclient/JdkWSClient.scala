@@ -133,5 +133,5 @@ object JdkWSClient {
 
   /** A `WSClient` wrapping the default `HttpClient`. */
   def simple[F[_]](implicit F: ConcurrentEffect[F], CS: ContextShift[F]): F[WSClient[F]] =
-    JdkHttpClient.defaultHttpClient[F].map(apply(_))
+    JdkHttpClient.defaultHttpClient[F](None).map(apply(_))
 }

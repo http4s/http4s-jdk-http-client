@@ -55,20 +55,22 @@ val client: IO[Client[IO]] = JdkHttpClient.simple[IO]
 
 #### Custom clients
 
-A JDK HTTP client can be passed to `JdkHttpClient.apply` for use as an
-http4s-client backend.  It is a good idea to create the `HttpClient`
-in an effect, as it creates a default executor and SSL context:
+If you need to customize the settings for the client you can create the client
+via a `JdkHttpClientBuilder`. If there are settings on the `HttpClient.Builder`
+which are not yet supported on the `JdkHttpClientBuilder`, you can set them
+directly on the `HttpClient.Builder` and provide that to the
+`JdkHttpClientBuilder`.
 
 ```scala mdoc:silent
 import java.net.{InetSocketAddress, ProxySelector}
 import java.net.http.HttpClient
+import org.http4s.client.jdkhttpclient.JdkHttpClientBuilder
 
-val client0: IO[Client[IO]] = IO {
-  HttpClient.newBuilder()
+val client0: IO[Client[IO]] = JdkHttpClientBuilder.default.withJdkHttpClientBuilder(
+    HttpClient.newBuilder()
     .version(HttpClient.Version.HTTP_2)
     .proxy(ProxySelector.of(new InetSocketAddress("www-proxy", 8080)))
-    .build()
-}.map(JdkHttpClient(_))
+).build
 ```
 
 ### Sharing
@@ -81,7 +83,7 @@ import cats.effect._
 import cats.implicits._
 import org.http4s._
 import org.http4s.implicits._
-  
+
 def fetchStatus[F[_]](c: Client[F], uri: Uri): F[Status] =
   c.status(Request[F](Method.GET, uri = uri))
 
@@ -137,12 +139,9 @@ to construct a `Client[F]` and a `WSClient[F]`.
 ```scala mdoc
 import org.http4s.client.jdkhttpclient._
 
-val (http, webSocket) =
-  IO(HttpClient.newHttpClient())
-    .map { httpClient =>
-      (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient))
-    }
-    .unsafeRunSync()
+val (http, webSocket) = JdkHttpClient.simple_[IO].map{
+    case (jdkHttpClient, http4sHttpClient) =>
+      (http4sHttpClient, JdkWSClient[IO](jdkHttpClient))}.unsafeRunSync()
 ```
 
 If you do not need an HTTP client, you can also call `JdkWSClient.simple[IO]` as above.
