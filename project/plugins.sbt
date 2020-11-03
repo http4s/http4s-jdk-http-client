@@ -8,5 +8,5 @@ addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat"               % "0.1.1
 addSbtPlugin("io.github.jonas"           % "sbt-paradox-material-theme" % "0.6.0")
 addSbtPlugin("org.scalameta"             % "sbt-mdoc"                   % "2.2.10")
 addSbtPlugin("org.scalameta"             % "sbt-scalafmt"               % "2.0.6")
-addSbtPlugin("com.geirsson"              % "sbt-ci-release"             % "1.5.3")
+addSbtPlugin("com.geirsson"              % "sbt-ci-release"             % "1.5.4")
 // scalafmt: { align.preset = none }
