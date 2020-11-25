@@ -1,5 +1,5 @@
 val dhalljV = "0.4.0"
-val http4sEmberClientV = "0.21.11"
+val http4sEmberClientV = "0.21.12"
 val upickleV = "1.2.2"
 
 // scalafmt: { align.preset = most, trailingCommas = always }
