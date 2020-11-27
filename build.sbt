@@ -23,7 +23,7 @@ lazy val docs = project
   .settings(commonSettings, skipOnPublishSettings, docsSettings)
 
 val catsV = "2.2.0"
-val catsEffectV = "2.2.0"
+val catsEffectV = "2.3.0"
 val fs2V = "2.4.6"
 val scodecV = "1.1.22"
 val http4sV = "0.21.13"
