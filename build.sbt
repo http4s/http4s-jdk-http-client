@@ -22,11 +22,11 @@ lazy val docs = project
   .dependsOn(core)
   .settings(commonSettings, skipOnPublishSettings, docsSettings)
 
-val catsV = "2.2.0"
-val catsEffectV = "2.2.0"
-val fs2V = "2.4.5"
-val scodecV = "1.1.21"
-val http4sV = "0.21.8"
+val catsV = "2.3.0"
+val catsEffectV = "2.3.0"
+val fs2V = "2.4.6"
+val scodecV = "1.1.22"
+val http4sV = "0.21.13"
 val reactiveStreamsV = "1.0.3"
 val vaultV = "2.0.0"
 
