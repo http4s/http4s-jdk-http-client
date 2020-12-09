@@ -4,6 +4,20 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.3.2 (2020-12-10)
+
+This release is considered stable.
+
+In particular, the dependency on fs2 is updated to 2.4.6 w.r.t. [#321](https://github.com/http4s/http4s-jdk-http-client/issues/321).
+
+### Dependency updates
+
+* cats-2.3.0
+* cats-effect-2.3.0
+* scodec-bits-1.1.12
+* fs2-2.4.6
+* http4s-0.21.13
+
 ## v0.3.1 (2020-08-10)
 
 This release is considered stable.
