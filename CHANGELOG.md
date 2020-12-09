@@ -14,7 +14,7 @@ In particular, the dependency on fs2 is updated to 2.4.6 w.r.t. [#321](https://g
 
 * cats-2.3.0
 * cats-effect-2.3.0
-* scodec-bits-1.1.12
+* scodec-bits-1.1.22
 * fs2-2.4.6
 * http4s-0.21.13
 
