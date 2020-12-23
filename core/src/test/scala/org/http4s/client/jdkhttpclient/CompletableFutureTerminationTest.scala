@@ -42,7 +42,7 @@ final class CompletableFutureTerminationTest extends Specification with CatsIO {
   // sent to the fs2 reactive streams wrapper. This causes a small amount of
   // data to be buffered, waiting to be read, but it will never be read.
   //
-  // There is a not about this in the JavaDocs. The Response of a HttpClient
+  // There is a note about this in the JavaDocs. The Response of a HttpClient
   // must be drained via an `onError` or `onComplete` observed by the response
   // body handler or a cancellation via the CompletableFuture.
   //
