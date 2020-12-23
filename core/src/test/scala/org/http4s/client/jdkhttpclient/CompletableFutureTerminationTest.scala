@@ -127,6 +127,13 @@ object CompletableFutureTerminationTest {
 
   /** ADT to contain the result of an invocation to
     * [[java.util.concurrent.CompletionStage#handleAsync]]
+    *
+    * @note [[scala.Option]] is used because either or both of these values
+    *       may be `null` in the JRE API.
+    *
+    * @note This is ''not'' a disjunction, e.g. [[scala.Either]]. The JRE API
+    *       dictates that both values might be non-null and both values might
+    *       be `null`.
     */
   private final case class Observation[A](
       result: Option[A],
@@ -170,7 +177,7 @@ object CompletableFutureTerminationTest {
       .resource
 
   /** Just a scala wrapper class to make it easier to generate a
-    * [[java.util.funciton.BiFunction]].
+    * [[java.util.function.BiFunction]].
     */
   private final case class JBiFunction[A, B, C](f: A => B => C)
       extends java.util.function.BiFunction[A, B, C] {
