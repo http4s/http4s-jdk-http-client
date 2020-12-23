@@ -88,14 +88,18 @@ final class CompletableFutureTerminationTest extends Specification with CatsIO {
                       // complete_ and we are in a different context.
                       //
                       // Notice that we release stallServer _after_ the
-                      // timeout. _This is the crux of this entire test_. Once we
-                      // release `stallServer`, the Http4s Server will attempt to
-                      // send back an Http Response to our JDK client. If the
-                      // CompletableFuture and associated resources were properly
-                      // cleaned up after the timeoutTo terminated the running
-                      // effect, then the JDK client connection will be closed. If
-                      // not, then it will still receive bytes, meaning there is a
-                      // resource leak.
+                      // timeout. _This is the crux of this entire test_. Once
+                      // we release `stallServer`, the Http4s Server will
+                      // attempt to send back an Http Response to our JDK
+                      // client. If the CompletableFuture and associated
+                      // resources were properly cleaned up after the
+                      // timeoutTo terminated the running effect, then the JDK
+                      // client connection will either be closed, or the
+                      // attempt to invoke `complete` on the
+                      // `CompletableFuture` will fail, in both cases
+                      // releasing any resources being held. If not, then it
+                      // will still receive bytes, meaning there is a resource
+                      // leak.
                       fromCompletableFutureShift(IO(cf)).void
                         .timeoutTo(duration, stallServer.release) *>
                       // After the timeout has triggered, wait for the observation to complete.
