@@ -78,7 +78,7 @@ final class CompletableFutureTerminationTest extends Specification with CatsIO {
                     // Wait until we are sure the Http4s Server has received the
                     // request.
                     gotRequest.acquire *>
-                      // Lift the CompletableFuture to a IO value and attache a
+                      // Lift the CompletableFuture to a IO value and attach a
                       // (short) timeout to the termination.
                       //
                       // Important! The IO result _must_ be terminated via the
