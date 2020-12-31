@@ -16,7 +16,7 @@ import fs2.Chunk
 import fs2.concurrent.Queue
 import org.http4s.headers.`Sec-WebSocket-Protocol`
 import scodec.bits.ByteVector
-import org.http4s.internal.{fromCompletionStage, unsafeToCompletionStage}
+import org.http4s.internal.unsafeToCompletionStage
 
 /** A `WSClient` wrapper for the JDK 11+ websocket client.
   * It will reply to Pongs with Pings even in "low-level" mode.
@@ -79,7 +79,7 @@ object JdkWSClient {
                 handleReceive(error.asLeft); ()
               }
             }
-            webSocket <- fromCompletionStage(
+            webSocket <- fromCompletableFutureShift(
               F.delay(wsBuilder.buildAsync(URI.create(uri.renderString), wsListener))
             )
             sendSem <- Semaphore[F](1L)
@@ -87,7 +87,7 @@ object JdkWSClient {
         } { case (webSocket, queue, _) =>
           for {
             isOutputOpen <- F.delay(!webSocket.isOutputClosed)
-            closeOutput = fromCompletionStage(
+            closeOutput = fromCompletableFutureShift(
               F.delay(webSocket.sendClose(JWebSocket.NORMAL_CLOSURE, ""))
             )
             _ <-
@@ -111,7 +111,7 @@ object JdkWSClient {
         .map { case (webSocket, queue, sendSem) =>
           // sending will throw if done in parallel
           val rawSend = (wsf: WSFrame) =>
-            fromCompletionStage(F.delay(wsf match {
+            fromCompletableFutureShift(F.delay(wsf match {
               case WSFrame.Text(text, last) => webSocket.sendText(text, last)
               case WSFrame.Binary(data, last) => webSocket.sendBinary(data.toByteBuffer, last)
               case WSFrame.Ping(data) => webSocket.sendPing(data.toByteBuffer)
