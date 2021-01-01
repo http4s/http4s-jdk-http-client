@@ -26,7 +26,7 @@ val catsV = "2.3.1"
 val catsEffectV = "2.3.1"
 val fs2V = "2.5.0"
 val scodecV = "1.1.23"
-val http4sV = "0.21.14"
+val http4sV = "0.21.15"
 val reactiveStreamsV = "1.0.3"
 val vaultV = "2.0.0"
 
