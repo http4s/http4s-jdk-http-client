@@ -92,8 +92,7 @@ object JdkHttpClient {
     // https://github.com/typelevel/fs2/blob/v2.5.0/reactive-streams/src/main/scala/fs2/interop/reactivestreams/StreamSubscriber.scala#L64
     //
     // In the general case, this is fine and probably even ideal. After all if
-    // you are never going to pull from a Stream, why do all the booking setup
-    // work?
+    // you are never going to pull from a Stream, why do all the setup work?
     //
     // Unfortunately, the reactive streams semantics for the JDK client are
     // not the "general case". In order to not leak resources, there _must_ be
