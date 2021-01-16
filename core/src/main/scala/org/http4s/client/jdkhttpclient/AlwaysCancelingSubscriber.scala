@@ -13,18 +13,11 @@ private[jdkhttpclient] final class AlwaysCancelingSubscriber[A] extends Flow.Sub
     subscription.cancel
 
   override def onComplete(): Unit =
-    throw new IllegalStateException(
-      "AlwaysCancelingSubscriber onComplete was invoked. This should never occur as only onSubscribe should be called."
-    )
+    ()
 
   override def onError(throwable: Throwable): Unit =
-    throw new IllegalStateException(
-      "AlwaysCancelingSubscriber onError was invoked. This should never occur as only onSubscribe should be called.",
-      throwable
-    )
+    throw throwable
 
   override def onNext(item: A): Unit =
-    throw new IllegalStateException(
-      "AlwaysCancelingSubscriber onNext was invoked. This should never occur as only onSubscribe should be called."
-    )
+    ()
 }
