@@ -89,7 +89,7 @@ object JdkHttpClient {
     // intentionally _do not_ subscribe to the publisher until the first
     // attempt to pull from the Stream.
     //
-    // https://github.com/typelevel/fs2/blob//reactive-streams/src/main/scala/fs2/interop/reactivestreams/StreamSubscriber.scala#L64
+    // https://github.com/typelevel/fs2/blob/v2.5.0/reactive-streams/src/main/scala/fs2/interop/reactivestreams/StreamSubscriber.scala#L64
     //
     // In the general case, this is fine and probably even ideal. After all if
     // you are never going to pull from a Stream, why do all the booking setup
@@ -114,7 +114,7 @@ object JdkHttpClient {
     // Semaphore (it will never be released). The code for this is similar to
     // the body of the fromPublisher method in fs2.
     //
-    // https://github.com/typelevel/fs2/blob//reactive-streams/src/main/scala/fs2/interop/reactivestreams/package.scala#L55
+    // https://github.com/typelevel/fs2/blob/v2.5.0/reactive-streams/src/main/scala/fs2/interop/reactivestreams/package.scala#L55
     //
     // In the release section of bracket on the response, we also attempt to
     // acquire the single permit from the Semaphore. If we are successfully
