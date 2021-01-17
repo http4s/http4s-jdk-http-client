@@ -11,6 +11,7 @@ import java.util.concurrent.Flow
 import cats.ApplicativeError
 import cats.effect._
 import cats.effect.concurrent._
+import cats.effect.syntax.all._
 import cats.implicits._
 import fs2.concurrent.SignallingRef
 import fs2.interop.reactivestreams._
@@ -163,7 +164,7 @@ object JdkHttpClient {
               )
             case _ =>
               F.unit
-          }
+          }.uncancelable
         }
         .flatMap { case (semaphore, res) =>
           val body: Stream[F, util.List[ByteBuffer]] =
@@ -185,12 +186,12 @@ object JdkHttpClient {
                       F.delay(FlowAdapters.toPublisher(res.body).subscribe(s))
                     case _ =>
                       // Should never occur.
-                      F.raiseError(
+                      F.raiseError[Unit](
                         new IllegalStateException(
                           "Attempt to subscribe to response body which had already been subscribed too. This likely indicates a bug in the http4s JDK client."
                         )
                       )
-                  }
+                  }.uncancelable
                 )
               )
           Resource(
