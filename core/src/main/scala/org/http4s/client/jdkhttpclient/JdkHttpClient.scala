@@ -140,7 +140,7 @@ object JdkHttpClient {
     // the body is discarded. Interrupting the fs2.Stream with a second
     // Resource is still required to cleanup the fs2.Stream scopes, whether or
     // not the Publisher was ever subscribed to.
-    def convertResponse[A](
+    def convertResponse(
         responseF: F[HttpResponse[Flow.Publisher[util.List[ByteBuffer]]]]
     ): Resource[F, Response[F]] =
       Resource
