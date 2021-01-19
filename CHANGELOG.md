@@ -4,6 +4,18 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.3.4 (2021-01-19)
+
+This release is considered stable.
+
+### Bugfixes
+
+* [#335](https://github.com/http4s/http4s-jdk-http-client/pull/335) Fix a resource leak if the response body is not touched at all.
+
+### Dependency updates
+
+* http4s-0.21.15
+
 ## v0.3.3 (2021-01-01)
 
 This release is considered stable.
