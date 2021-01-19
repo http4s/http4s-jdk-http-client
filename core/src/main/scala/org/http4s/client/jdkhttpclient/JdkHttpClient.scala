@@ -120,8 +120,8 @@ object JdkHttpClient {
     // that Publisher was never subscribed to, either due to an error or more
     // likely because the calling code didn't care about the body of the
     // request. In this case we subscribe to the body and then immediately
-    // cancel the subscription, freeing the resources.
-    // If the TryableDeferred has not been completed, we do nothing.
+    // cancel the subscription, freeing the resources.  If the TryableDeferred
+    // has already been completed, we do nothing.
     //
     // There are a couple items worth giving special attention to here.
     //
