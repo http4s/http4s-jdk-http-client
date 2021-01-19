@@ -107,22 +107,21 @@ object JdkHttpClient {
     // Thus, in order to solve this problem and satisfy the JDK HttpResponse's
     // API so as to not leak resources, we do the following.
     //
-    // We create a single permit Semaphore and bracket its creation as well as
+    // We create a TryableDeferred[F, Unit] and bracket its creation as well as
     // the invocation of the effect which yields the JDK HttpResponse. Using
     // the lower level fs2 reactive streams APIs, we ensure the attempt to
-    // subscribe to the Publisher first drains the single permit from the
-    // Semaphore (it will never be released). The code for this is similar to
-    // the body of the fromPublisher method in fs2.
+    // subscribe to the Publisher first completes the TryableDeferred. The
+    // code for this is similar to the body of the fromPublisher method in fs2.
     //
     // https://github.com/typelevel/fs2/blob/v2.5.0/reactive-streams/src/main/scala/fs2/interop/reactivestreams/package.scala#L55
     //
-    // In the release section of bracket on the response, we also attempt to
-    // acquire the single permit from the Semaphore. If we are successfully
-    // able to do so, that means that Publisher was never subscribed to,
-    // either due to an error or more likely because the calling code didn't
-    // care about the body of the request. In this case we subscribe to the
-    // body and then immediately cancel the subscription, freeing the
-    // resources. If the Semaphore has already been drained, we do nothing.
+    // In the release section of bracket on the response, we check if the
+    // TryableDeferred has been completed. If that is not the case that means
+    // that Publisher was never subscribed to, either due to an error or more
+    // likely because the calling code didn't care about the body of the
+    // request. In this case we subscribe to the body and then immediately
+    // cancel the subscription, freeing the resources.
+    // If the TryableDeferred has not been completed, we do nothing.
     //
     // There are a couple items worth giving special attention to here.
     //
@@ -145,10 +144,10 @@ object JdkHttpClient {
     ): Resource[F, Response[F]] =
       Resource
         .make(
-          (Semaphore[F](1L), responseF).tupled
-        ) { case (semaphore, response) =>
-          semaphore.tryAcquire.flatMap {
-            case true =>
+          (Deferred.tryable[F, Unit], responseF).tupled
+        ) { case (subscription, response) =>
+          subscription.tryGet.flatMap {
+            case None =>
               // Indicates response was never subscribed to. In this case, in
               // order to conform to the API contract from the
               // HttpResponse.BodyHandlers.ofPublisher, we must subscribe to
@@ -166,7 +165,7 @@ object JdkHttpClient {
               F.unit
           }.uncancelable
         }
-        .flatMap { case (semaphore, res) =>
+        .flatMap { case (subscription, res) =>
           val body: Stream[F, util.List[ByteBuffer]] =
             Stream
               .eval(
@@ -174,24 +173,17 @@ object JdkHttpClient {
               )
               .flatMap(s =>
                 s.sub.stream(
-                  // Drain the single permit from the Semaphore so that we
-                  // indicate we have subscribed to the Publisher.
+                  // Complete the TrybleDeferred so that we indicate we have
+                  // subscribed to the Publisher.
                   //
                   // This only happens _after_ someone attempts to pull from the
                   // body and will never happen if the body is never pulled
                   // from. In that case, the AlwaysCancelingSubscriber handles
                   // cleanup.
-                  semaphore.tryAcquire.flatMap {
-                    case true =>
+                  F.uncancelable {
+                    subscription.complete(()) *>
                       F.delay(FlowAdapters.toPublisher(res.body).subscribe(s))
-                    case _ =>
-                      // Should never occur.
-                      F.raiseError[Unit](
-                        new IllegalStateException(
-                          "Attempt to subscribe to response body which had already been subscribed too. This likely indicates a bug in the http4s JDK client."
-                        )
-                      )
-                  }.uncancelable
+                  }
                 )
               )
           Resource(
