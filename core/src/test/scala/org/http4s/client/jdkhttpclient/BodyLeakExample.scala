@@ -1,10 +1,11 @@
+package org.http4s.client.jdkhttpclient
+
 import cats.data._
 import cats.effect._
 import cats.effect.concurrent._
 import cats.syntax.all._
 import org.http4s._
 import org.http4s.client._
-import org.http4s.client.jdkhttpclient._
 import org.http4s.syntax.all._
 import org.http4s.server.blaze.BlazeServerBuilder
 
