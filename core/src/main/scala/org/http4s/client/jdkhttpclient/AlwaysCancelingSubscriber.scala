@@ -9,15 +9,11 @@ import java.util.concurrent.Flow
   * cases where the HTTP body is not read.
   */
 private[jdkhttpclient] final class AlwaysCancelingSubscriber[A] extends Flow.Subscriber[A] {
-  override def onSubscribe(subscription: Flow.Subscription): Unit =
-    subscription.cancel
+  override def onSubscribe(subscription: Flow.Subscription): Unit = subscription.cancel
 
-  override def onComplete(): Unit =
-    ()
+  override val onComplete: Unit = ()
 
-  override def onError(throwable: Throwable): Unit =
-    throw throwable
+  override def onError(throwable: Throwable): Unit = throw throwable
 
-  override def onNext(item: A): Unit =
-    ()
+  override def onNext(item: A): Unit = ()
 }
