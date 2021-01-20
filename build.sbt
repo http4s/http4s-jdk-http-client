@@ -80,6 +80,7 @@ inThisBuild(
         url("https://github.com/rossabaker")
       )
     ),
+    githubWorkflowArtifactUpload := false,
     githubWorkflowJavaVersions ~= (_.filter(_ != "adopt@1.8")),
     githubWorkflowBuildMatrixFailFast := Some(false),
     githubWorkflowPublishPostamble := Seq(
