@@ -80,6 +80,8 @@ inThisBuild(
         url("https://github.com/rossabaker")
       )
     ),
+    githubWorkflowJavaVersions ~= (_.filter(_ != "adopt@1.8")),
+    githubWorkflowBuildMatrixFailFast := Some(false),
     githubWorkflowPublishPostamble := Seq(
       WorkflowStep.Run(
         List("""
