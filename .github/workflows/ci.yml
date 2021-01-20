@@ -68,8 +68,8 @@ jobs:
       - name: Check binary compatibility
         run: sbt ++${{ matrix.scala }} mimaReportBinaryIssues
 
-      - name: Check unused compile dependencies
-        run: sbt ++${{ matrix.scala }} unusedCompileDependenciesTest
+      - name: Check unused and undeclared compile dependencies
+        run: sbt ++${{ matrix.scala }} 'unusedCompileDependenciesTest undeclaredCompileDependenciesTest'
 
       - name: Run tests
         run: sbt ++${{ matrix.scala }} test

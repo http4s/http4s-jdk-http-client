@@ -54,7 +54,7 @@ val coreDeps = Seq(
 
 enablePlugins(SonatypeCiReleasePlugin)
 inThisBuild(
-  Http4sOrgPlugin.githubActionsSettings ++ Seq(
+  Seq(
     crossScalaVersions := Seq("2.12.13", "2.13.4"),
     scalaVersion := (ThisBuild / crossScalaVersions).value.head,
     baseVersion := "0.3",
@@ -81,8 +81,21 @@ inThisBuild(
       )
     ),
     githubWorkflowArtifactUpload := false,
-    githubWorkflowJavaVersions ~= (_.filter(_ != "adopt@1.8")),
+    githubWorkflowJavaVersions := Seq("adopt@1.11", "adopt@1.15"),
     githubWorkflowBuildMatrixFailFast := Some(false),
+    githubWorkflowBuild := Seq(
+      WorkflowStep
+        .Sbt(List("scalafmtCheckAll", "scalafmtSbtCheck"), name = Some("Check formatting")),
+      WorkflowStep.Sbt(List("headerCheckAll"), name = Some("Check headers")),
+      WorkflowStep.Sbt(List("test:compile"), name = Some("Compile")),
+      WorkflowStep.Sbt(List("mimaReportBinaryIssues"), name = Some("Check binary compatibility")),
+      WorkflowStep.Sbt(
+        List("unusedCompileDependenciesTest undeclaredCompileDependenciesTest"),
+        name = Some("Check unused and undeclared compile dependencies")
+      ),
+      WorkflowStep.Sbt(List("test"), name = Some("Run tests")),
+      WorkflowStep.Sbt(List("doc"), name = Some("Build docs"))
+    ),
     githubWorkflowPublishPostamble := Seq(
       WorkflowStep.Run(
         List("""
