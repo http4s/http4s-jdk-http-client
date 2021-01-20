@@ -1,4 +1,4 @@
-lazy val `http4s-jdk-http-client` = project
+lazy val root = project
   .in(file("."))
   .enablePlugins(NoPublishPlugin)
   .settings(commonSettings)
@@ -88,7 +88,8 @@ inThisBuild(
         .Sbt(List("scalafmtCheckAll", "scalafmtSbtCheck"), name = Some("Check formatting")),
       WorkflowStep.Sbt(List("headerCheckAll"), name = Some("Check headers")),
       WorkflowStep.Sbt(List("test:compile"), name = Some("Compile")),
-      WorkflowStep.Sbt(List("mimaReportBinaryIssues"), name = Some("Check binary compatibility")),
+      WorkflowStep
+        .Sbt(List("core/mimaReportBinaryIssues"), name = Some("Check binary compatibility")),
       WorkflowStep.Sbt(
         List("unusedCompileDependenciesTest", "undeclaredCompileDependenciesTest"),
         name = Some("Check unused and undeclared compile dependencies")
