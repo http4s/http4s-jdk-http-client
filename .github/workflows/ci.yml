@@ -69,7 +69,7 @@ jobs:
         run: sbt ++${{ matrix.scala }} mimaReportBinaryIssues
 
       - name: Check unused and undeclared compile dependencies
-        run: sbt ++${{ matrix.scala }} 'unusedCompileDependenciesTest undeclaredCompileDependenciesTest'
+        run: sbt ++${{ matrix.scala }} unusedCompileDependenciesTest undeclaredCompileDependenciesTest
 
       - name: Run tests
         run: sbt ++${{ matrix.scala }} test

@@ -90,7 +90,7 @@ inThisBuild(
       WorkflowStep.Sbt(List("test:compile"), name = Some("Compile")),
       WorkflowStep.Sbt(List("mimaReportBinaryIssues"), name = Some("Check binary compatibility")),
       WorkflowStep.Sbt(
-        List("unusedCompileDependenciesTest undeclaredCompileDependenciesTest"),
+        List("unusedCompileDependenciesTest", "undeclaredCompileDependenciesTest"),
         name = Some("Check unused and undeclared compile dependencies")
       ),
       WorkflowStep.Sbt(List("test"), name = Some("Run tests")),
