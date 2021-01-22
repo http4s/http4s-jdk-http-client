@@ -4,6 +4,46 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.3.4 (2021-01-19)
+
+This release is considered stable.
+
+### Bugfixes
+
+* [#335](https://github.com/http4s/http4s-jdk-http-client/pull/335) Fix a resource leak if the response body is not touched at all.
+
+### Dependency updates
+
+* http4s-0.21.15
+
+## v0.3.3 (2021-01-01)
+
+This release is considered stable.
+
+### Bugfixes
+
+* [#331](https://github.com/http4s/http4s-jdk-http-client/pull/331) Fix resource leaks in certain cases of request cancellation.
+
+### Dependency updates
+
+* scodec-bits-1.1.23
+* fs2-2.5.0
+* http4s-0.21.14
+
+## v0.3.2 (2020-12-10)
+
+This release is considered stable.
+
+In particular, the dependency on fs2 is updated to 2.4.6 w.r.t. [#321](https://github.com/http4s/http4s-jdk-http-client/issues/321).
+
+### Dependency updates
+
+* cats-2.3.0
+* cats-effect-2.3.0
+* scodec-bits-1.1.22
+* fs2-2.4.6
+* http4s-0.21.13
+
 ## v0.3.1 (2020-08-10)
 
 This release is considered stable.
