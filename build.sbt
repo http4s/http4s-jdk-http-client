@@ -60,6 +60,12 @@ inThisBuild(
     baseVersion := "0.3",
     homepage := Some(url("https://github.com/http4s/http4s-jdk-http-client")),
     licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
+    scmInfo := Some(
+      ScmInfo(
+        url("https://github.com/http4s/http4s-jdk-http-client"),
+        "git@github.com:http4s/http4s-jdk-http-client.git"
+      )
+    ),
     developers := List(
       Developer(
         "ChristopherDavenport",
