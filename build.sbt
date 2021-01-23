@@ -120,7 +120,7 @@ inThisBuild(
       )
     ),
     githubWorkflowPublishTargetBranches := Seq(
-      RefPredicate.Equals(Ref.Branch("main")),
+      // RefPredicate.Equals(Ref.Branch("main")),
       RefPredicate.StartsWith(Ref.Tag("v"))
     )
   )
