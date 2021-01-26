@@ -152,13 +152,13 @@ If you do not need an HTTP client, you can also call `JdkWSClient.simple[IO]` as
 We have the following websocket frame hierarchy:
 
  - `WSFrame`
-   - `WSControlFrame`
-     - `WSFrame.Close`
-     - `WSFrame.Ping`
-     - `WSFrame.Pong`
-   - `WSDataFrame`
-     - `WSFrame.Text`
-     - `WSFrame.Binary`
+     - `WSControlFrame`
+         - `WSFrame.Close`
+         - `WSFrame.Ping`
+         - `WSFrame.Pong`
+     - `WSDataFrame`
+         - `WSFrame.Text`
+         - `WSFrame.Binary`
 
 There are two connection modes: "low-level" and "high-level". Both manage the lifetime of a
 websocket connection via a [`Resource`][Resource].
