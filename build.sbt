@@ -144,7 +144,6 @@ lazy val commonSettings = Seq(
 lazy val generateNetlifyToml = taskKey[Unit]("Generate netlify.toml")
 
 lazy val docsSettings = {
-  ParadoxMaterialThemePlugin.paradoxMaterialThemeSettings(Paradox) ++
     Seq(
       mdocIn := (baseDirectory.value) / "src" / "main" / "mdoc", //
       mdocVariables := Map(
@@ -173,15 +172,15 @@ lazy val docsSettings = {
            |""".stripMargin
         IO.write(target.value / "netlify.toml", toml)
       },
-      sourceDirectory in Paradox := mdocOut.value,
+      Compile / paradox / sourceDirectory := mdocOut.value,
       makeSite := makeSite.dependsOn(mdoc.toTask("")).dependsOn(generateNetlifyToml).value,
       ghpagesPushSite := (ghpagesPushSite.dependsOn(makeSite)).value,
-      Paradox / paradoxMaterialTheme ~= {
+      Compile / paradoxMaterialTheme ~= {
         _.withRepository(uri("https://github.com/http4s/http4s-jdk-http-client"))
           .withLogoUri(uri("https://http4s.org/images/http4s-logo.svg"))
       },
       git.remoteRepo := "git@github.com:http4s/http4s-jdk-http-client.git",
-      siteSubdirName in Paradox := {
+      Paradox / siteSubdirName := {
         if (isSnapshot.value) "latest"
         else version.value
       },
