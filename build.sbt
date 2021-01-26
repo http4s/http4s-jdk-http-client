@@ -143,59 +143,58 @@ lazy val commonSettings = Seq(
 
 lazy val generateNetlifyToml = taskKey[Unit]("Generate netlify.toml")
 
-lazy val docsSettings = {
-    Seq(
-      mdocIn := (baseDirectory.value) / "src" / "main" / "mdoc", //
-      mdocVariables := Map(
-        "VERSION" -> version.value,
-        "BINARY_VERSION" -> binaryVersion(version.value),
-        "HTTP4S_VERSION" -> http4sV,
-        "HTTP4S_VERSION_SHORT" -> http4sV.split("\\.").take(2).mkString("."),
-        "SCALA_VERSION" -> CrossVersion.binaryScalaVersion(scalaVersion.value),
-        "SCALA_VERSIONS" -> formatCrossScalaVersions((core / crossScalaVersions).value.toList)
-      ),
-      generateNetlifyToml := {
-        val toml = latestStableVersion(baseDirectory.value)
-          .map(v => s"""
+lazy val docsSettings =
+  Seq(
+    mdocIn := (baseDirectory.value) / "src" / "main" / "mdoc", //
+    mdocVariables := Map(
+      "VERSION" -> version.value,
+      "BINARY_VERSION" -> binaryVersion(version.value),
+      "HTTP4S_VERSION" -> http4sV,
+      "HTTP4S_VERSION_SHORT" -> http4sV.split("\\.").take(2).mkString("."),
+      "SCALA_VERSION" -> CrossVersion.binaryScalaVersion(scalaVersion.value),
+      "SCALA_VERSIONS" -> formatCrossScalaVersions((core / crossScalaVersions).value.toList)
+    ),
+    generateNetlifyToml := {
+      val toml = latestStableVersion(baseDirectory.value)
+        .map(v => s"""
            |[[redirects]]
            |  from = "/stable/*"
            |  to = "/$v/:splat"
            |  force = false
            |  status = 200
            |""".stripMargin)
-          .getOrElse("") + s"""
+        .getOrElse("") + s"""
            |[[redirects]]
            |  from = "/*"
            |  to = "/latest/:splat"
            |  force = false
            |  status = 302
            |""".stripMargin
-        IO.write(target.value / "netlify.toml", toml)
-      },
-      Compile / paradox / sourceDirectory := mdocOut.value,
-      makeSite := makeSite.dependsOn(mdoc.toTask("")).dependsOn(generateNetlifyToml).value,
-      ghpagesPushSite := (ghpagesPushSite.dependsOn(makeSite)).value,
-      Compile / paradoxMaterialTheme ~= {
-        _.withRepository(uri("https://github.com/http4s/http4s-jdk-http-client"))
-          .withLogoUri(uri("https://http4s.org/images/http4s-logo.svg"))
-      },
-      git.remoteRepo := "git@github.com:http4s/http4s-jdk-http-client.git",
-      Paradox / siteSubdirName := {
-        if (isSnapshot.value) "latest"
-        else version.value
-      },
-      mappings in makeSite ++= Seq(
-        target.value / "netlify.toml" -> "netlify.toml"
-      ),
-      includeFilter in ghpagesCleanSite :=
-        new FileFilter {
-          def accept(f: File) =
-            f.toPath.startsWith(
-              (ghpagesRepository.value / (siteSubdirName in Paradox).value).toPath
-            )
-        } || "netlify.toml"
-    )
-}
+      IO.write(target.value / "netlify.toml", toml)
+    },
+    Compile / paradox / sourceDirectory := mdocOut.value,
+    makeSite := makeSite.dependsOn(mdoc.toTask("")).dependsOn(generateNetlifyToml).value,
+    ghpagesPushSite := (ghpagesPushSite.dependsOn(makeSite)).value,
+    Compile / paradoxMaterialTheme ~= {
+      _.withRepository(uri("https://github.com/http4s/http4s-jdk-http-client"))
+        .withLogoUri(uri("https://http4s.org/images/http4s-logo.svg"))
+    },
+    git.remoteRepo := "git@github.com:http4s/http4s-jdk-http-client.git",
+    Paradox / siteSubdirName := {
+      if (isSnapshot.value) "latest"
+      else version.value
+    },
+    mappings in makeSite ++= Seq(
+      target.value / "netlify.toml" -> "netlify.toml"
+    ),
+    includeFilter in ghpagesCleanSite :=
+      new FileFilter {
+        def accept(f: File) =
+          f.toPath.startsWith(
+            (ghpagesRepository.value / (siteSubdirName in Paradox).value).toPath
+          )
+      } || "netlify.toml"
+  )
 
 def binaryVersion(version: String) =
   version match {
