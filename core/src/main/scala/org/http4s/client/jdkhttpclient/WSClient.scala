@@ -124,7 +124,7 @@ object WSClient {
       override def connect(request: WSRequest) = f(request)
       override def connectHighLevel(request: WSRequest) =
         for {
-          (recvCloseFrame, outputOpen) <- Resource.liftF(
+          (recvCloseFrame, outputOpen) <- Resource.eval(
             Deferred[F, WSFrame.Close].product(Ref[F].of(false))
           )
           conn <- f(request)
