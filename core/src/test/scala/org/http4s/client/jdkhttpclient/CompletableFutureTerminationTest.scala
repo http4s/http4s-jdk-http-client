@@ -18,7 +18,6 @@ package org.http4s.client.jdkhttpclient
 
 import cats.syntax.all._
 import cats.effect._
-import cats.effect.concurrent._
 import java.util.concurrent.TimeUnit
 import scala.concurrent._
 import scala.concurrent.duration._
@@ -26,15 +25,16 @@ import org.http4s._
 import org.http4s.server._
 import org.http4s.server.blaze._
 import cats.data._
-import cats.effect.testing.specs2.CatsIO
+import cats.effect.testing.specs2.CatsEffect
 import org.specs2.mutable.Specification
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.util.concurrent.CompletableFuture
+import cats.effect.std.Semaphore
 
-final class CompletableFutureTerminationTest extends Specification with CatsIO {
+final class CompletableFutureTerminationTest extends Specification with CatsEffect {
   import CompletableFutureTerminationTest._
 
   private val duration: FiniteDuration =
@@ -76,8 +76,8 @@ final class CompletableFutureTerminationTest extends Specification with CatsIO {
             gotRequest.acquire *>
             // Start a Http4s Server, it will be terminated at the conclusion of
             // this test.
-            stallingServerR[IO](stallServer, gotRequest, super.executionContext).use {
-              (server: Server[IO]) =>
+            stallingServerR[IO](stallServer, gotRequest, ExecutionContext.global).use {
+              (server: Server) =>
                 // Call the server, using the JDK client. We call directly with
                 // the JDK client because we need to have low level control over
                 // the result to observe whether or not the
@@ -116,7 +116,7 @@ final class CompletableFutureTerminationTest extends Specification with CatsIO {
                       // releasing any resources being held. If not, then it
                       // will still receive bytes, meaning there is a resource
                       // leak.
-                      fromCompletableFutureShift(IO(cf)).void
+                      fromCompletableFuture(IO(cf)).void
                         .timeoutTo(duration, stallServer.release) *>
                       // After the timeout has triggered, wait for the observation to complete.
                       fiber.join *>
@@ -177,15 +177,13 @@ object CompletableFutureTerminationTest {
       semaphore: Semaphore[F],
       gotRequest: Semaphore[F],
       ec: ExecutionContext
-  )(implicit F: ConcurrentEffect[F], T: Timer[F]): Resource[F, Server[F]] =
+  )(implicit F: Async[F]): Resource[F, Server] =
     BlazeServerBuilder(ec)
       .withHttpApp(
         Kleisli(
           Function.const(
             gotRequest.release *>
-              semaphore.withPermit(
-                F.pure(Response[F]())
-              )
+              semaphore.permit.use(_ => F.pure(Response[F]()))
           )
         )
       )
@@ -210,19 +208,19 @@ object CompletableFutureTerminationTest {
       observe: Deferred[F, Observation[A]],
       cf: CompletableFuture[A]
   )(implicit F: Async[F]): F[Unit] =
-    F.async { (cb: Either[Throwable, Observation[A]] => Unit) =>
+    F.async_ { (cb: Either[Throwable, Observation[A]] => Unit) =>
       cf.handleAsync[Unit](
         JBiFunction[A, Throwable, Unit](result =>
           t => cb(Right(Observation(Option(result), Option(t))))
         )
       ); ();
-    }.flatMap(observe.complete)
+    }.flatMap(observe.complete(_).void)
 
   /** Given a Http4s Server, make a GET request to `/` using a JDK HttpClient
     * and return the result in a [[java.util.concurrent.CompletableFuture]].
     */
   private def callServer[F[_]](
-      server: Server[F]
+      server: Server
   )(implicit F: Sync[F]): F[CompletableFuture[HttpResponse[String]]] =
     for {
       jURI <- F.catchNonFatal(new URI(server.baseUri.renderString))

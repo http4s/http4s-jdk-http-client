@@ -18,7 +18,6 @@ package org.http4s.client.jdkhttpclient
 
 import cats.data._
 import cats.effect._
-import cats.effect.concurrent._
 import cats.syntax.all._
 import org.http4s._
 import org.http4s.client._
@@ -46,13 +45,13 @@ object BodyLeakExample extends IOApp {
       )
 
   override def run(args: List[String]): IO[ExitCode] =
-    BlazeServerBuilder[IO](executionContext)
+    BlazeServerBuilder[IO](runtime.compute)
       .bindLocal(8080)
       .withHttpApp(app)
       .resource
-      .use { _ =>
+      .product(JdkHttpClient.simple[IO])
+      .use { case (_, client) =>
         for {
-          client <- JdkHttpClient.simple[IO]
           counter <- Ref.of[IO, Long](0L)
           ec <- runRequest(client, counter).foreverM[ExitCode]
         } yield ec

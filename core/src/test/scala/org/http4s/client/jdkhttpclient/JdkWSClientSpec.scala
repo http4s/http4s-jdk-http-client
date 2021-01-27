@@ -20,8 +20,7 @@ import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 
 import cats.effect._
-import cats.effect.concurrent.{Deferred, Ref}
-import cats.effect.testing.specs2.CatsEffect
+import cats.effect.testing.specs2.CatsResource
 import cats.implicits._
 import fs2.Stream
 import org.http4s._
@@ -33,22 +32,20 @@ import org.http4s.websocket.WebSocketFrame
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
-import org.specs2.mutable.Specification
+import org.specs2.mutable.SpecificationLike
 import scodec.bits.ByteVector
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
-class JdkWSClientSpec extends Specification with CatsEffect {
-  implicit val timer: cats.effect.Timer[IO] = IO.timer(global)
-  implicit val cs: cats.effect.ContextShift[IO] = IO.contextShift(global)
+class JdkWSClientSpec extends CatsResource[IO, WSClient[IO]] with SpecificationLike {
 
-  val webSocket: WSClient[IO] = JdkWSClient.simple[IO].unsafeRunSync()
+  val resource = JdkWSClient.simple[IO]
 
   val wsUri = uri"wss://echo.websocket.org"
 
   "A WebSocket client" should {
-    "send and receive frames in low-level mode" in {
+    "send and receive frames in low-level mode" in withResource { webSocket =>
       webSocket
         .connect(WSRequest(wsUri))
         .use { conn =>
@@ -69,7 +66,7 @@ class JdkWSClientSpec extends Specification with CatsEffect {
         )
     }
 
-    "send and receive frames in high-level mode" in {
+    "send and receive frames in high-level mode" in withResource { webSocket =>
       webSocket
         .connectHighLevel(WSRequest(wsUri))
         .use { conn =>
@@ -89,7 +86,7 @@ class JdkWSClientSpec extends Specification with CatsEffect {
         )
     }
 
-    "group frames by their `last` attribute in high-level mode" in {
+    "group frames by their `last` attribute in high-level mode" in withResource { webSocket =>
       webSocket
         .connectHighLevel(WSRequest(wsUri))
         .use { conn =>
@@ -127,12 +124,13 @@ class JdkWSClientSpec extends Specification with CatsEffect {
         )
     }
 
-    "automatically close the connection" in {
+    "automatically close the connection" in withResource { webSocket =>
       for {
         ref <- Ref[IO].of(List.empty[WebSocketFrame])
         finished <- Deferred[IO, Unit]
         // we use Java-Websocket because Blaze has a bug concerning the handling of Close frames and shutting down
         server = new WebSocketServer(new InetSocketAddress("localhost", 8080)) {
+          import cats.effect.unsafe.implicits.global
           override def onOpen(conn: WebSocket, handshake: ClientHandshake) = ()
           override def onClose(conn: WebSocket, code: Int, reason: String, remote: Boolean) =
             ref
@@ -147,11 +145,11 @@ class JdkWSClientSpec extends Specification with CatsEffect {
             val req = WSRequest(uri"ws://localhost:8080")
             val p = for {
               _ <- webSocket.connect(req).use(conn => conn.send(WSFrame.Text("hi blaze")))
-              _ <- Timer[IO].sleep(1.seconds)
+              _ <- IO.sleep(1.seconds)
               _ <- webSocket.connectHighLevel(req).use { conn =>
                 conn.send(WSFrame.Text("hey blaze"))
               }
-              _ <- Timer[IO].sleep(1.seconds)
+              _ <- IO.sleep(1.seconds)
               _ <- finished.complete(())
             } yield ()
             p.unsafeRunAsync(_ => ())
@@ -167,7 +165,7 @@ class JdkWSClientSpec extends Specification with CatsEffect {
       )
     }
 
-    "send headers" in {
+    "send headers" in withResource { webSocket =>
       val sentHeaders = Headers.of(
         Header("foo", "bar"),
         Header("Sec-Websocket-Protocol", "proto"),
@@ -179,7 +177,7 @@ class JdkWSClientSpec extends Specification with CatsEffect {
           val routes = HttpRoutes.of[IO] { case r @ GET -> Root =>
             ref.set(r.headers.some) *> WebSocketBuilder[IO].build(Stream.empty, _ => Stream.empty)
           }
-          BlazeServerBuilder[IO](global)
+          BlazeServerBuilder[IO](ExecutionContext.global)
             .bindHttp(8081)
             .withHttpApp(routes.orNotFound)
             .resource

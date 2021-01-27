@@ -19,7 +19,6 @@ package org.http4s.client.jdkhttpclient
 import cats._
 import cats.data.{Chain, OptionT}
 import cats.effect._
-import cats.effect.concurrent.{Deferred, Ref, TryableDeferred}
 import cats.implicits._
 import fs2.{Pipe, Stream}
 import org.http4s.{Headers, Method, Uri}
@@ -102,7 +101,7 @@ trait WSConnectionHighLevel[F[_]] {
   def subprocotol: Option[String]
 
   /** The close frame, if available. */
-  def closeFrame: TryableDeferred[F, WSFrame.Close]
+  def closeFrame: Deferred[F, WSFrame.Close]
 }
 
 trait WSClient[F[_]] {
@@ -126,7 +125,7 @@ object WSClient {
       override def connectHighLevel(request: WSRequest) =
         for {
           (recvCloseFrame, outputOpen) <- Resource.liftF(
-            Deferred.tryable[F, WSFrame.Close].product(Ref[F].of(false))
+            Deferred[F, WSFrame.Close].product(Ref[F].of(false))
           )
           conn <- f(request)
         } yield new WSConnectionHighLevel[F] {
@@ -169,7 +168,7 @@ object WSClient {
             defrag(Chain.empty, ByteVector.empty).value
           }
           override def subprocotol: Option[String] = conn.subprotocol
-          override def closeFrame: TryableDeferred[F, WSFrame.Close] = recvCloseFrame
+          override def closeFrame: Deferred[F, WSFrame.Close] = recvCloseFrame
         }
     }
 }

@@ -24,9 +24,8 @@ import java.nio.ByteBuffer
 import java.util
 import java.util.concurrent.Flow
 
-import cats.ApplicativeError
 import cats.effect._
-import cats.effect.concurrent._
+import cats.effect.std.Dispatcher
 import cats.effect.syntax.all._
 import cats.implicits._
 import fs2.concurrent.SignallingRef
@@ -34,9 +33,9 @@ import fs2.interop.reactivestreams._
 import fs2.{Chunk, Stream}
 import org.http4s.client.Client
 import org.http4s.client.jdkhttpclient.compat.CollectionConverters._
-import org.http4s.util.CaseInsensitiveString
 import org.http4s.{Header, Headers, HttpVersion, Request, Response, Status}
 import org.reactivestreams.FlowAdapters
+import org.typelevel.ci.CIString
 
 object JdkHttpClient {
 
@@ -50,15 +49,15 @@ object JdkHttpClient {
     */
   def apply[F[_]](
       jdkHttpClient: HttpClient,
-      ignoredHeaders: Set[CaseInsensitiveString] = restrictedHeaders
-  )(implicit F: ConcurrentEffect[F], CS: ContextShift[F]): Client[F] = {
+      ignoredHeaders: Set[CIString] = restrictedHeaders
+  )(implicit F: Async[F]): Resource[F, Client[F]] = Dispatcher[F].map { dispatcher =>
     def convertRequest(req: Request[F]): F[HttpRequest] =
       convertHttpVersionFromHttp4s[F](req.httpVersion).map { version =>
         val rb = HttpRequest.newBuilder
           .method(
             req.method.name, {
               val publisher = FlowAdapters.toFlowPublisher(
-                StreamUnicastPublisher(req.body.chunks.map(_.toByteBuffer))
+                StreamUnicastPublisher(req.body.chunks.map(_.toByteBuffer), dispatcher)
               )
               if (req.isChunked)
                 BodyPublishers.fromPublisher(publisher)
@@ -71,7 +70,7 @@ object JdkHttpClient {
           .version(version)
         val headers = req.headers.iterator
           .filterNot(h => ignoredHeaders.contains(h.name))
-          .flatMap(h => Iterator(h.name.value, h.value))
+          .flatMap(h => Iterator(h.name.toString, h.value))
           .toArray
         (if (headers.isEmpty) rb else rb.headers(headers: _*)).build
       }
@@ -123,20 +122,20 @@ object JdkHttpClient {
     // Thus, in order to solve this problem and satisfy the JDK HttpResponse's
     // API so as to not leak resources, we do the following.
     //
-    // We create a TryableDeferred[F, Unit] and bracket its creation as well as
+    // We create a Deferred[F, Unit] and bracket its creation as well as
     // the invocation of the effect which yields the JDK HttpResponse. Using
     // the lower level fs2 reactive streams APIs, we ensure the attempt to
-    // subscribe to the Publisher first completes the TryableDeferred. The
+    // subscribe to the Publisher first completes the Deferred. The
     // code for this is similar to the body of the fromPublisher method in fs2.
     //
     // https://github.com/typelevel/fs2/blob/v2.5.0/reactive-streams/src/main/scala/fs2/interop/reactivestreams/package.scala#L55
     //
     // In the release section of bracket on the response, we check if the
-    // TryableDeferred has been completed. If that is not the case that means
+    // Deferred has been completed. If that is not the case that means
     // that Publisher was never subscribed to, either due to an error or more
     // likely because the calling code didn't care about the body of the
     // request. In this case we subscribe to the body and then immediately
-    // cancel the subscription, freeing the resources.  If the TryableDeferred
+    // cancel the subscription, freeing the resources.  If the Deferred
     // has already been completed, we do nothing.
     //
     // There are a couple items worth giving special attention to here.
@@ -160,7 +159,7 @@ object JdkHttpClient {
     ): Resource[F, Response[F]] =
       Resource
         .make(
-          (Deferred.tryable[F, Unit], responseF).tupled
+          (Deferred[F, Unit], responseF).tupled
         ) { case (subscription, response) =>
           subscription.tryGet.flatMap {
             case None =>
@@ -184,9 +183,7 @@ object JdkHttpClient {
         .flatMap { case (subscription, res) =>
           val body: Stream[F, util.List[ByteBuffer]] =
             Stream
-              .eval(
-                StreamSubscriber[F, util.List[ByteBuffer]]
-              )
+              .eval(StreamSubscriber[F, util.List[ByteBuffer]](dispatcher))
               .flatMap(s =>
                 s.sub.stream(
                   // Complete the TrybleDeferred so that we indicate we have
@@ -196,7 +193,7 @@ object JdkHttpClient {
                   // body and will never happen if the body is never pulled
                   // from. In that case, the AlwaysCancelingSubscriber handles
                   // cleanup.
-                  F.uncancelable {
+                  F.uncancelable { _ =>
                     subscription.complete(()) *>
                       F.delay(FlowAdapters.toPublisher(res.body).subscribe(s))
                   }
@@ -216,7 +213,9 @@ object JdkHttpClient {
                   },
                   body = body
                     .interruptWhen(signal)
-                    .flatMap(bs => Stream.fromIterator(bs.iterator.asScala.map(Chunk.byteBuffer)))
+                    .flatMap(bs =>
+                      Stream.fromIterator(bs.iterator.asScala.map(Chunk.byteBuffer), 1)
+                    )
                     .flatMap(Stream.chunk)
                 ) -> signal.set(true)
             }
@@ -225,8 +224,8 @@ object JdkHttpClient {
 
     Client[F] { req =>
       for {
-        req <- Resource.liftF(convertRequest(req))
-        res = fromCompletableFutureShift(
+        req <- Resource.eval(convertRequest(req))
+        res = fromCompletableFuture(
           F.delay(jdkHttpClient.sendAsync(req, BodyHandlers.ofPublisher))
         )
         res <- convertResponse(res)
@@ -236,8 +235,8 @@ object JdkHttpClient {
 
   /** A `Client` wrapping the default `HttpClient`.
     */
-  def simple[F[_]](implicit F: ConcurrentEffect[F], CS: ContextShift[F]): F[Client[F]] =
-    defaultHttpClient[F].map(apply(_))
+  def simple[F[_]](implicit F: Async[F]): Resource[F, Client[F]] =
+    Resource.eval(defaultHttpClient[F]).flatMap(apply(_))
 
   private[jdkhttpclient] def defaultHttpClient[F[_]](implicit F: Sync[F]): F[HttpClient] =
     F.delay {
@@ -253,7 +252,7 @@ object JdkHttpClient {
 
   def convertHttpVersionFromHttp4s[F[_]](
       version: HttpVersion
-  )(implicit F: ApplicativeError[F, Throwable]): F[HttpClient.Version] =
+  )(implicit F: ApplicativeThrow[F]): F[HttpClient.Version] =
     version match {
       case HttpVersion.`HTTP/1.1` => HttpClient.Version.HTTP_1_1.pure[F]
       case HttpVersion.`HTTP/2.0` => HttpClient.Version.HTTP_2.pure[F]
@@ -272,5 +271,5 @@ object JdkHttpClient {
       "upgrade",
       "via",
       "warning"
-    ).map(CaseInsensitiveString(_))
+    ).map(CIString(_))
 }
