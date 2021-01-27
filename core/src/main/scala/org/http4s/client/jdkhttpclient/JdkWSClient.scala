@@ -18,18 +18,23 @@ package org.http4s.client.jdkhttpclient
 
 import java.io.IOException
 import java.net.URI
-import java.net.http.{HttpClient, WebSocket => JWebSocket}
+import java.net.http.HttpClient
+import java.net.http.{WebSocket => JWebSocket}
 import java.nio.ByteBuffer
-import java.util.concurrent.{CompletableFuture, CompletionStage}
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionStage
 
 import cats._
 import cats.effect._
+import cats.effect.std.Dispatcher
+import cats.effect.std.Queue
+import cats.effect.std.Semaphore
 import cats.implicits._
-import fs2.{CompositeFailure, Stream}
+import fs2.CompositeFailure
+import fs2.Stream
 import org.http4s.headers.`Sec-WebSocket-Protocol`
-import scodec.bits.ByteVector
 import org.http4s.internal.unsafeToCompletionStage
-import cats.effect.std.{Dispatcher, Queue, Semaphore}
+import scodec.bits.ByteVector
 
 /** A `WSClient` wrapper for the JDK 11+ websocket client.
   * It will reply to Pongs with Pings even in "low-level" mode.

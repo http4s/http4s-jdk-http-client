@@ -16,9 +16,12 @@
 
 package org.http4s.client
 
+import java.util.concurrent.CancellationException
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionException
+
 import cats.effect._
 import cats.syntax.all._
-import java.util.concurrent.{CancellationException, CompletableFuture, CompletionException}
 
 package object jdkhttpclient {
 

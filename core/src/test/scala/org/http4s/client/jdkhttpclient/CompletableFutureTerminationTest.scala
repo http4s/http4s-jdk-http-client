@@ -16,22 +16,24 @@
 
 package org.http4s.client.jdkhttpclient
 
-import cats.syntax.all._
-import cats.effect._
-import java.util.concurrent.TimeUnit
-import scala.concurrent._
-import scala.concurrent.duration._
-import org.http4s._
-import org.http4s.server._
-import org.http4s.server.blaze._
-import cats.data._
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
+
+import scala.concurrent._
+import scala.concurrent.duration._
+
+import cats.data._
+import cats.effect._
 import cats.effect.std.Semaphore
+import cats.syntax.all._
 import munit.CatsEffectSuite
+import org.http4s._
+import org.http4s.server._
+import org.http4s.server.blaze._
 
 final class CompletableFutureTerminationTest extends CatsEffectSuite {
   import CompletableFutureTerminationTest._

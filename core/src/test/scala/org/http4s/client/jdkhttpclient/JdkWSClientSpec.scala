@@ -19,9 +19,12 @@ package org.http4s.client.jdkhttpclient
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 
+import scala.concurrent.duration._
+
 import cats.effect._
 import cats.implicits._
 import fs2.Stream
+import munit.CatsEffectSuite
 import org.http4s._
 import org.http4s.dsl.io._
 import org.http4s.implicits._
@@ -32,9 +35,6 @@ import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
 import scodec.bits.ByteVector
-
-import scala.concurrent.duration._
-import munit.CatsEffectSuite
 
 class JdkWSClientSpec extends CatsEffectSuite {
 

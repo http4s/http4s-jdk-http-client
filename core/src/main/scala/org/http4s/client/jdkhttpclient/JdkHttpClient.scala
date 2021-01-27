@@ -17,9 +17,11 @@
 package org.http4s.client.jdkhttpclient
 
 import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
 import java.net.http.HttpRequest.BodyPublishers
+import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
-import java.net.http.{HttpClient, HttpRequest, HttpResponse}
 import java.nio.ByteBuffer
 import java.util
 import java.util.concurrent.Flow
@@ -28,12 +30,18 @@ import cats.effect._
 import cats.effect.std.Dispatcher
 import cats.effect.syntax.all._
 import cats.implicits._
+import fs2.Chunk
+import fs2.Stream
 import fs2.concurrent.SignallingRef
 import fs2.interop.reactivestreams._
-import fs2.{Chunk, Stream}
+import org.http4s.Header
+import org.http4s.Headers
+import org.http4s.HttpVersion
+import org.http4s.Request
+import org.http4s.Response
+import org.http4s.Status
 import org.http4s.client.Client
 import org.http4s.client.jdkhttpclient.compat.CollectionConverters._
-import org.http4s.{Header, Headers, HttpVersion, Request, Response, Status}
 import org.reactivestreams.FlowAdapters
 import org.typelevel.ci.CIString
 

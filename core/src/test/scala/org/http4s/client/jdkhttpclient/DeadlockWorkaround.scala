@@ -20,8 +20,8 @@ import javax.net.ssl.SSLHandshakeException
 
 import cats.effect._
 import cats.syntax.all._
-import org.http4s.implicits._
 import munit.CatsEffectSuite
+import org.http4s.implicits._
 
 class DeadlockWorkaround extends CatsEffectSuite {
 
