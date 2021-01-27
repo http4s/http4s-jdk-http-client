@@ -103,6 +103,8 @@ inThisBuild(
       WorkflowStep.Sbt(List("test"), name = Some("Run tests")),
       WorkflowStep.Sbt(List("doc"), name = Some("Build docs"))
     ),
+    isSnapshot :=
+      git.gitCurrentTags.value.isEmpty || git.gitUncommittedChanges.value,
     githubWorkflowPublishPostamble := Seq(
       WorkflowStep.Run(
         List("""
@@ -120,7 +122,7 @@ inThisBuild(
       )
     ),
     githubWorkflowPublishTargetBranches := Seq(
-      // RefPredicate.Equals(Ref.Branch("main")),
+      RefPredicate.Equals(Ref.Branch("main")),
       RefPredicate.StartsWith(Ref.Tag("v"))
     )
   )
