@@ -97,7 +97,7 @@ object JdkWSClient {
             )
             sendSem <- Semaphore[F](1L)
           } yield (webSocket, queue, closedDef, sendSem)
-        } { case (webSocket, queue, closedDef, _) =>
+        } { case (webSocket, queue, _, _) =>
           for {
             isOutputOpen <- F.delay(!webSocket.isOutputClosed)
             closeOutput = fromCompletableFuture(
