@@ -28,8 +28,8 @@ val reactiveStreamsV = "1.0.3"
 val vaultV = "3.0.0-M1"
 val caseInsensitiveV = "1.0.0-RC2"
 
-val specs2V = "4.10.6"
-val catsEffectTestingV = "1.0.0-M1"
+val munitV = "0.7.21"
+val munitCatsEffectV = "0.12.0"
 val javaWebsocketV = "1.5.1"
 
 val coreDeps = Seq(
@@ -47,12 +47,11 @@ val coreDeps = Seq(
   "org.typelevel" %% "vault" % vaultV,
   "org.typelevel" %% "case-insensitive" % caseInsensitiveV
 ) ++ Seq(
-  "com.codecommit" %% "cats-effect-testing-specs2" % catsEffectTestingV,
   "org.http4s" %% "http4s-blaze-server" % http4sV,
   "org.http4s" %% "http4s-dsl" % http4sV,
   "org.java-websocket" % "Java-WebSocket" % javaWebsocketV,
-  "org.specs2" %% "specs2-core" % specs2V,
-  "org.specs2" %% "specs2-scalacheck" % specs2V
+  "org.scalameta" %% "munit" % munitV,
+  "org.typelevel" %% "munit-cats-effect-3" % munitCatsEffectV
 ).map(_ % Test)
 
 enablePlugins(SonatypeCiReleasePlugin)
@@ -148,6 +147,7 @@ inThisBuild(
 )
 
 lazy val commonSettings = Seq(
+  testFrameworks += new TestFramework("munit.Framework"),
   unmanagedSourceDirectories in Compile ++= {
     (unmanagedSourceDirectories in Compile).value.map { dir =>
       val sv = scalaVersion.value
