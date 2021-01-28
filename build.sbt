@@ -104,7 +104,7 @@ inThisBuild(
       WorkflowStep.Sbt(List("doc"), name = Some("Build docs"))
     ),
     isSnapshot :=
-      git.gitCurrentTags.value.isEmpty || git.gitUncommittedChanges.value,
+      git.gitCurrentTags.value.filter(_ != "").isEmpty || git.gitUncommittedChanges.value,
     githubWorkflowPublishPostamble := Seq(
       WorkflowStep.Run(
         List("""
