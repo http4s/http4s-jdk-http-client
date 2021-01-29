@@ -48,7 +48,7 @@ package object jdkhttpclient {
             case ex => cb(Left(ex))
           }
         }; ();
-      }
+      }.guarantee(CS.shift)
     }((cs, ec) =>
       (ec match {
         case ExitCase.Completed => F.unit
@@ -56,6 +56,6 @@ package object jdkhttpclient {
           F.delay(cs.completeExceptionally(e))
         case ExitCase.Canceled =>
           F.delay(cs.cancel(true))
-      }).void.guarantee(CS.shift)
+      }).void
     )
 }
