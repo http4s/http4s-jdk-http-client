@@ -106,6 +106,7 @@ inThisBuild(
       WorkflowStep.Sbt(List("test"), name = Some("Run tests")),
       WorkflowStep.Sbt(List("doc"), name = Some("Build docs"))
     ),
+    // sbt-spiewak only creates snapshots when there are uncommitted changes.
     isSnapshot :=
       git.gitCurrentTags.value.filter(_ != "").isEmpty || git.gitUncommittedChanges.value,
     version := {
@@ -113,6 +114,11 @@ inThisBuild(
       val suffix = "-SNAPSHOT"
       if (isSnapshot.value && !v.endsWith(suffix)) v + suffix else v
     },
+    githubWorkflowPublish := Seq(
+      WorkflowStep.Sbt(List("+publish")),
+      WorkflowStep
+        .Sbt(List("sonatypeBundleRelease"), cond = Some("startsWith(github.ref, 'refs/tags/v')"))
+    ),
     githubWorkflowPublishPostamble := Seq(
       WorkflowStep.Run(
         List("""
