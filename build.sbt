@@ -89,6 +89,9 @@ inThisBuild(
     githubWorkflowArtifactUpload := false,
     githubWorkflowJavaVersions := Seq("adopt@1.11", "adopt@1.15"),
     githubWorkflowBuildMatrixFailFast := Some(false),
+    // "*" does not match slashes
+    // see https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
+    githubWorkflowTargetBranches := Seq("**"),
     githubWorkflowBuild := Seq(
       WorkflowStep
         .Sbt(List("scalafmtCheckAll", "scalafmtSbtCheck"), name = Some("Check formatting")),
@@ -118,11 +121,13 @@ inThisBuild(
         env = Map(
           "SSH_PRIVATE_KEY" -> "${{ secrets.SSH_PRIVATE_KEY }}",
           "SBT_GHPAGES_COMMIT_MESSAGE" -> "Updated site: sha=${{ github.sha }} build=${{ github.run_id }}"
-        )
+        ),
+        cond = Some("github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')")
       )
     ),
     githubWorkflowPublishTargetBranches := Seq(
       RefPredicate.Equals(Ref.Branch("main")),
+      RefPredicate.StartsWith(Ref.Branch("series/")),
       RefPredicate.StartsWith(Ref.Tag("v"))
     )
   )

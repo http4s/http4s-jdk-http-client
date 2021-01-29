@@ -9,9 +9,9 @@ name: Continuous Integration
 
 on:
   pull_request:
-    branches: ['*']
+    branches: ['**']
   push:
-    branches: ['*']
+    branches: ['**']
     tags: [v*]
 
 env:
@@ -80,7 +80,7 @@ jobs:
   publish:
     name: Publish Artifacts
     needs: [build]
-    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/series/') || startsWith(github.ref, 'refs/tags/v'))
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -116,6 +116,7 @@ jobs:
       - run: sbt ++${{ matrix.scala }} release
 
       - name: Publish docs
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SBT_GHPAGES_COMMIT_MESSAGE: 'Updated site: sha=${{ github.sha }} build=${{ github.run_id }}'
