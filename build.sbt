@@ -108,6 +108,11 @@ inThisBuild(
     ),
     isSnapshot :=
       git.gitCurrentTags.value.filter(_ != "").isEmpty || git.gitUncommittedChanges.value,
+    version := {
+      val v = version.value
+      val suffix = "-SNAPSHOT"
+      if (isSnapshot.value && !v.endsWith(suffix)) v + suffix else v
+    },
     githubWorkflowPublishPostamble := Seq(
       WorkflowStep.Run(
         List("""
