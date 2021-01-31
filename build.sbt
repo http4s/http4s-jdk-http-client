@@ -59,7 +59,7 @@ inThisBuild(
   Seq(
     crossScalaVersions := Seq("2.12.13", "2.13.4"),
     scalaVersion := (ThisBuild / crossScalaVersions).value.head,
-    baseVersion := "0.4",
+    baseVersion := "0.5",
     homepage := Some(url("https://github.com/http4s/http4s-jdk-http-client")),
     licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
     scmInfo := Some(
