@@ -28,7 +28,7 @@ val reactiveStreamsV = "1.0.3"
 val vaultV = "2.0.0"
 
 val specs2V = "4.10.6"
-val catsEffectTestingV = "0.5.0"
+val catsEffectTestingV = "0.5.1"
 val javaWebsocketV = "1.5.1"
 
 val coreDeps = Seq(
