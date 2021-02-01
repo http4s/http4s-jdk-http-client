@@ -20,20 +20,23 @@ lazy val docs = project
   .settings(commonSettings, docsSettings)
 
 val catsV = "2.3.1"
-val catsEffectV = "2.3.1"
-val fs2V = "2.5.0"
+val catsEffectV = "3.0.0-M5"
+val fs2V = "3.0.0-M7"
 val scodecV = "1.1.23"
-val http4sV = "0.21.16"
+val http4sV = "1.0.0-M13"
 val reactiveStreamsV = "1.0.3"
-val vaultV = "2.0.0"
+val vaultV = "3.0.0-M1"
+val caseInsensitiveV = "1.0.0-RC2"
 
-val specs2V = "4.10.6"
-val catsEffectTestingV = "0.5.0"
+val munitV = "0.7.21"
+val munitCatsEffectV = "0.13.0"
 val javaWebsocketV = "1.5.1"
 
 val coreDeps = Seq(
   "org.typelevel" %% "cats-core" % catsV,
   "org.typelevel" %% "cats-effect" % catsEffectV,
+  "org.typelevel" %% "cats-effect-kernel" % catsEffectV,
+  "org.typelevel" %% "cats-effect-std" % catsEffectV,
   "org.typelevel" %% "cats-kernel" % catsV,
   "co.fs2" %% "fs2-core" % fs2V,
   "co.fs2" %% "fs2-reactive-streams" % fs2V,
@@ -41,15 +44,14 @@ val coreDeps = Seq(
   "org.http4s" %% "http4s-core" % http4sV,
   "org.reactivestreams" % "reactive-streams" % reactiveStreamsV,
   "org.scodec" %% "scodec-bits" % scodecV,
-  "io.chrisdavenport" %% "vault" % vaultV
+  "org.typelevel" %% "vault" % vaultV,
+  "org.typelevel" %% "case-insensitive" % caseInsensitiveV
 ) ++ Seq(
-  "com.codecommit" %% "cats-effect-testing-specs2" % catsEffectTestingV,
   "org.http4s" %% "http4s-blaze-server" % http4sV,
   "org.http4s" %% "http4s-dsl" % http4sV,
-  "org.http4s" %% "http4s-testing" % http4sV,
   "org.java-websocket" % "Java-WebSocket" % javaWebsocketV,
-  "org.specs2" %% "specs2-core" % specs2V,
-  "org.specs2" %% "specs2-scalacheck" % specs2V
+  "org.scalameta" %% "munit" % munitV,
+  "org.typelevel" %% "munit-cats-effect-3" % munitCatsEffectV
 ).map(_ % Test)
 
 enablePlugins(SonatypeCiReleasePlugin)
@@ -57,7 +59,7 @@ inThisBuild(
   Seq(
     crossScalaVersions := Seq("2.12.13", "2.13.4"),
     scalaVersion := (ThisBuild / crossScalaVersions).value.head,
-    baseVersion := "0.3",
+    baseVersion := "0.5",
     homepage := Some(url("https://github.com/http4s/http4s-jdk-http-client")),
     licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
     scmInfo := Some(
@@ -145,6 +147,7 @@ inThisBuild(
 )
 
 lazy val commonSettings = Seq(
+  testFrameworks += new TestFramework("munit.Framework"),
   unmanagedSourceDirectories in Compile ++= {
     (unmanagedSourceDirectories in Compile).value.map { dir =>
       val sv = scalaVersion.value

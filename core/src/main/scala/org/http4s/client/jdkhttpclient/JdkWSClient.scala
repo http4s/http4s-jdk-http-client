@@ -18,21 +18,23 @@ package org.http4s.client.jdkhttpclient
 
 import java.io.IOException
 import java.net.URI
-import java.net.http.{HttpClient, WebSocket => JWebSocket}
+import java.net.http.HttpClient
+import java.net.http.{WebSocket => JWebSocket}
 import java.nio.ByteBuffer
-import java.util.concurrent.{CompletableFuture, CompletionStage}
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionStage
 
 import cats._
-import cats.data.NonEmptyList
 import cats.effect._
-import cats.effect.concurrent.Semaphore
-import cats.effect.util.CompositeException
+import cats.effect.std.Dispatcher
+import cats.effect.std.Queue
+import cats.effect.std.Semaphore
 import cats.implicits._
-import fs2.Chunk
-import fs2.concurrent.Queue
+import fs2.CompositeFailure
+import fs2.Stream
 import org.http4s.headers.`Sec-WebSocket-Protocol`
-import scodec.bits.ByteVector
 import org.http4s.internal.unsafeToCompletionStage
+import scodec.bits.ByteVector
 
 /** A `WSClient` wrapper for the JDK 11+ websocket client.
   * It will reply to Pongs with Pings even in "low-level" mode.
@@ -43,7 +45,7 @@ object JdkWSClient {
   /** Create a new `WSClient` backed by a JDK 11+ http client. */
   def apply[F[_]](
       jdkHttpClient: HttpClient
-  )(implicit F: ConcurrentEffect[F], CS: ContextShift[F]): WSClient[F] =
+  )(implicit F: Async[F]): Resource[F, WSClient[F]] = Dispatcher[F].map { dispatcher =>
     WSClient.defaultImpl(respondToPings = false) { case WSRequest(uri, headers, _) =>
       Resource
         .make {
@@ -53,24 +55,24 @@ object JdkWSClient {
               val (subprotocols, hs) = headers.toList.partitionEither(h =>
                 `Sec-WebSocket-Protocol`.matchHeader(h).fold(h.asRight[String])(_.value.asLeft)
               )
-              hs.foreach { h => builder.header(h.name.value, h.value); () }
+              hs.foreach { h => builder.header(h.name.toString, h.value); () }
               subprotocols match {
                 case head :: tail => builder.subprotocols(head, tail: _*)
                 case Nil =>
               }
               builder
             }
-            queue <- Queue.noneTerminated[F, Either[Throwable, WSFrame]]
+            queue <- Queue.unbounded[F, Either[Throwable, WSFrame]]
+            closedDef <- Deferred[F, Unit]
             handleReceive =
               (wsf: Either[Throwable, WSFrame]) =>
-                unsafeToCompletionStage(for {
-                  _ <- queue.enqueue1(wsf.some)
-                  // if we encounter an error or receive a Close frame, we close the queue
-                  _ <- wsf match {
-                    case Left(_) | Right(_: WSFrame.Close) => queue.enqueue1(none)
+                unsafeToCompletionStage(
+                  queue.offer(wsf) *> (wsf match {
+                    case Left(_) | Right(_: WSFrame.Close) => closedDef.complete(())
                     case _ => F.unit
-                  }
-                } yield ())
+                  }),
+                  dispatcher
+                )
             wsListener = new JWebSocket.Listener {
               override def onOpen(webSocket: JWebSocket): Unit = ()
               override def onClose(webSocket: JWebSocket, statusCode: Int, reason: String)
@@ -95,15 +97,15 @@ object JdkWSClient {
                 handleReceive(error.asLeft); ()
               }
             }
-            webSocket <- fromCompletableFutureShift(
+            webSocket <- fromCompletableFuture(
               F.delay(wsBuilder.buildAsync(URI.create(uri.renderString), wsListener))
             )
             sendSem <- Semaphore[F](1L)
-          } yield (webSocket, queue, sendSem)
-        } { case (webSocket, queue, _) =>
+          } yield (webSocket, queue, closedDef, sendSem)
+        } { case (webSocket, queue, _, _) =>
           for {
             isOutputOpen <- F.delay(!webSocket.isOutputClosed)
-            closeOutput = fromCompletableFutureShift(
+            closeOutput = fromCompletableFuture(
               F.delay(webSocket.sendClose(JWebSocket.NORMAL_CLOSURE, ""))
             )
             _ <-
@@ -112,22 +114,24 @@ object JdkWSClient {
                 .recover { case e: IOException if e.getMessage == "closed output" => () }
                 .onError { case e: IOException =>
                   for {
-                    chunk <- queue.tryDequeueChunk1(10)
-                    errs = Chunk(chunk.flatten.toSeq: _*).flatten.collect { case Left(e) =>
-                      e
-                    }
-                    _ <- F.raiseError[Unit](NonEmptyList.fromFoldable(errs) match {
-                      case Some(nel) => new CompositeException(e, nel)
+                    errs <- Stream
+                      .repeatEval(queue.tryTake)
+                      .unNoneTerminate
+                      .collect { case Left(e) => e }
+                      .compile
+                      .toList
+                    _ <- F.raiseError[Unit](CompositeFailure.fromList(errs) match {
+                      case Some(cf) => cf
                       case None => e
                     })
                   } yield ()
                 }
           } yield ()
         }
-        .map { case (webSocket, queue, sendSem) =>
+        .map { case (webSocket, queue, closedDef, sendSem) =>
           // sending will throw if done in parallel
           val rawSend = (wsf: WSFrame) =>
-            fromCompletableFutureShift(F.delay(wsf match {
+            fromCompletableFuture(F.delay(wsf match {
               case WSFrame.Text(text, last) => webSocket.sendText(text, last)
               case WSFrame.Binary(data, last) => webSocket.sendBinary(data.toByteBuffer, last)
               case WSFrame.Ping(data) => webSocket.sendPing(data.toByteBuffer)
@@ -136,18 +140,21 @@ object JdkWSClient {
             })).void
           new WSConnection[F] {
             override def send(wsf: WSFrame) =
-              sendSem.withPermit(rawSend(wsf))
+              sendSem.permit.use(_ => rawSend(wsf))
             override def sendMany[G[_]: Foldable, A <: WSFrame](wsfs: G[A]) =
-              sendSem.withPermit(wsfs.traverse_(rawSend))
-            override def receive =
-              F.delay(webSocket.request(1)) *> queue.dequeue1.map(_.sequence).rethrow
+              sendSem.permit.use(_ => wsfs.traverse_(rawSend))
+            override def receive = closedDef.tryGet.flatMap {
+              case None => F.delay(webSocket.request(1)) *> queue.take.rethrow.map(_.some)
+              case Some(()) => none[WSFrame].pure[F]
+            }
             override def subprotocol =
               webSocket.getSubprotocol.some.filter(_.nonEmpty)
           }
         }
     }
+  }
 
   /** A `WSClient` wrapping the default `HttpClient`. */
-  def simple[F[_]](implicit F: ConcurrentEffect[F], CS: ContextShift[F]): F[WSClient[F]] =
-    JdkHttpClient.defaultHttpClient[F].map(apply(_))
+  def simple[F[_]](implicit F: Async[F]): Resource[F, WSClient[F]] =
+    Resource.eval(JdkHttpClient.defaultHttpClient[F]).flatMap(apply(_))
 }

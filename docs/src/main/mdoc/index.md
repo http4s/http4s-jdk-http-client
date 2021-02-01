@@ -35,22 +35,18 @@ This is a workaround for a spurious bug, see [#200](https://github.com/http4s/ht
 #### Simple
 
 A default JDK HTTP client can be created with a call to `simple` for
-any [`ConcurrentEffect`][ConcurrentEffect] type, such as
-[`cats.effect.IO`][IO]:
+any [`Async`][Async] type, such as [`cats.effect.IO`][IO]:
 
 ```scala mdoc:silent:reset-class
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import org.http4s.client.Client
 import org.http4s.client.jdkhttpclient.JdkHttpClient
 
-// A `Timer` and `ContextShift` are necessary for a `ConcurrentEffect[IO]`.
-// They come for free when you use `cats.effect.IOApp`:
-import cats.effect.{ContextShift, Timer}
-import scala.concurrent.ExecutionContext.Implicits.global
-implicit val timer: cats.effect.Timer[IO] = IO.timer(global)
-implicit val cs: cats.effect.ContextShift[IO] = IO.contextShift(global)
+// Here, we import the global runtime.
+// It comes for free with `cats.effect.IOApp`:
+import cats.effect.unsafe.implicits.global
 
-val client: IO[Client[IO]] = JdkHttpClient.simple[IO]
+val client: Resource[IO, Client[IO]] = JdkHttpClient.simple[IO]
 ```
 
 #### Custom clients
@@ -63,12 +59,12 @@ in an effect, as it creates a default executor and SSL context:
 import java.net.{InetSocketAddress, ProxySelector}
 import java.net.http.HttpClient
 
-val client0: IO[Client[IO]] = IO {
+val client0: Resource[IO, Client[IO]] = Resource.eval(IO {
   HttpClient.newBuilder()
     .version(HttpClient.Version.HTTP_2)
     .proxy(ProxySelector.of(new InetSocketAddress("www-proxy", 8080)))
     .build()
-}.map(JdkHttpClient(_))
+}).flatMap(JdkHttpClient(_))
 ```
 
 ### Sharing
@@ -86,8 +82,7 @@ def fetchStatus[F[_]](c: Client[F], uri: Uri): F[Status] =
   c.status(Request[F](Method.GET, uri = uri))
 
 client
-  .flatMap(c => fetchStatus(c, uri"https://http4s.org/"))
-  .attempt
+  .use(c => fetchStatus(c, uri"https://http4s.org/"))
   .unsafeRunSync()
 ```
 
@@ -97,8 +92,8 @@ Contrast with this alternate definition of `fetchStatus`, which would
 create a new `HttpClient` instance on every invocation:
 
 ```scala mdoc
-def fetchStatusInefficiently[F[_]: ConcurrentEffect: ContextShift](uri: Uri): F[Status] =
-  JdkHttpClient.simple[F].flatMap(_.status(Request[F](Method.GET, uri = uri)))
+def fetchStatusInefficiently[F[_]: Async](uri: Uri): F[Status] =
+  JdkHttpClient.simple[F].use(_.status(Request[F](Method.GET, uri = uri)))
 ```
 
 @@@
@@ -113,10 +108,6 @@ headers of OpenJDK 11 is used.
 In OpenJDK 12+, there are less restricted headers by default, and you can disable
 the restriction for certain headers by passing
 `-Djdk.httpclient.allowRestrictedHeaders=host,content-length` etc. to `java`.
-
-### Shutdown
-
-Clients created with this back end do not need to be shut down.
 
 ### Further reading
 
@@ -138,11 +129,12 @@ to construct a `Client[F]` and a `WSClient[F]`.
 import org.http4s.client.jdkhttpclient._
 
 val (http, webSocket) =
-  IO(HttpClient.newHttpClient())
-    .map { httpClient =>
-      (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient))
+  Resource.eval(IO(HttpClient.newHttpClient()))
+    .flatMap { httpClient =>
+      (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient)).tupled
     }
-    .unsafeRunSync()
+    // in almost all cases, it is better to call `use` instead
+    .allocated.map(_._1).unsafeRunSync()
 ```
 
 If you do not need an HTTP client, you can also call `JdkWSClient.simple[IO]` as above.
@@ -167,7 +159,7 @@ The high-level mode does the following things for you:
 
  - Hides the control frames (you can still send Ping and Close frames).
  - Responds to Ping frames with Pongs and echoes Close frames (the received Close frame is exposed
-   as a [`TryableDeferred`][TryableDeferred]). In fact, this currently also the case for the
+   as a [`Deferred`][Deferred]). In fact, this currently also the case for the
    "low-level" mode, but this will change when other websocket backends are added.
  - Groups the data frames by their `last` attribute.
 
@@ -207,8 +199,8 @@ For an overview of all options and functions visit the [scaladoc].
 
 [http4s-client]: https://http4s.org/v@HTTP4S_VERSION_SHORT@/client/
 [Java HttpClient]: https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpClient.html
-[ConcurrentEffect]: https://typelevel.org/cats-effect/typeclasses/concurrent-effect.html
+[Async]: https://typelevel.org/cats-effect/typeclasses/async.html
 [IO]: https://typelevel.org/cats-effect/datatypes/io.html
 [Resource]: https://typelevel.org/cats-effect/datatypes/resource.html
-[TryableDeferred]: https://typelevel.org/cats-effect/api/cats/effect/concurrent/TryableDeferred.html
+[Deferred]: https://typelevel.org/cats-effect/api/cats/effect/concurrent/Deferred.html
 [scaladoc]: https://static.javadoc.io/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@/@VERSION@/org/http4s/client/jdkhttpclient/index.html

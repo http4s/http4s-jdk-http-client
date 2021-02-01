@@ -16,12 +16,12 @@
 
 package org.http4s.client
 
-import cats.effect._
-import cats.effect.syntax.all._
-import cats.syntax.all._
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
+
+import cats.effect._
+import cats.syntax.all._
 
 package object jdkhttpclient {
 
@@ -30,16 +30,13 @@ package object jdkhttpclient {
     * If the effect type terminates in cancellation or error, the underlying
     * [[java.util.concurrent.CompletableFuture]] is terminated in an analogous
     * manner. This is important, otherwise a resource leak may occur.
-    *
-    * @note Finally, regardless of how the effect and
-    *       [[java.util.concurrent.CompletableFuture]] complete, the result is
-    *       shifted with the given [[cats.effect.ContextShift]].
     */
-  private[jdkhttpclient] def fromCompletableFutureShift[F[_], A](
+  // TODO upstream?
+  private[jdkhttpclient] def fromCompletableFuture[F[_], A](
       fcs: F[CompletableFuture[A]]
-  )(implicit F: Concurrent[F], CS: ContextShift[F]): F[A] =
+  )(implicit F: Async[F]): F[A] =
     F.bracketCase(fcs) { cs =>
-      F.async[A] { cb =>
+      F.async_[A] { cb =>
         cs.handle[Unit] { (result, err) =>
           err match {
             case null => cb(Right(result))
@@ -49,13 +46,14 @@ package object jdkhttpclient {
           }
         }; ();
       }
-    }((cs, ec) =>
-      (ec match {
-        case ExitCase.Completed => F.unit
-        case ExitCase.Error(e) =>
+    }((cs, o) =>
+      (o match {
+        case Outcome.Succeeded(_) => F.unit
+        case Outcome.Errored(e) =>
           F.delay(cs.completeExceptionally(e))
-        case ExitCase.Canceled =>
+        case Outcome.Canceled() =>
           F.delay(cs.cancel(true))
-      }).void.guarantee(CS.shift)
+      }).void
     )
+
 }
