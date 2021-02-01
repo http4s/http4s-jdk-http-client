@@ -88,12 +88,7 @@ inThisBuild(
         url("https://github.com/rossabaker")
       )
     ),
-    githubWorkflowArtifactUpload := false,
     githubWorkflowJavaVersions := Seq("adopt@1.11", "adopt@1.15"),
-    githubWorkflowBuildMatrixFailFast := Some(false),
-    // "*" does not match slashes
-    // see https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
-    githubWorkflowTargetBranches := Seq("**"),
     githubWorkflowBuild := Seq(
       WorkflowStep
         .Sbt(List("scalafmtCheckAll", "scalafmtSbtCheck"), name = Some("Check formatting")),
@@ -107,19 +102,6 @@ inThisBuild(
       ),
       WorkflowStep.Sbt(List("test"), name = Some("Run tests")),
       WorkflowStep.Sbt(List("doc"), name = Some("Build docs"))
-    ),
-    // sbt-spiewak only creates snapshots when there are uncommitted changes.
-    isSnapshot :=
-      git.gitCurrentTags.value.filter(_ != "").isEmpty || git.gitUncommittedChanges.value,
-    version := {
-      val v = version.value
-      val suffix = "-SNAPSHOT"
-      if (isSnapshot.value && !v.endsWith(suffix)) v + suffix else v
-    },
-    githubWorkflowPublish := Seq(
-      WorkflowStep.Sbt(List("+publish")),
-      WorkflowStep
-        .Sbt(List("sonatypeBundleRelease"), cond = Some("startsWith(github.ref, 'refs/tags/v')"))
     ),
     githubWorkflowPublishPostamble := Seq(
       WorkflowStep.Run(
