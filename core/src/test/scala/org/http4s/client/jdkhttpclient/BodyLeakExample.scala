@@ -53,7 +53,7 @@ object BodyLeakExample extends IOApp {
       .use { case (_, client) =>
         for {
           counter <- Ref.of[IO, Long](0L)
-          ec <- runRequest(client, counter).foreverM[ExitCode]
+          ec <- runRequest(client, counter).foreverM
         } yield ec
       }
 
