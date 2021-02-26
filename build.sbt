@@ -20,16 +20,16 @@ lazy val docs = project
   .settings(commonSettings, docsSettings)
 
 val catsV = "2.4.2"
-val catsEffectV = "3.0.0-M5"
-val fs2V = "3.0.0-M7"
+val catsEffectV = "3.0.0-RC2"
+val fs2V = "3.0.0-M9"
 val scodecV = "1.1.24"
 val http4sV = "1.0.0-M16"
 val reactiveStreamsV = "1.0.3"
-val vaultV = "3.0.0-M4"
+val vaultV = "3.0.0-RC2"
 val caseInsensitiveV = "1.0.0"
 
 val munitV = "0.7.22"
-val munitCatsEffectV = "0.13.0"
+val munitCatsEffectV = "0.13.1"
 val javaWebsocketV = "1.5.1"
 
 val coreDeps = Seq(
