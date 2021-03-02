@@ -50,10 +50,10 @@ package object jdkhttpclient {
       (o match {
         case Outcome.Succeeded(_) => F.unit
         case Outcome.Errored(e) =>
-          F.delay(cs.completeExceptionally(e))
+          F.delay(cs.completeExceptionally(e)).void
         case Outcome.Canceled() =>
-          F.delay(cs.cancel(true))
-      }).void
+          F.delay(cs.cancel(true)).void
+      })
     )
 
 }
