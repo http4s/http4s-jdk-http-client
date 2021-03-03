@@ -57,7 +57,7 @@ val coreDeps = Seq(
 enablePlugins(SonatypeCiReleasePlugin)
 inThisBuild(
   Seq(
-    crossScalaVersions := Seq("2.12.13", "2.13.4"),
+    crossScalaVersions := Seq("2.12.13", "2.13.4", "3.0.0-RC1"),
     scalaVersion := (ThisBuild / crossScalaVersions).value.head,
     baseVersion := "0.5",
     homepage := Some(url("https://github.com/http4s/http4s-jdk-http-client")),
@@ -129,16 +129,7 @@ inThisBuild(
 )
 
 lazy val commonSettings = Seq(
-  testFrameworks += new TestFramework("munit.Framework"),
-  unmanagedSourceDirectories in Compile ++= {
-    (unmanagedSourceDirectories in Compile).value.map { dir =>
-      val sv = scalaVersion.value
-      CrossVersion.partialVersion(sv) match {
-        case Some((2, 13)) => file(dir.getPath ++ "-2.13")
-        case _ => file(dir.getPath ++ "-2.11-2.12")
-      }
-    }
-  }
+  testFrameworks += new TestFramework("munit.Framework")
 )
 
 lazy val generateNetlifyToml = taskKey[Unit]("Generate netlify.toml")

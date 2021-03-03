@@ -41,7 +41,7 @@ import org.http4s.Request
 import org.http4s.Response
 import org.http4s.Status
 import org.http4s.client.Client
-import org.http4s.client.jdkhttpclient.compat.CollectionConverters._
+import org.http4s.internal.CollectionCompat.CollectionConverters._
 import org.reactivestreams.FlowAdapters
 import org.typelevel.ci.CIString
 

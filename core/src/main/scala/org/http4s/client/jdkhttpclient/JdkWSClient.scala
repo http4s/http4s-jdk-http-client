@@ -68,7 +68,7 @@ object JdkWSClient {
               (wsf: Either[Throwable, WSFrame]) =>
                 unsafeToCompletionStage(
                   queue.offer(wsf) *> (wsf match {
-                    case Left(_) | Right(_: WSFrame.Close) => closedDef.complete(())
+                    case Left(_) | Right(_: WSFrame.Close) => closedDef.complete(()).void
                     case _ => F.unit
                   }),
                   dispatcher
