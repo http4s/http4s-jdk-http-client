@@ -4,6 +4,18 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.5.0-M1 (2021-03-03)
+
+### Dependency updates
+
+* scala-3.0.0-RC1
+* scodec-bits-1.1.24
+* case-insensitive-1.0.0
+* cats-effect-3.0.0-RC2
+* fs2-3.0.0-M9
+* vault-3.0.0-RC2
+* http4s-1.0.0-M18
+
 ## v0.3.4 (2021-01-19)
 
 This release is considered stable.
