@@ -4,6 +4,12 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.5.0-M2 (2021-03-05)
+
+### Dependency updates
+
+* http4s-1.0.0-M19
+
 ## v0.5.0-M1 (2021-03-03)
 
 ### Dependency updates
