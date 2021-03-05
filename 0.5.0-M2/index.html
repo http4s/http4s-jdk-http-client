@@ -252,8 +252,8 @@ val (http, webSocket) =
     }
     // in almost all cases, it is better to call `use` instead
     .allocated.map(_._1).unsafeRunSync()
-// http: Client[IO] = org.http4s.client.Client$$anon$1@2204858f
-// webSocket: WSClient[IO] = org.http4s.client.jdkhttpclient.WSClient$$anon$1@43863bfb
+// http: Client[IO] = org.http4s.client.Client$$anon$1@63f42071
+// webSocket: WSClient[IO] = org.http4s.client.jdkhttpclient.WSClient$$anon$1@12aec7fc
 </code></pre>
 <p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
 <h3><a href="#overview" name="overview" class="anchor"><span class="anchor-link"></span></a>Overview</h3>
