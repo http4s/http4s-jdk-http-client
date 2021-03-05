@@ -76,7 +76,7 @@ object JdkHttpClient {
           )
           .uri(URI.create(req.uri.renderString))
           .version(version)
-        val headers = req.headers.iterator
+        val headers = req.headers.headers.iterator
           .filterNot(h => ignoredHeaders.contains(h.name))
           .flatMap(h => Iterator(h.name.toString, h.value))
           .toArray
@@ -213,7 +213,7 @@ object JdkHttpClient {
                 Response(
                   status = status,
                   headers = Headers(res.headers.map.asScala.flatMap { case (k, vs) =>
-                    vs.asScala.map(Header(k, _))
+                    vs.asScala.map(Header.Raw(CIString(k), _))
                   }.toList),
                   httpVersion = res.version match {
                     case HttpClient.Version.HTTP_1_1 => HttpVersion.`HTTP/1.1`

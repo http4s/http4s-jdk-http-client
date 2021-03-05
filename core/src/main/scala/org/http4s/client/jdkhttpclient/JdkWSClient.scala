@@ -32,8 +32,9 @@ import cats.effect.std.Semaphore
 import cats.implicits._
 import fs2.CompositeFailure
 import fs2.Stream
-import org.http4s.headers.`Sec-WebSocket-Protocol`
+import org.http4s.Header
 import org.http4s.internal.unsafeToCompletionStage
+import org.typelevel.ci.CIString
 import scodec.bits.ByteVector
 
 /** A `WSClient` wrapper for the JDK 11+ websocket client.
@@ -52,9 +53,10 @@ object JdkWSClient {
           for {
             wsBuilder <- F.delay {
               val builder = jdkHttpClient.newWebSocketBuilder()
-              val (subprotocols, hs) = headers.toList.partitionEither(h =>
-                `Sec-WebSocket-Protocol`.matchHeader(h).fold(h.asRight[String])(_.value.asLeft)
-              )
+              val (subprotocols, hs) = headers.headers.partitionEither {
+                case Header.Raw(k, p) if k == CIString("Sec-WebSocket-Protocol") => Left(p)
+                case h => Right(h)
+              }
               hs.foreach { h => builder.header(h.name.toString, h.value); () }
               subprotocols match {
                 case head :: tail => builder.subprotocols(head, tail: _*)

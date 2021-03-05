@@ -34,6 +34,7 @@ import org.http4s.websocket.WebSocketFrame
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
+import org.typelevel.ci.CIString
 import scodec.bits.ByteVector
 
 class JdkWSClientSpec extends CatsEffectSuite {
@@ -165,10 +166,10 @@ class JdkWSClientSpec extends CatsEffectSuite {
   }
 
   webSocket.test("send headers") { webSocket =>
-    val sentHeaders = Headers.of(
-      Header("foo", "bar"),
-      Header("Sec-Websocket-Protocol", "proto"),
-      Header("aaaa", "bbbbb")
+    val sentHeaders = Headers(
+      Header.Raw(CIString("foo"), "bar"),
+      Header.Raw(CIString("Sec-Websocket-Protocol"), "proto"),
+      Header.Raw(CIString("aaaa"), "bbbbb")
     )
     Ref[IO]
       .of(None: Option[Headers])
@@ -184,7 +185,7 @@ class JdkWSClientSpec extends CatsEffectSuite {
             webSocket.connect(WSRequest(uri"ws://localhost:8081", sentHeaders)).use(_ => IO.unit)
           } *> ref.get
       }
-      .map(_.map(recvHeaders => sentHeaders.toList.toSet.subsetOf(recvHeaders.toList.toSet)))
+      .map(_.map(recvHeaders => sentHeaders.headers.toSet.subsetOf(recvHeaders.headers.toSet)))
       .assertEquals(Some(true))
   }
 }
