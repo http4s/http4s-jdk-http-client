@@ -53,9 +53,9 @@ package object jdkhttpclient {
       (ec match {
         case ExitCase.Completed => F.unit
         case ExitCase.Error(e) =>
-          F.delay(cs.completeExceptionally(e))
+          F.delay(cs.completeExceptionally(e)).void
         case ExitCase.Canceled =>
-          F.delay(cs.cancel(true))
-      }).void
+          F.delay(cs.cancel(true)).void
+      })
     )
 }

@@ -30,9 +30,10 @@ import cats.effect.util.CompositeException
 import cats.implicits._
 import fs2.Chunk
 import fs2.concurrent.Queue
-import org.http4s.headers.`Sec-WebSocket-Protocol`
 import scodec.bits.ByteVector
+import org.http4s.Header
 import org.http4s.internal.unsafeToCompletionStage
+import org.typelevel.ci._
 
 /** A `WSClient` wrapper for the JDK 11+ websocket client.
   * It will reply to Pongs with Pings even in "low-level" mode.
@@ -50,10 +51,11 @@ object JdkWSClient {
           for {
             wsBuilder <- F.delay {
               val builder = jdkHttpClient.newWebSocketBuilder()
-              val (subprotocols, hs) = headers.toList.partitionEither(h =>
-                `Sec-WebSocket-Protocol`.matchHeader(h).fold(h.asRight[String])(_.value.asLeft)
-              )
-              hs.foreach { h => builder.header(h.name.value, h.value); () }
+              val (subprotocols, hs) = headers.headers.partitionEither {
+                case Header.Raw(ci"Sec-WebSocket-Protocol", p) => Left(p)
+                case h => Right(h)
+              }
+              hs.foreach { h => builder.header(h.name.toString, h.value); () }
               subprotocols match {
                 case head :: tail => builder.subprotocols(head, tail: _*)
                 case Nil =>

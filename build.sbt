@@ -19,16 +19,17 @@ lazy val docs = project
   .dependsOn(core)
   .settings(commonSettings, docsSettings)
 
-val catsV = "2.3.1"
-val catsEffectV = "2.3.1"
-val fs2V = "2.5.0"
-val scodecV = "1.1.23"
-val http4sV = "0.21.16"
+val catsV = "2.4.2"
+val catsEffectV = "2.3.3"
+val fs2V = "2.5.3"
+val scodecV = "1.1.24"
+val http4sV = "0.22.0-M5"
 val reactiveStreamsV = "1.0.3"
-val vaultV = "2.0.0"
+val vaultV = "2.1.7"
+val caseInsensitiveV = "1.1.0"
 
-val specs2V = "4.10.6"
-val catsEffectTestingV = "0.5.1"
+val munitV = "0.7.22"
+val munitCatsEffectV = "0.13.1"
 val javaWebsocketV = "1.5.1"
 
 val coreDeps = Seq(
@@ -41,21 +42,20 @@ val coreDeps = Seq(
   "org.http4s" %% "http4s-core" % http4sV,
   "org.reactivestreams" % "reactive-streams" % reactiveStreamsV,
   "org.scodec" %% "scodec-bits" % scodecV,
-  "io.chrisdavenport" %% "vault" % vaultV
+  "org.typelevel" %% "vault" % vaultV,
+  "org.typelevel" %% "case-insensitive" % caseInsensitiveV
 ) ++ Seq(
-  "com.codecommit" %% "cats-effect-testing-specs2" % catsEffectTestingV,
   "org.http4s" %% "http4s-blaze-server" % http4sV,
   "org.http4s" %% "http4s-dsl" % http4sV,
-  "org.http4s" %% "http4s-testing" % http4sV,
   "org.java-websocket" % "Java-WebSocket" % javaWebsocketV,
-  "org.specs2" %% "specs2-core" % specs2V,
-  "org.specs2" %% "specs2-scalacheck" % specs2V
+  "org.scalameta" %% "munit" % munitV,
+  "org.typelevel" %% "munit-cats-effect-2" % munitCatsEffectV
 ).map(_ % Test)
 
 enablePlugins(SonatypeCiReleasePlugin)
 inThisBuild(
   Seq(
-    crossScalaVersions := Seq("2.12.13", "2.13.4"),
+    crossScalaVersions := Seq("2.12.13", "2.13.5", "3.0.0-RC1"),
     scalaVersion := (ThisBuild / crossScalaVersions).value.head,
     baseVersion := "0.4",
     homepage := Some(url("https://github.com/http4s/http4s-jdk-http-client")),
@@ -145,15 +145,7 @@ inThisBuild(
 )
 
 lazy val commonSettings = Seq(
-  unmanagedSourceDirectories in Compile ++= {
-    (unmanagedSourceDirectories in Compile).value.map { dir =>
-      val sv = scalaVersion.value
-      CrossVersion.partialVersion(sv) match {
-        case Some((2, 13)) => file(dir.getPath ++ "-2.13")
-        case _ => file(dir.getPath ++ "-2.11-2.12")
-      }
-    }
-  }
+  testFrameworks += new TestFramework("munit.Framework")
 )
 
 lazy val generateNetlifyToml = taskKey[Unit]("Generate netlify.toml")
