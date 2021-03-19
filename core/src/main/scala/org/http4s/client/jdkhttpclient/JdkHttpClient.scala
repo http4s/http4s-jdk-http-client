@@ -33,10 +33,10 @@ import fs2.concurrent.SignallingRef
 import fs2.interop.reactivestreams._
 import fs2.{Chunk, Stream}
 import org.http4s.client.Client
-import org.http4s.client.jdkhttpclient.compat.CollectionConverters._
-import org.http4s.util.CaseInsensitiveString
+import org.http4s.internal.CollectionCompat.CollectionConverters._
 import org.http4s.{Header, Headers, HttpVersion, Request, Response, Status}
 import org.reactivestreams.FlowAdapters
+import org.typelevel.ci._
 
 object JdkHttpClient {
 
@@ -50,7 +50,7 @@ object JdkHttpClient {
     */
   def apply[F[_]](
       jdkHttpClient: HttpClient,
-      ignoredHeaders: Set[CaseInsensitiveString] = restrictedHeaders
+      ignoredHeaders: Set[CIString] = restrictedHeaders
   )(implicit F: ConcurrentEffect[F], CS: ContextShift[F]): Client[F] = {
     def convertRequest(req: Request[F]): F[HttpRequest] =
       convertHttpVersionFromHttp4s[F](req.httpVersion).map { version =>
@@ -69,9 +69,9 @@ object JdkHttpClient {
           )
           .uri(URI.create(req.uri.renderString))
           .version(version)
-        val headers = req.headers.iterator
+        val headers = req.headers.headers.iterator
           .filterNot(h => ignoredHeaders.contains(h.name))
-          .flatMap(h => Iterator(h.name.value, h.value))
+          .flatMap(h => Iterator(h.name.toString, h.value))
           .toArray
         (if (headers.isEmpty) rb else rb.headers(headers: _*)).build
       }
@@ -208,7 +208,7 @@ object JdkHttpClient {
                 Response(
                   status = status,
                   headers = Headers(res.headers.map.asScala.flatMap { case (k, vs) =>
-                    vs.asScala.map(Header(k, _))
+                    vs.asScala.map(Header.Raw(CIString(k), _))
                   }.toList),
                   httpVersion = res.version match {
                     case HttpClient.Version.HTTP_1_1 => HttpVersion.`HTTP/1.1`
@@ -272,5 +272,5 @@ object JdkHttpClient {
       "upgrade",
       "via",
       "warning"
-    ).map(CaseInsensitiveString(_))
+    ).map(CIString(_))
 }
