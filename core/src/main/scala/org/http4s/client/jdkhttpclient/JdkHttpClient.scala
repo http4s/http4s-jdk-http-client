@@ -26,6 +26,7 @@ import java.nio.ByteBuffer
 import java.util
 import java.util.concurrent.Flow
 
+import cats._
 import cats.effect._
 import cats.effect.std.Dispatcher
 import cats.effect.syntax.all._
