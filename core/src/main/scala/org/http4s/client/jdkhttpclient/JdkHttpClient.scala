@@ -228,7 +228,7 @@ object JdkHttpClient {
 
     Client[F] { req =>
       for {
-        req <- Resource.liftF(convertRequest(req))
+        req <- Resource.eval(convertRequest(req))
         res = fromCompletableFutureShift(
           F.delay(jdkHttpClient.sendAsync(req, BodyHandlers.ofPublisher))
         )
