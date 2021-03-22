@@ -63,8 +63,11 @@ object JdkHttpClient {
               if (req.isChunked)
                 BodyPublishers.fromPublisher(publisher)
               else
-                req.contentLength
-                  .fold(BodyPublishers.noBody)(BodyPublishers.fromPublisher(publisher, _))
+                req.contentLength match {
+                  case Some(length) if length > 0L =>
+                    BodyPublishers.fromPublisher(publisher, length)
+                  case _ => BodyPublishers.noBody
+                }
             }
           )
           .uri(URI.create(req.uri.renderString))
