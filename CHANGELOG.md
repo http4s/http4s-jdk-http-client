@@ -4,6 +4,18 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.5.0-M3 (2021-03-22)
+
+### Bugfixes
+
+* [#395](https://github.com/http4s/http4s-jdk-http-client/issues/395) Handle `Content-Length: 0` correctly.
+
+### Dependency updates
+
+* scala-2.13.5
+* case-insensitive-1.1.0
+* cats-effect-3.0.0-RC3
+
 ## v0.5.0-M2 (2021-03-05)
 
 ### Dependency updates
