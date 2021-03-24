@@ -39,90 +39,104 @@ import scodec.bits.ByteVector
 
 class JdkWSClientSpec extends CatsEffectSuite {
 
-  val webSocket = ResourceFixture(JdkWSClient.simple[IO])
-
-  val wsUri = uri"wss://echo.websocket.org"
-
-  webSocket.test("send and receive frames in low-level mode") { webSocket =>
-    webSocket
-      .connect(WSRequest(wsUri))
-      .use { conn =>
-        for {
-          _ <- conn.send(WSFrame.Text("bar"))
-          _ <- conn.sendMany(List(WSFrame.Binary(ByteVector(3, 99, 12)), WSFrame.Text("foo")))
-          _ <- conn.send(WSFrame.Close(1000, "goodbye"))
-          recv <- conn.receiveStream.compile.toList
-        } yield recv
-      }
-      .assertEquals(
-        List(
-          WSFrame.Text("bar"),
-          WSFrame.Binary(ByteVector(3, 99, 12)),
-          WSFrame.Text("foo"),
-          WSFrame.Close(1000, "goodbye")
-        )
-      )
+  val webSocket = JdkWSClient.simple[IO]
+  val echoServer: Resource[IO, Uri] = {
+    val routes = HttpRoutes
+      .of[IO] { case GET -> Root => WebSocketBuilder[IO].build(identity) }
+      .orNotFound
+    BlazeServerBuilder[IO](ioRuntime.compute)
+      .bindAny()
+      .withHttpApp(routes)
+      .resource
+      .map(s => httpToWsUri(s.baseUri))
   }
 
-  webSocket.test("send and receive frames in high-level mode") { webSocket =>
-    webSocket
-      .connectHighLevel(WSRequest(wsUri))
-      .use { conn =>
-        for {
-          _ <- conn.send(WSFrame.Binary(ByteVector(15, 2, 3)))
-          _ <- conn.sendMany(List(WSFrame.Text("foo"), WSFrame.Text("bar")))
-          _ <- conn.sendClose()
-          recv <- conn.receiveStream.compile.toList
-        } yield recv
-      }
-      .assertEquals(
-        List(
-          WSFrame.Binary(ByteVector(15, 2, 3)),
-          WSFrame.Text("foo"),
-          WSFrame.Text("bar")
-        )
-      )
-  }
+  val webSocketFixture = ResourceFixture(webSocket)
+  val webSocketEchoFixture = ResourceFixture((webSocket, echoServer).tupled)
 
-  webSocket.test("group frames by their `last` attribute in high-level mode") { webSocket =>
-    webSocket
-      .connectHighLevel(WSRequest(wsUri))
-      .use { conn =>
-        for {
-          _ <- conn.sendMany(
-            List(
-              WSFrame.Text("1", last = false),
-              WSFrame.Text("2", last = false),
-              WSFrame.Text("3"),
-              WSFrame.Binary(ByteVector(1)),
-              WSFrame.Binary(ByteVector(2), last = false),
-              WSFrame.Binary(ByteVector(3), last = false),
-              WSFrame.Binary(ByteVector(4)),
-              WSFrame.Text("4", last = false),
-              WSFrame.Text("5"),
-              WSFrame.Binary(ByteVector(5), last = false),
-              WSFrame.Binary(ByteVector(6)),
-              WSFrame.Text("6"),
-              WSFrame.Binary(ByteVector(7), last = false)
-            )
+  webSocketEchoFixture.test("send and receive frames in low-level mode") {
+    case (webSocket, echoUri) =>
+      webSocket
+        .connect(WSRequest(echoUri))
+        .use { conn =>
+          for {
+            _ <- conn.send(WSFrame.Text("bar"))
+            _ <- conn.sendMany(List(WSFrame.Binary(ByteVector(3, 99, 12)), WSFrame.Text("foo")))
+            _ <- conn.send(WSFrame.Close(1000, "goodbye"))
+            recv <- conn.receiveStream.compile.toList
+          } yield recv
+        }
+        .assertEquals(
+          List(
+            WSFrame.Text("bar"),
+            WSFrame.Binary(ByteVector(3, 99, 12)),
+            WSFrame.Text("foo"),
+            WSFrame.Close(1000, "goodbye")
           )
-          _ <- conn.sendClose()
-          recv <- conn.receiveStream.compile.toList
-        } yield recv
-      }
-      .assertEquals(
-        List(
-          WSFrame.Text("123"),
-          WSFrame.Binary(ByteVector(1)),
-          WSFrame.Binary(ByteVector(2, 3, 4)),
-          WSFrame.Text("45"),
-          WSFrame.Binary(ByteVector(5, 6)),
-          WSFrame.Text("6")
         )
-      )
   }
 
-  webSocket.test("automatically close the connection") { webSocket =>
+  webSocketEchoFixture.test("send and receive frames in high-level mode") {
+    case (webSocket, echoUri) =>
+      webSocket
+        .connectHighLevel(WSRequest(echoUri))
+        .use { conn =>
+          for {
+            _ <- conn.send(WSFrame.Binary(ByteVector(15, 2, 3)))
+            _ <- conn.sendMany(List(WSFrame.Text("foo"), WSFrame.Text("bar")))
+            _ <- conn.sendClose()
+            recv <- conn.receiveStream.compile.toList
+          } yield recv
+        }
+        .assertEquals(
+          List(
+            WSFrame.Binary(ByteVector(15, 2, 3)),
+            WSFrame.Text("foo"),
+            WSFrame.Text("bar")
+          )
+        )
+  }
+
+  webSocketEchoFixture.test("group frames by their `last` attribute in high-level mode") {
+    case (webSocket, echoUri) =>
+      webSocket
+        .connectHighLevel(WSRequest(echoUri))
+        .use { conn =>
+          for {
+            _ <- conn.sendMany(
+              List(
+                WSFrame.Text("1", last = false),
+                WSFrame.Text("2", last = false),
+                WSFrame.Text("3"),
+                WSFrame.Binary(ByteVector(1)),
+                WSFrame.Binary(ByteVector(2), last = false),
+                WSFrame.Binary(ByteVector(3), last = false),
+                WSFrame.Binary(ByteVector(4)),
+                WSFrame.Text("4", last = false),
+                WSFrame.Text("5"),
+                WSFrame.Binary(ByteVector(5), last = false),
+                WSFrame.Binary(ByteVector(6)),
+                WSFrame.Text("6"),
+                WSFrame.Binary(ByteVector(7), last = false)
+              )
+            )
+            _ <- conn.sendClose()
+            recv <- conn.receiveStream.compile.toList
+          } yield recv
+        }
+        .assertEquals(
+          List(
+            WSFrame.Text("123"),
+            WSFrame.Binary(ByteVector(1)),
+            WSFrame.Binary(ByteVector(2, 3, 4)),
+            WSFrame.Text("45"),
+            WSFrame.Binary(ByteVector(5, 6)),
+            WSFrame.Text("6")
+          )
+        )
+  }
+
+  webSocketFixture.test("automatically close the connection") { webSocket =>
     val frames = for {
       ref <- Ref[IO].of(List.empty[WebSocketFrame])
       finished <- Deferred[IO, Unit]
@@ -165,7 +179,7 @@ class JdkWSClientSpec extends CatsEffectSuite {
     )
   }
 
-  webSocket.test("send headers") { webSocket =>
+  webSocketFixture.test("send headers") { webSocket =>
     val sentHeaders = Headers(
       Header.Raw(ci"foo", "bar"),
       Header.Raw(ci"Sec-Websocket-Protocol", "proto"),
@@ -178,14 +192,17 @@ class JdkWSClientSpec extends CatsEffectSuite {
           ref.set(r.headers.some) *> WebSocketBuilder[IO].build(Stream.empty, _ => Stream.empty)
         }
         BlazeServerBuilder[IO](ioRuntime.compute)
-          .bindHttp(8081)
+          .bindAny()
           .withHttpApp(routes.orNotFound)
           .resource
-          .use { _ =>
-            webSocket.connect(WSRequest(uri"ws://localhost:8081", sentHeaders)).use(_ => IO.unit)
+          .use { server =>
+            webSocket.connect(WSRequest(httpToWsUri(server.baseUri), sentHeaders)).use(_ => IO.unit)
           } *> ref.get
       }
       .map(_.map(recvHeaders => sentHeaders.headers.toSet.subsetOf(recvHeaders.headers.toSet)))
       .assertEquals(Some(true))
   }
+
+  def httpToWsUri(uri: Uri): Uri = uri.copy(scheme = scheme"ws".some)
+
 }
