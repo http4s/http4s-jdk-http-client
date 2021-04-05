@@ -30,7 +30,7 @@ val caseInsensitiveV = "1.1.2"
 
 val munitV = "0.7.23"
 val munitCatsEffectV = "1.0.1"
-val javaWebsocketV = "1.5.1"
+val javaWebsocketV = "1.5.2"
 
 val coreDeps = Seq(
   "org.typelevel" %% "cats-core" % catsV,
