@@ -96,7 +96,7 @@ inThisBuild(
       WorkflowStep
         .Sbt(List("scalafmtCheckAll", "scalafmtSbtCheck"), name = Some("Check formatting")),
       WorkflowStep.Sbt(List("headerCheckAll"), name = Some("Check headers")),
-      WorkflowStep.Sbt(List("test:compile"), name = Some("Compile")),
+      WorkflowStep.Sbt(List("Test/compile"), name = Some("Compile")),
       WorkflowStep
         .Sbt(List("core/mimaReportBinaryIssues"), name = Some("Check binary compatibility")),
       WorkflowStep.Sbt(
@@ -191,14 +191,14 @@ lazy val docsSettings =
       if (isSnapshot.value) "latest"
       else version.value
     },
-    mappings in makeSite ++= Seq(
+    makeSite / mappings ++= Seq(
       target.value / "netlify.toml" -> "netlify.toml"
     ),
-    includeFilter in ghpagesCleanSite :=
+    ghpagesCleanSite / includeFilter :=
       new FileFilter {
         def accept(f: File) =
           f.toPath.startsWith(
-            (ghpagesRepository.value / (siteSubdirName in Paradox).value).toPath
+            (ghpagesRepository.value / (Paradox / siteSubdirName).value).toPath
           )
       } || "netlify.toml"
   )
