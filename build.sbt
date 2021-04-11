@@ -23,7 +23,7 @@ val catsV = "2.5.0"
 val catsEffectV = "3.0.2"
 val fs2V = "3.0.1"
 val scodecV = "1.1.25"
-val http4sV = "1.0.0-M20"
+val http4sV = "1.0.0-M21"
 val reactiveStreamsV = "1.0.3"
 val vaultV = "3.0.1"
 val caseInsensitiveV = "1.1.2"
@@ -57,7 +57,7 @@ val coreDeps = Seq(
 enablePlugins(SonatypeCiReleasePlugin)
 inThisBuild(
   Seq(
-    crossScalaVersions := Seq("2.12.13", "2.13.5", "3.0.0-RC1"),
+    crossScalaVersions := Seq("2.12.13", "2.13.5", "3.0.0-RC2"),
     scalaVersion := (ThisBuild / crossScalaVersions).value.head,
     baseVersion := "0.5",
     homepage := Some(url("https://github.com/http4s/http4s-jdk-http-client")),
