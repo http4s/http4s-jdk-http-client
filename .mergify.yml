@@ -10,5 +10,5 @@ pull_request_rules:
   - status-success=Build and Test (ubuntu-latest, 2.12.13, adopt@1.15)
   - status-success=Build and Test (ubuntu-latest, 2.13.5, adopt@1.11)
   - status-success=Build and Test (ubuntu-latest, 2.13.5, adopt@1.15)
-  - status-success=Build and Test (ubuntu-latest, 3.0.0-RC1, adopt@1.11)
-  - status-success=Build and Test (ubuntu-latest, 3.0.0-RC1, adopt@1.15)
+  - status-success=Build and Test (ubuntu-latest, 3.0.0-RC2, adopt@1.11)
+  - status-success=Build and Test (ubuntu-latest, 3.0.0-RC2, adopt@1.15)
