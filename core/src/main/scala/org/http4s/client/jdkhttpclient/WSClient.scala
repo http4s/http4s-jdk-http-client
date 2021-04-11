@@ -125,8 +125,8 @@ object WSClient {
       override def connect(request: WSRequest) = f(request)
       override def connectHighLevel(request: WSRequest) =
         for {
-          recvCloseFrame <- Resource.liftF(Deferred.tryable[F, WSFrame.Close])
-          outputOpen <- Resource.liftF(Ref[F].of(false))
+          recvCloseFrame <- Resource.eval(Deferred.tryable[F, WSFrame.Close])
+          outputOpen <- Resource.eval(Ref[F].of(false))
           conn <- f(request)
         } yield new WSConnectionHighLevel[F] {
           override def send(wsf: WSDataFrame) = conn.send(wsf)

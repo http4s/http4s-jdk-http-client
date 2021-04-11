@@ -42,7 +42,7 @@ import scodec.bits.ByteVector
 
 class JdkWSClientSpec extends CatsEffectSuite {
 
-  val webSocket = Resource.liftF(JdkWSClient.simple[IO])
+  val webSocket = Resource.eval(JdkWSClient.simple[IO])
   val echoServer: Resource[IO, Uri] = {
     val routes = HttpRoutes
       .of[IO] { case GET -> Root => WebSocketBuilder[IO].build(identity) }
