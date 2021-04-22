@@ -29,7 +29,7 @@ val vaultV = "3.0.1"
 val caseInsensitiveV = "1.1.2"
 
 val munitV = "0.7.25"
-val munitCatsEffectV = "1.0.1"
+val munitCatsEffectV = "1.0.2"
 val javaWebsocketV = "1.5.2"
 
 val coreDeps = Seq(
