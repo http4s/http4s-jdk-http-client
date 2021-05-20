@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.http4s.client
+package org.http4s
 
 import cats.effect._
 import cats.effect.syntax.all._
