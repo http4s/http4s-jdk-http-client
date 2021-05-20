@@ -40,7 +40,7 @@ any [`Async`][Async] type, such as [`cats.effect.IO`][IO]:
 ```scala mdoc:silent:reset-class
 import cats.effect.{IO, Resource}
 import org.http4s.client.Client
-import org.http4s.client.jdkhttpclient.JdkHttpClient
+import org.http4s.jdkhttpclient.JdkHttpClient
 
 // Here, we import the global runtime.
 // It comes for free with `cats.effect.IOApp`:
@@ -126,7 +126,7 @@ using an `HttpClient` as above. It is encouraged to use the same `HttpClient`
 to construct a `Client[F]` and a `WSClient[F]`.
 
 ```scala mdoc
-import org.http4s.client.jdkhttpclient._
+import org.http4s.jdkhttpclient._
 
 val (http, webSocket) =
   Resource.eval(IO(HttpClient.newHttpClient()))
@@ -203,4 +203,4 @@ For an overview of all options and functions visit the [scaladoc].
 [IO]: https://typelevel.org/cats-effect/datatypes/io.html
 [Resource]: https://typelevel.org/cats-effect/datatypes/resource.html
 [Deferred]: https://typelevel.org/cats-effect/api/cats/effect/concurrent/Deferred.html
-[scaladoc]: https://static.javadoc.io/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@/@VERSION@/org/http4s/client/jdkhttpclient/index.html
+[scaladoc]: https://static.javadoc.io/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@/@VERSION@/org/http4s/jdkhttpclient/index.html
