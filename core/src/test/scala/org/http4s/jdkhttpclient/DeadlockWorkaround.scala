@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.http4s.client.jdkhttpclient
+package org.http4s.jdkhttpclient
 
 import javax.net.ssl.SSLHandshakeException
 

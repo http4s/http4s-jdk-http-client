@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.http4s.client.jdkhttpclient
+package org.http4s.jdkhttpclient
 
 import cats.data._
 import cats.effect._

@@ -41,7 +41,7 @@ any [`ConcurrentEffect`][ConcurrentEffect] type, such as
 ```scala mdoc:silent:reset-class
 import cats.effect.IO
 import org.http4s.client.Client
-import org.http4s.client.jdkhttpclient.JdkHttpClient
+import org.http4s.jdkhttpclient.JdkHttpClient
 
 // A `Timer` and `ContextShift` are necessary for a `ConcurrentEffect[IO]`.
 // They come for free when you use `cats.effect.IOApp`:
@@ -135,7 +135,7 @@ using an `HttpClient` as above. It is encouraged to use the same `HttpClient`
 to construct a `Client[F]` and a `WSClient[F]`.
 
 ```scala mdoc
-import org.http4s.client.jdkhttpclient._
+import org.http4s.jdkhttpclient._
 
 val (http, webSocket) =
   IO(HttpClient.newHttpClient())
@@ -211,4 +211,4 @@ For an overview of all options and functions visit the [scaladoc].
 [IO]: https://typelevel.org/cats-effect/datatypes/io.html
 [Resource]: https://typelevel.org/cats-effect/datatypes/resource.html
 [TryableDeferred]: https://typelevel.org/cats-effect/api/cats/effect/concurrent/TryableDeferred.html
-[scaladoc]: https://static.javadoc.io/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@/@VERSION@/org/http4s/client/jdkhttpclient/index.html
+[scaladoc]: https://static.javadoc.io/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@/@VERSION@/org/http4s/jdkhttpclient/index.html
