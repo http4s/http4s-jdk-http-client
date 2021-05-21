@@ -16,7 +16,7 @@
 
 // TODO uncomment in the future
 /*
-package org.http4s.client.jdkhttpclient
+package org.http4s.jdkhttpclient
 
 import cats.effect._
 import org.http4s.client.ClientRouteTestBattery
