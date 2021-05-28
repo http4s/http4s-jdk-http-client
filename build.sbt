@@ -19,17 +19,17 @@ lazy val docs = project
   .dependsOn(core)
   .settings(commonSettings, docsSettings)
 
-val catsV = "2.6.0"
-val catsEffectV = "3.1.0"
-val fs2V = "3.0.2"
-val scodecV = "1.1.26"
-val http4sV = "1.0.0-M21"
+val catsV = "2.6.1"
+val catsEffectV = "3.1.1"
+val fs2V = "3.0.4"
+val scodecV = "1.1.27"
+val http4sV = "0.23.0-RC1"
 val reactiveStreamsV = "1.0.3"
-val vaultV = "3.0.2"
-val caseInsensitiveV = "1.1.3"
+val vaultV = "3.0.3"
+val caseInsensitiveV = "1.1.4"
 
-val munitV = "0.7.25"
-val munitCatsEffectV = "1.0.2"
+val munitV = "0.7.26"
+val munitCatsEffectV = "1.0.3"
 val javaWebsocketV = "1.5.2"
 
 val coreDeps = Seq(
@@ -57,7 +57,7 @@ val coreDeps = Seq(
 enablePlugins(SonatypeCiReleasePlugin)
 inThisBuild(
   Seq(
-    crossScalaVersions := Seq("2.12.13", "2.13.6", "3.0.0-RC2"),
+    crossScalaVersions := Seq("2.12.13", "2.13.6", "3.0.0"),
     scalaVersion := (ThisBuild / crossScalaVersions).value.head,
     baseVersion := "0.5",
     homepage := Some(url("https://github.com/http4s/http4s-jdk-http-client")),
@@ -88,7 +88,7 @@ inThisBuild(
         url("https://github.com/rossabaker")
       )
     ),
-    githubWorkflowJavaVersions := Seq("adopt@1.11", "adopt@1.15"),
+    githubWorkflowJavaVersions := Seq("adopt@1.11", "adopt@1.16"),
     githubWorkflowBuild := Seq(
       WorkflowStep
         .Sbt(List("scalafmtCheckAll", "scalafmtSbtCheck"), name = Some("Check formatting")),
