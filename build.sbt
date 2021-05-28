@@ -55,7 +55,7 @@ val coreDeps = Seq(
 enablePlugins(SonatypeCiReleasePlugin)
 inThisBuild(
   Seq(
-    crossScalaVersions := Seq("2.12.13", "2.13.6"),
+    crossScalaVersions := Seq("2.12.14", "2.13.6"),
     scalaVersion := (ThisBuild / crossScalaVersions).value.head,
     baseVersion := "0.3",
     homepage := Some(url("https://github.com/http4s/http4s-jdk-http-client")),
