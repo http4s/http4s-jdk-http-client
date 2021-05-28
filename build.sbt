@@ -87,7 +87,7 @@ inThisBuild(
       )
     ),
     githubWorkflowArtifactUpload := false,
-    githubWorkflowJavaVersions := Seq("adopt@1.11", "adopt@1.15"),
+    githubWorkflowJavaVersions := Seq("adopt@1.11", "adopt@1.16"),
     githubWorkflowBuildMatrixFailFast := Some(false),
     // "*" does not match slashes
     // see https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
