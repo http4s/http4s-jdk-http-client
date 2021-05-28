@@ -27,8 +27,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        scala: [2.12.13, 2.13.5]
-        java: [adopt@1.11, adopt@1.15]
+        scala: [2.12.13, 2.13.6]
+        java: [adopt@1.11, adopt@1.16]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout current branch (full)
@@ -54,28 +54,28 @@ jobs:
           key: ${{ runner.os }}-sbt-cache-v2-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
 
       - name: Check that workflows are up to date
-        run: sbt ++${{ matrix.scala }} githubWorkflowCheck
+        run: sbt --client '++${{ matrix.scala }}; githubWorkflowCheck'
 
       - name: Check formatting
-        run: sbt ++${{ matrix.scala }} scalafmtCheckAll scalafmtSbtCheck
+        run: sbt --client '++${{ matrix.scala }}; scalafmtCheckAll; scalafmtSbtCheck'
 
       - name: Check headers
-        run: sbt ++${{ matrix.scala }} headerCheckAll
+        run: sbt --client '++${{ matrix.scala }}; headerCheckAll'
 
       - name: Compile
-        run: 'sbt ++${{ matrix.scala }} test:compile'
+        run: 'sbt --client ''++${{ matrix.scala }}; test:compile'''
 
       - name: Check binary compatibility
-        run: sbt ++${{ matrix.scala }} core/mimaReportBinaryIssues
+        run: sbt --client '++${{ matrix.scala }}; core/mimaReportBinaryIssues'
 
       - name: Check unused and undeclared compile dependencies
-        run: sbt ++${{ matrix.scala }} unusedCompileDependenciesTest undeclaredCompileDependenciesTest
+        run: sbt --client '++${{ matrix.scala }}; unusedCompileDependenciesTest; undeclaredCompileDependenciesTest'
 
       - name: Run tests
-        run: sbt ++${{ matrix.scala }} test
+        run: sbt --client '++${{ matrix.scala }}; test'
 
       - name: Build docs
-        run: sbt ++${{ matrix.scala }} doc
+        run: sbt --client '++${{ matrix.scala }}; doc'
 
   publish:
     name: Publish Artifacts
@@ -113,10 +113,10 @@ jobs:
       - name: Import signing key
         run: echo $PGP_SECRET | base64 -d | gpg --import
 
-      - run: sbt ++${{ matrix.scala }} +publish
+      - run: sbt --client '++${{ matrix.scala }}; +publish'
 
       - if: startsWith(github.ref, 'refs/tags/v')
-        run: sbt ++${{ matrix.scala }} sonatypeBundleRelease
+        run: sbt --client '++${{ matrix.scala }}; sonatypeBundleRelease'
 
       - name: Publish docs
         if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
