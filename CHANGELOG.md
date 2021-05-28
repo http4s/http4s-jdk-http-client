@@ -4,6 +4,26 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.5.0-RC1 (2021-05-28)
+
+The v0.5.x releases will now track http4s-0.23.x.
+
+### Breaking changes
+
+* Rename package from `org.http4s.client.jdkhttpclient` to `org.http4s.jdkhttpclient`. [#442](https://github.com/http4s/http4s-jdk-http-client/pull/442)
+
+### Dependency updates
+
+* **scala-3.0.0**
+* **http4s-0.23.0-RC1**
+* scala-2.13.6
+* cats-2.6.1
+* cats-effect-3.1.1
+* fs2-3.0.4
+* scodec-bits-1.1.27
+* vault-3.0.3
+* case-insensitive-1.1.4
+
 ## v0.5.0-M4 (2021-04-11)
 
 ### Dependency updates
