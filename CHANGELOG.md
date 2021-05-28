@@ -23,6 +23,24 @@ This file summarizes **notable** changes for each release, but does not describe
 
 * [#395](https://github.com/http4s/http4s-jdk-http-client/issues/395) Handle `Content-Length: 0` correctly.
 
+## v0.3.6 (2021-03-22)
+
+This release is considered stable.
+
+### Bugfixes
+
+* [#395](https://github.com/http4s/http4s-jdk-http-client/issues/395) Handle `Content-Length: 0` correctly.
+
+### Dependency updates
+
+* scala-2.13.5
+* cats-2.4.2
+* cats-effect-2.4.0
+* fs2-2.5.3
+* scodec-bits-1.1.24
+* http4s-0.21.20
+
+
 ## v0.4.0-M1 (2021-03-19)
 
 ### Dependency updates
