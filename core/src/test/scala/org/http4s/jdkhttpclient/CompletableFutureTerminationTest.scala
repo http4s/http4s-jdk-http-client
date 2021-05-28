@@ -33,7 +33,7 @@ import cats.syntax.all._
 import munit.CatsEffectSuite
 import org.http4s._
 import org.http4s.server._
-import org.http4s.server.blaze._
+import org.http4s.blaze.server._
 
 final class CompletableFutureTerminationTest extends CatsEffectSuite {
   import CompletableFutureTerminationTest._
