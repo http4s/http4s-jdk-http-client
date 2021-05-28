@@ -4,6 +4,19 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.3.7 (2021-05-28)
+
+This release is considered stable.
+
+### Dependency updates
+
+* scala-2.13.6
+* cats-2.6.1
+* cats-effect-2.5.1
+* fs2-2.5.6
+* scodec-1.1.27
+* http4s-0.21.24
+
 ## v0.3.6 (2021-03-22)
 
 This release is considered stable.
