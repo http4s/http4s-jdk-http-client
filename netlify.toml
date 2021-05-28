@@ -1,7 +1,7 @@
 
 [[redirects]]
   from = "/stable/*"
-  to = "/0.3.6/:splat"
+  to = "/0.3.7/:splat"
   force = false
   status = 200
 
