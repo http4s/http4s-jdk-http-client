@@ -19,17 +19,17 @@ lazy val docs = project
   .dependsOn(core)
   .settings(commonSettings, docsSettings)
 
-val catsV = "2.4.2"
-val catsEffectV = "2.4.0"
-val fs2V = "2.5.3"
-val scodecV = "1.1.24"
-val http4sV = "0.21.20"
+val catsV = "2.6.1"
+val catsEffectV = "2.5.1"
+val fs2V = "2.5.6"
+val scodecV = "1.1.27"
+val http4sV = "0.21.24"
 val reactiveStreamsV = "1.0.3"
 val vaultV = "2.0.0"
 
-val specs2V = "4.10.6"
-val catsEffectTestingV = "0.5.2"
-val javaWebsocketV = "1.5.1"
+val specs2V = "4.12.0"
+val catsEffectTestingV = "0.5.4"
+val javaWebsocketV = "1.5.2"
 
 val coreDeps = Seq(
   "org.typelevel" %% "cats-core" % catsV,
@@ -55,7 +55,7 @@ val coreDeps = Seq(
 enablePlugins(SonatypeCiReleasePlugin)
 inThisBuild(
   Seq(
-    crossScalaVersions := Seq("2.12.13", "2.13.5"),
+    crossScalaVersions := Seq("2.12.13", "2.13.6"),
     scalaVersion := (ThisBuild / crossScalaVersions).value.head,
     baseVersion := "0.3",
     homepage := Some(url("https://github.com/http4s/http4s-jdk-http-client")),
