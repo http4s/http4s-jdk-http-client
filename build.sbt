@@ -21,15 +21,15 @@ lazy val docs = project
 
 val catsV = "2.6.1"
 val catsEffectV = "2.5.1"
-val fs2V = "2.5.6"
+val fs2V = "2.5.9"
 val scodecV = "1.1.27"
-val http4sV = "0.22.0-RC1"
+val http4sV = "0.22.0"
 val reactiveStreamsV = "1.0.3"
 val vaultV = "2.1.13"
 val caseInsensitiveV = "1.1.4"
 
-val munitV = "0.7.26"
-val munitCatsEffectV = "1.0.3"
+val munitV = "0.7.27"
+val munitCatsEffectV = "1.0.5"
 val javaWebsocketV = "1.5.2"
 
 val coreDeps = Seq(
