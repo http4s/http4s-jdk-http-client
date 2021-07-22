@@ -4,6 +4,13 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.4.0 (2021-07-21)
+
+### Dependency updates
+
+* **http4s-0.22.0**
+* fs2-2.5.9
+
 ## v0.4.0-RC1 (2021-05-28)
 
 ### Breaking changes
