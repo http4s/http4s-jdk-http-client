@@ -35,7 +35,7 @@ This is a workaround for a spurious bug, see [#200](https://github.com/http4s/ht
 #### Simple
 
 A default JDK HTTP client can be created with a call to `simple` for
-any [`Async`][Async] type, such as [`cats.effect.IO`][IO]:
+any [`Async`][Async] type, such as `cats.effect.IO`:
 
 ```scala mdoc:silent:reset-class
 import cats.effect.{IO, Resource}
@@ -199,8 +199,7 @@ For an overview of all options and functions visit the [scaladoc].
 
 [http4s-client]: https://http4s.org/v@HTTP4S_VERSION_SHORT@/client/
 [Java HttpClient]: https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpClient.html
-[Async]: https://typelevel.org/cats-effect/typeclasses/async.html
-[IO]: https://typelevel.org/cats-effect/datatypes/io.html
-[Resource]: https://typelevel.org/cats-effect/datatypes/resource.html
-[Deferred]: https://typelevel.org/cats-effect/api/cats/effect/concurrent/Deferred.html
+[Async]: https://typelevel.org/cats-effect/docs/typeclasses/async
+[Resource]: https://typelevel.org/cats-effect/docs/std/resource
+[Deferred]: https://typelevel.org/cats-effect/docs/std/deferred
 [scaladoc]: https://static.javadoc.io/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@/@VERSION@/org/http4s/jdkhttpclient/index.html
