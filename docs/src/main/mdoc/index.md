@@ -207,8 +207,8 @@ For an overview of all options and functions visit the [scaladoc].
 
 [http4s-client]: https://http4s.org/v@HTTP4S_VERSION_SHORT@/client/
 [Java HttpClient]: https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpClient.html
-[ConcurrentEffect]: https://typelevel.org/cats-effect/typeclasses/concurrent-effect.html
-[IO]: https://typelevel.org/cats-effect/datatypes/io.html
-[Resource]: https://typelevel.org/cats-effect/datatypes/resource.html
-[TryableDeferred]: https://typelevel.org/cats-effect/api/cats/effect/concurrent/TryableDeferred.html
+[ConcurrentEffect]: https://typelevel.org/cats-effect/docs/2.x/typeclasses/concurrenteffect
+[IO]: https://typelevel.org/cats-effect/docs/2.x/datatypes/io
+[Resource]: https://typelevel.org/cats-effect/docs/2.x/datatypes/resource
+[TryableDeferred]: https://typelevel.org/cats-effect/docs/2.x/concurrency/deferred
 [scaladoc]: https://static.javadoc.io/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@/@VERSION@/org/http4s/jdkhttpclient/index.html
