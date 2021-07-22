@@ -146,7 +146,7 @@ http4s/http4s-jdk-http-client
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.6-10-2ab86d5*
+<i class="md-icon" title="Version">label_outline</i> 0.6-12-2cf3f2f*
 </label>
 </li>
 </ul>
@@ -180,7 +180,7 @@ http4s/http4s-jdk-http-client
 <h3><a href="#installation" name="installation" class="anchor"><span class="anchor-link"></span></a>Installation</h3>
 <p>To use http4s-jdk-http-client in an existing SBT project, add the following dependency to your <code>build.sbt</code>:</p>
 <pre class="prettyprint"><code class="language-scala">libraryDependencies ++= Seq(
-  &quot;org.http4s&quot; %% &quot;http4s-jdk-http-client&quot; % &quot;0.6-10-2ab86d5-SNAPSHOT&quot;
+  &quot;org.http4s&quot; %% &quot;http4s-jdk-http-client&quot; % &quot;0.6-12-2cf3f2f-SNAPSHOT&quot;
 )
 </code></pre>
 <h3><a href="#compatibility" name="compatibility" class="anchor"><span class="anchor-link"></span></a>Compatibility</h3>
@@ -192,7 +192,7 @@ http4s/http4s-jdk-http-client
 <p>On Java 11, TLS 1.3 is disabled by default (when using <code>JdkHttpClient.simple</code>). This is a workaround for a spurious bug, see <a href="https://github.com/http4s/http4s-jdk-http-client/issues/200">#200</a>.</p></div>
 <h3><a href="#creating-the-client" name="creating-the-client" class="anchor"><span class="anchor-link"></span></a>Creating the client</h3>
 <h4><a href="#simple" name="simple" class="anchor"><span class="anchor-link"></span></a>Simple</h4>
-<p>A default JDK HTTP client can be created with a call to <code>simple</code> for any <a href="https://typelevel.org/cats-effect/typeclasses/async.html"><code>Async</code></a> type, such as <a href="https://typelevel.org/cats-effect/datatypes/io.html"><code>cats.effect.IO</code></a>:</p>
+<p>A default JDK HTTP client can be created with a call to <code>simple</code> for any <a href="https://typelevel.org/cats-effect/docs/typeclasses/async"><code>Async</code></a> type, such as <code>cats.effect.IO</code>:</p>
 <pre class="prettyprint"><code class="language-scala">import cats.effect.{IO, Resource}
 import org.http4s.client.Client
 import org.http4s.jdkhttpclient.JdkHttpClient
@@ -252,8 +252,8 @@ val (http, webSocket) =
     }
     // in almost all cases, it is better to call `use` instead
     .allocated.map(_._1).unsafeRunSync()
-// http: Client[IO] = org.http4s.client.Client$$anon$1@18734b13
-// webSocket: WSClient[IO] = org.http4s.jdkhttpclient.WSClient$$anon$1@23cb0190
+// http: Client[IO] = org.http4s.client.Client$$anon$1@298f2325
+// webSocket: WSClient[IO] = org.http4s.jdkhttpclient.WSClient$$anon$1@10560f3c
 </code></pre>
 <p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
 <h3><a href="#overview" name="overview" class="anchor"><span class="anchor-link"></span></a>Overview</h3>
@@ -277,10 +277,10 @@ val (http, webSocket) =
     </ul>
   </li>
 </ul>
-<p>There are two connection modes: &ldquo;low-level&rdquo; and &ldquo;high-level&rdquo;. Both manage the lifetime of a websocket connection via a <a href="https://typelevel.org/cats-effect/datatypes/resource.html"><code>Resource</code></a>. In the low-level mode, you can send and have to receive arbitrary <code>WSFrame</code>s. The high-level mode does the following things for you:</p>
+<p>There are two connection modes: &ldquo;low-level&rdquo; and &ldquo;high-level&rdquo;. Both manage the lifetime of a websocket connection via a <a href="https://typelevel.org/cats-effect/docs/std/resource"><code>Resource</code></a>. In the low-level mode, you can send and have to receive arbitrary <code>WSFrame</code>s. The high-level mode does the following things for you:</p>
 <ul>
   <li>Hides the control frames (you can still send Ping and Close frames).</li>
-  <li>Responds to Ping frames with Pongs and echoes Close frames (the received Close frame is exposed  as a <a href="https://typelevel.org/cats-effect/api/cats/effect/concurrent/Deferred.html"><code>Deferred</code></a>). In fact, this currently also the case for the  &ldquo;low-level&rdquo; mode, but this will change when other websocket backends are added.</li>
+  <li>Responds to Ping frames with Pongs and echoes Close frames (the received Close frame is exposed  as a <a href="https://typelevel.org/cats-effect/docs/std/deferred"><code>Deferred</code></a>). In fact, this currently also the case for the  &ldquo;low-level&rdquo; mode, but this will change when other websocket backends are added.</li>
   <li>Groups the data frames by their <code>last</code> attribute.</li>
 </ul>
 <h3><a href="#usage-example" name="usage-example" class="anchor"><span class="anchor-link"></span></a>Usage example</h3>
@@ -312,7 +312,7 @@ val (http, webSocket) =
   .unsafeRunSync()
 // res2: String = &quot;reality is often disappointing. REALITY IS OFTEN DISAPPOINTING.&quot;
 </code></pre>
-<p>For an overview of all options and functions visit the <a href="https://static.javadoc.io/org.http4s/http4s-jdk-http-client_2.12/0.6-10-2ab86d5-SNAPSHOT/org/http4s/jdkhttpclient/index.html">scaladoc</a>.</p>
+<p>For an overview of all options and functions visit the <a href="https://static.javadoc.io/org.http4s/http4s-jdk-http-client_2.12/0.6-12-2cf3f2f-SNAPSHOT/org/http4s/jdkhttpclient/index.html">scaladoc</a>.</p>
 </div>
 <div>
 <a href="https://github.com/http4s/http4s-jdk-http-client/tree/master/docs/target/mdoc/index.md" title="Edit this page" class="md-source-file md-edit">
@@ -321,7 +321,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.6-10-2ab86d5*
+0.6-12-2cf3f2f*
 </span>
 </div>
 </article>
