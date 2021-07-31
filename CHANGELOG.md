@@ -4,6 +4,18 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.5.0 (2021-07-31)
+
+This release is considered stable.
+
+### Dependency updates
+
+* **http4s-0.23.0**
+* scala-2.12.14
+* scala-3.0.1
+* cats-effect-3.2.1
+* fs2-3.0.6
+
 ## v0.5.0-RC1 (2021-05-28)
 
 The v0.5.x releases will now track http4s-0.23.x.
