@@ -25,7 +25,7 @@ val fs2V = "3.0.6"
 val scodecV = "1.1.27"
 val http4sV = "1.0.0-M23"
 val reactiveStreamsV = "1.0.3"
-val vaultV = "3.0.3"
+val vaultV = "3.0.4"
 val caseInsensitiveV = "1.1.4"
 
 val munitV = "0.7.27"
