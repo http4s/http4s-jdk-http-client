@@ -4,6 +4,17 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.6.0-M2 (2021-08-08)
+
+### Dependency updates
+
+* **http4s-1.0.0-M24**
+* scala-2.12.14
+* scala-3.0.1
+* cats-effect-3.2.2
+* fs2-3.1.0
+* vault-3.0.4
+
 ## v0.6.0-M1 (2021-05-28)
 
 This is the moral successor to v0.5.0-M4, tracking the 1.x releases of http4s.
