@@ -28,8 +28,8 @@ package object jdkhttpclient {
   /** Convert a [[java.util.concurrent.CompletableFuture]] into an effect type.
     *
     * If the effect type terminates in cancellation or error, the underlying
-    * [[java.util.concurrent.CompletableFuture]] is terminated in an analogous
-    * manner. This is important, otherwise a resource leak may occur.
+    * [[java.util.concurrent.CompletableFuture]] is terminated in an analogous manner. This is
+    * important, otherwise a resource leak may occur.
     */
   // TODO upstream?
   private[jdkhttpclient] def fromCompletableFuture[F[_], A](
