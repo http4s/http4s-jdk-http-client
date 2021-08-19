@@ -40,13 +40,15 @@ import org.typelevel.ci._
 
 object JdkHttpClient {
 
-  /** Creates a `Client` from an `HttpClient`. Note that the creation of an `HttpClient` is a
-    * side effect.
+  /** Creates a `Client` from an `HttpClient`. Note that the creation of an `HttpClient` is a side
+    * effect.
     *
-    * @param jdkHttpClient The `HttpClient`.
-    * @param ignoredHeaders A set of ignored request headers. Some headers (like Content-Length) are
-    *                       "restricted" and cannot be set by the user. By default, the set of
-    *                       restricted headers of the OpenJDK 11 is used.
+    * @param jdkHttpClient
+    *   The `HttpClient`.
+    * @param ignoredHeaders
+    *   A set of ignored request headers. Some headers (like Content-Length) are "restricted" and
+    *   cannot be set by the user. By default, the set of restricted headers of the OpenJDK 11 is
+    *   used.
     */
   def apply[F[_]](
       jdkHttpClient: HttpClient,

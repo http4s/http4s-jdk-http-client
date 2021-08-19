@@ -39,7 +39,7 @@ object BodyLeakExample extends IOApp {
       .updateAndGet(_ + 1L)
       .flatMap(value =>
         if (value % 1000L === 0L) {
-          IO(println(s"Request count: ${value}"))
+          IO(println(s"Request count: $value"))
         } else {
           IO.unit
         }

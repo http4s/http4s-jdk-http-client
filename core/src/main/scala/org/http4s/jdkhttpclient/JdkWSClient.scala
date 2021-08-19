@@ -35,9 +35,8 @@ import org.http4s.Header
 import org.http4s.internal.unsafeToCompletionStage
 import org.typelevel.ci._
 
-/** A `WSClient` wrapper for the JDK 11+ websocket client.
-  * It will reply to Pongs with Pings even in "low-level" mode.
-  * Custom (non-GET) HTTP methods are ignored.
+/** A `WSClient` wrapper for the JDK 11+ websocket client. It will reply to Pongs with Pings even in
+  * "low-level" mode. Custom (non-GET) HTTP methods are ignored.
   */
 object JdkWSClient {
 

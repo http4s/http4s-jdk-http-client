@@ -143,34 +143,34 @@ object CompletableFutureTerminationTest {
   /** ADT to contain the result of an invocation to
     * [[java.util.concurrent.CompletionStage#handleAsync]]
     *
-    * @note [[scala.Option]] is used because either or both of these values
-    *       may be `null` in the JRE API.
+    * @note
+    *   [[scala.Option]] is used because either or both of these values may be `null` in the JRE
+    *   API.
     *
-    * @note This is ''not'' a disjunction, e.g. [[scala.Either]]. The JRE API
-    *       dictates that both values might be non-null and both values might
-    *       be `null`.
+    * @note
+    *   This is ''not'' a disjunction, e.g. [[scala.Either]]. The JRE API dictates that both values
+    *   might be non-null and both values might be `null`.
     */
   private final case class Observation[A](
       result: Option[A],
       t: Option[Throwable]
   )
 
-  /** A resource which provides a Http4s Server, which can stall the generation
-    * of a http response until signaled by test code.
+  /** A resource which provides a Http4s Server, which can stall the generation of a http response
+    * until signaled by test code.
     *
-    * This provides the ability to prevent the server from returning a
-    * response until a permit is released. It is meant to only process one
-    * test request.
+    * This provides the ability to prevent the server from returning a response until a permit is
+    * released. It is meant to only process one test request.
     *
-    * @param semaphore A permit will be acquired and released form this for
-    *        each request. Drain it before sending a request to the server and
-    *        then release a permit when you want to server to process the
-    *        request.
-    * @param gotRequest A permit will be released into this semaphore each
-    *        time a request is received. After sending a request to this
-    *        server, you can acquire a permit from this semaphore in your test
-    *        code to ensure the server has received the request. This permit
-    *        is acquired ''before'' one is acquired from `semaphore`.
+    * @param semaphore
+    *   A permit will be acquired and released form this for each request. Drain it before sending a
+    *   request to the server and then release a permit when you want to server to process the
+    *   request.
+    * @param gotRequest
+    *   A permit will be released into this semaphore each time a request is received. After sending
+    *   a request to this server, you can acquire a permit from this semaphore in your test code to
+    *   ensure the server has received the request. This permit is acquired ''before'' one is
+    *   acquired from `semaphore`.
     */
   private def stallingServerR[F[_]](
       semaphore: Semaphore[F],
@@ -191,8 +191,7 @@ object CompletableFutureTerminationTest {
       .bindAny()
       .resource
 
-  /** Just a scala wrapper class to make it easier to generate a
-    * [[java.util.function.BiFunction]].
+  /** Just a scala wrapper class to make it easier to generate a [[java.util.function.BiFunction]].
     */
   private final case class JBiFunction[A, B, C](f: A => B => C)
       extends java.util.function.BiFunction[A, B, C] {
@@ -201,9 +200,8 @@ object CompletableFutureTerminationTest {
   }
 
   /** Given a [[cats.effect.concurrent.Deferred]] value and a
-    * [[java.util.concurrent.CompletableFuture]] value, attach a handler to
-    * the `CompletableFuture` which reports an [[Observation]] of the result
-    * in all cases (success/cancellation/failure).
+    * [[java.util.concurrent.CompletableFuture]] value, attach a handler to the `CompletableFuture`
+    * which reports an [[Observation]] of the result in all cases (success/cancellation/failure).
     */
   private def observeCompletableFuture[F[_], A](
       observe: Deferred[F, Observation[A]],
@@ -217,8 +215,8 @@ object CompletableFutureTerminationTest {
       ); ();
     }.flatMap(observe.complete)
 
-  /** Given a Http4s Server, make a GET request to `/` using a JDK HttpClient
-    * and return the result in a [[java.util.concurrent.CompletableFuture]].
+  /** Given a Http4s Server, make a GET request to `/` using a JDK HttpClient and return the result
+    * in a [[java.util.concurrent.CompletableFuture]].
     */
   private def callServer[F[_]](
       server: Server

@@ -27,10 +27,13 @@ import scodec.bits.ByteVector
 
 /** A websocket request.
   *
-  * @param uri The URI.
-  * @param headers The headers to send. Put your `Sec-Websocket-Protocol` headers here if needed.
-  *                Some websocket clients reject other WS-specific headers.
-  * @param method The method of the intial HTTP request. Ignored by some clients.
+  * @param uri
+  *   The URI.
+  * @param headers
+  *   The headers to send. Put your `Sec-Websocket-Protocol` headers here if needed. Some websocket
+  *   clients reject other WS-specific headers.
+  * @param method
+  *   The method of the intial HTTP request. Ignored by some clients.
   */
 case class WSRequest(
     uri: Uri,
@@ -63,7 +66,9 @@ trait WSConnection[F[_]] {
   /** A `Pipe` which sends websocket frames and emits a `()` for each chunk sent. */
   final def sendPipe: Pipe[F, WSFrame, Unit] = _.chunks.evalMap(sendMany(_))
 
-  /** Wait for a single websocket frame to be received. Returns `None` if the receiving side is closed. */
+  /** Wait for a single websocket frame to be received. Returns `None` if the receiving side is
+    * closed.
+    */
   def receive: F[Option[WSFrame]]
 
   /** A stream of the incoming websocket frames. */

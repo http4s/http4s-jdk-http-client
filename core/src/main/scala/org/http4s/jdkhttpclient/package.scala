@@ -28,12 +28,12 @@ package object jdkhttpclient {
   /** Convert a [[java.util.concurrent.CompletableFuture]] into an effect type.
     *
     * If the effect type terminates in cancellation or error, the underlying
-    * [[java.util.concurrent.CompletableFuture]] is terminated in an analogous
-    * manner. This is important, otherwise a resource leak may occur.
+    * [[java.util.concurrent.CompletableFuture]] is terminated in an analogous manner. This is
+    * important, otherwise a resource leak may occur.
     *
-    * @note Finally, regardless of how the effect and
-    *       [[java.util.concurrent.CompletableFuture]] complete, the result is
-    *       shifted with the given [[cats.effect.ContextShift]].
+    * @note
+    *   Finally, regardless of how the effect and [[java.util.concurrent.CompletableFuture]]
+    *   complete, the result is shifted with the given [[cats.effect.ContextShift]].
     */
   private[jdkhttpclient] def fromCompletableFutureShift[F[_], A](
       fcs: F[CompletableFuture[A]]
