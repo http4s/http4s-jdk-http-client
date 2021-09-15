@@ -4,6 +4,16 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.6.0-M3 (2021-09-15)
+
+### Dependency updates
+
+* **http4s-1.0.0-M25**
+* scala-3.0.2
+* cats-effect-3.2.8
+* fs2-3.1.2
+* scodec-bits-1.1.28
+
 ## v0.6.0-M2 (2021-08-08)
 
 ### Dependency updates
