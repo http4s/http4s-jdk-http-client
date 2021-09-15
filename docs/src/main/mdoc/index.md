@@ -167,31 +167,47 @@ The high-level mode does the following things for you:
 
 We use the "high-level" connection mode to build a simple websocket app.
 
+```scala mdoc:invisible
+import org.http4s.dsl.io._
+import org.http4s.implicits._
+import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.server.websocket._
+val echoServer = BlazeServerBuilder[IO](global.compute)
+  .bindAny()
+  .withHttpApp(HttpRoutes.of[IO] {
+    case GET -> Root => WebSocketBuilder[IO].build(identity)
+  }.orNotFound)
+  .resource
+  .map(s => s.baseUri.copy(scheme = scheme"ws".some))
+```
+
 ```scala mdoc
-webSocket
-  .connectHighLevel(WSRequest(uri"wss://echo.websocket.org"))
-  .use { conn =>
-    for {
-      // send a single Text frame
-      _ <- conn.send(WSFrame.Text("reality"))
-      // send multiple frames (both Text and Binary are possible)
-      // "faster" than individual `send` calls
-      _ <- conn.sendMany(List(
-        WSFrame.Text("is often"),
-        WSFrame.Text("disappointing.")
-      ))
-      received <- conn
-        // a backpressured stream of incoming frames
-        .receiveStream
-        // we do not care about Binary frames (and will never receive any)
-        .collect { case WSFrame.Text(str, _) => str }
-        // send back the modified text
-        .evalTap(str => conn.send(WSFrame.Text(str.toUpperCase)))
-        .take(6)
-        .compile
-        .toList
-    } yield received.mkString(" ")
-  } // the connection is closed here
+echoServer.use { echoUri =>
+  webSocket
+    .connectHighLevel(WSRequest(echoUri))
+    .use { conn =>
+      for {
+        // send a single Text frame
+        _ <- conn.send(WSFrame.Text("reality"))
+        // send multiple frames (both Text and Binary are possible)
+        // "faster" than individual `send` calls
+        _ <- conn.sendMany(List(
+          WSFrame.Text("is often"),
+          WSFrame.Text("disappointing.")
+        ))
+        received <- conn
+          // a backpressured stream of incoming frames
+          .receiveStream
+          // we do not care about Binary frames (and will never receive any)
+          .collect { case WSFrame.Text(str, _) => str }
+          // send back the modified text
+          .evalTap(str => conn.send(WSFrame.Text(str.toUpperCase)))
+          .take(6)
+          .compile
+          .toList
+      } yield received.mkString(" ")
+    } // the connection is closed here
+  }
   .unsafeRunSync()
 ```
 
