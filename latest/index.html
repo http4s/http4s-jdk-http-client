@@ -146,7 +146,7 @@ http4s/http4s-jdk-http-client
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.6-2-fce50ae*
+<i class="md-icon" title="Version">label_outline</i> 0.6-18-8a9e6b8*
 </label>
 </li>
 </ul>
@@ -180,14 +180,14 @@ http4s/http4s-jdk-http-client
 <h3><a href="#installation" name="installation" class="anchor"><span class="anchor-link"></span></a>Installation</h3>
 <p>To use http4s-jdk-http-client in an existing SBT project, add the following dependency to your <code>build.sbt</code>:</p>
 <pre class="prettyprint"><code class="language-scala">libraryDependencies ++= Seq(
-  &quot;org.http4s&quot; %% &quot;http4s-jdk-http-client&quot; % &quot;0.6-2-fce50ae-SNAPSHOT&quot;
+  &quot;org.http4s&quot; %% &quot;http4s-jdk-http-client&quot; % &quot;0.6-18-8a9e6b8-SNAPSHOT&quot;
 )
 </code></pre>
 <h3><a href="#compatibility" name="compatibility" class="anchor"><span class="anchor-link"></span></a>Compatibility</h3>
 <ul>
   <li>Requires Java 11 or greater</li>
   <li>Built for Scala 2.12, 2.13 and 3</li>
-  <li>Works with http4s-client-1.0.0-M24</li>
+  <li>Works with http4s-client-1.0.0-M25</li>
 </ul><div class="callout note "><div class="callout-title">TLS 1.3 on Java 11</div>
 <p>On Java 11, TLS 1.3 is disabled by default (when using <code>JdkHttpClient.simple</code>). This is a workaround for a spurious bug, see <a href="https://github.com/http4s/http4s-jdk-http-client/issues/200">#200</a>.</p></div>
 <h3><a href="#creating-the-client" name="creating-the-client" class="anchor"><span class="anchor-link"></span></a>Creating the client</h3>
@@ -252,8 +252,8 @@ val (http, webSocket) =
     }
     // in almost all cases, it is better to call `use` instead
     .allocated.map(_._1).unsafeRunSync()
-// http: Client[IO] = org.http4s.client.Client$$anon$1@338a6401
-// webSocket: WSClient[IO] = org.http4s.jdkhttpclient.WSClient$$anon$1@c17528c
+// http: Client[IO] = org.http4s.client.Client$$anon$1@21adad88
+// webSocket: WSClient[IO] = org.http4s.jdkhttpclient.WSClient$$anon$1@1fab712c
 </code></pre>
 <p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
 <h3><a href="#overview" name="overview" class="anchor"><span class="anchor-link"></span></a>Overview</h3>
@@ -285,34 +285,36 @@ val (http, webSocket) =
 </ul>
 <h3><a href="#usage-example" name="usage-example" class="anchor"><span class="anchor-link"></span></a>Usage example</h3>
 <p>We use the &ldquo;high-level&rdquo; connection mode to build a simple websocket app.</p>
-<pre class="prettyprint"><code class="language-scala">webSocket
-  .connectHighLevel(WSRequest(uri&quot;wss://echo.websocket.org&quot;))
-  .use { conn =&gt;
-    for {
-      // send a single Text frame
-      _ &lt;- conn.send(WSFrame.Text(&quot;reality&quot;))
-      // send multiple frames (both Text and Binary are possible)
-      // &quot;faster&quot; than individual `send` calls
-      _ &lt;- conn.sendMany(List(
-        WSFrame.Text(&quot;is often&quot;),
-        WSFrame.Text(&quot;disappointing.&quot;)
-      ))
-      received &lt;- conn
-        // a backpressured stream of incoming frames
-        .receiveStream
-        // we do not care about Binary frames (and will never receive any)
-        .collect { case WSFrame.Text(str, _) =&gt; str }
-        // send back the modified text
-        .evalTap(str =&gt; conn.send(WSFrame.Text(str.toUpperCase)))
-        .take(6)
-        .compile
-        .toList
-    } yield received.mkString(&quot; &quot;)
-  } // the connection is closed here
+<pre class="prettyprint"><code class="language-scala">echoServer.use { echoUri =&gt;
+  webSocket
+    .connectHighLevel(WSRequest(echoUri))
+    .use { conn =&gt;
+      for {
+        // send a single Text frame
+        _ &lt;- conn.send(WSFrame.Text(&quot;reality&quot;))
+        // send multiple frames (both Text and Binary are possible)
+        // &quot;faster&quot; than individual `send` calls
+        _ &lt;- conn.sendMany(List(
+          WSFrame.Text(&quot;is often&quot;),
+          WSFrame.Text(&quot;disappointing.&quot;)
+        ))
+        received &lt;- conn
+          // a backpressured stream of incoming frames
+          .receiveStream
+          // we do not care about Binary frames (and will never receive any)
+          .collect { case WSFrame.Text(str, _) =&gt; str }
+          // send back the modified text
+          .evalTap(str =&gt; conn.send(WSFrame.Text(str.toUpperCase)))
+          .take(6)
+          .compile
+          .toList
+      } yield received.mkString(&quot; &quot;)
+    } // the connection is closed here
+  }
   .unsafeRunSync()
 // res2: String = &quot;reality is often disappointing. REALITY IS OFTEN DISAPPOINTING.&quot;
 </code></pre>
-<p>For an overview of all options and functions visit the <a href="https://static.javadoc.io/org.http4s/http4s-jdk-http-client_2.12/0.6-2-fce50ae-SNAPSHOT/org/http4s/jdkhttpclient/index.html">scaladoc</a>.</p>
+<p>For an overview of all options and functions visit the <a href="https://static.javadoc.io/org.http4s/http4s-jdk-http-client_2.12/0.6-18-8a9e6b8-SNAPSHOT/org/http4s/jdkhttpclient/index.html">scaladoc</a>.</p>
 </div>
 <div>
 <a href="https://github.com/http4s/http4s-jdk-http-client/tree/master/docs/target/mdoc/index.md" title="Edit this page" class="md-source-file md-edit">
@@ -321,7 +323,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.6-2-fce50ae*
+0.6-18-8a9e6b8*
 </span>
 </div>
 </article>
