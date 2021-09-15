@@ -18,6 +18,7 @@ lazy val docs = project
   .enablePlugins(GhpagesPlugin, MdocPlugin, ParadoxMaterialThemePlugin, ParadoxSitePlugin)
   .dependsOn(core)
   .settings(commonSettings, docsSettings)
+  .settings(libraryDependencies ++= blazeServer)
 
 val catsV = "2.6.1"
 val catsEffectV = "3.2.8"
@@ -31,6 +32,11 @@ val caseInsensitiveV = "1.1.4"
 val munitV = "0.7.29"
 val munitCatsEffectV = "1.0.5"
 val javaWebsocketV = "1.5.2"
+
+val blazeServer = Seq(
+  "org.http4s" %% "http4s-blaze-server" % http4sV,
+  "org.http4s" %% "http4s-dsl" % http4sV
+)
 
 val coreDeps = Seq(
   "org.typelevel" %% "cats-core" % catsV,
@@ -46,13 +52,11 @@ val coreDeps = Seq(
   "org.scodec" %% "scodec-bits" % scodecV,
   "org.typelevel" %% "vault" % vaultV,
   "org.typelevel" %% "case-insensitive" % caseInsensitiveV
-) ++ Seq(
-  "org.http4s" %% "http4s-blaze-server" % http4sV,
-  "org.http4s" %% "http4s-dsl" % http4sV,
+) ++ (blazeServer ++ Seq(
   "org.java-websocket" % "Java-WebSocket" % javaWebsocketV,
   "org.scalameta" %% "munit" % munitV,
   "org.typelevel" %% "munit-cats-effect-3" % munitCatsEffectV
-).map(_ % Test)
+)).map(_ % Test)
 
 enablePlugins(SonatypeCiReleasePlugin)
 inThisBuild(
