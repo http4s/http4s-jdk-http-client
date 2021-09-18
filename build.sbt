@@ -21,7 +21,7 @@ lazy val docs = project
   .settings(libraryDependencies ++= blazeServer)
 
 val catsV = "2.6.1"
-val catsEffectV = "3.2.8"
+val catsEffectV = "3.2.9"
 val fs2V = "3.1.2"
 val scodecV = "1.1.28"
 val http4sV = "0.23.0"
