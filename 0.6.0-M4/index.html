@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="description" content="docs">
+<meta name="generator" content="Paradox, paradox-material-theme=0.6.0, mkdocs-material=3.0.3">
+
+<meta name="lang:clipboard.copy" content="Copy to clipboard">
+<meta name="lang:clipboard.copied" content="Copied to clipboard">
+<meta name="lang:search.language" content="">
+<meta name="lang:search.pipeline.stopwords" content="true">
+<meta name="lang:search.pipeline.trimmer" content="true">
+<meta name="lang:search.result.none" content="No matching documents">
+<meta name="lang:search.result.one" content="1 matching document">
+<meta name="lang:search.result.other" content="# matching documents">
+<meta name="lang:search.tokenizer" content="[\s\-]+">
+
+
+<meta name="description" content="docs">
+<link rel="shortcut icon" href="assets/images/favicon.png">
+<title>http4s-jdk-http-client</title>
+<link rel="stylesheet" href="assets/stylesheets/application.451f80e5.css">
+<link rel="stylesheet" href="lib/material__tabs/dist/mdc.tabs.min.css">
+<link rel="stylesheet" href="lib/prettify/prettify.css">
+<script src="assets/javascripts/modernizr.1aa3b519.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+<style>
+body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}
+code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}
+</style>
+<link rel="stylesheet" href="assets/fonts/font-awesome.css">
+<link rel="stylesheet" href="assets/fonts/material-icons.css">
+<link rel="stylesheet" href="assets/stylesheets/paradox-material-theme.css">
+</head>
+<body
+>
+<input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+<input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+<label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+<header class="md-header" data-md-component="header">
+<nav class="md-header-nav md-grid">
+<div class="md-flex">
+<div class="md-flex__cell md-flex__cell--shrink">
+<a href="index.html" title="http4s-jdk-http-client" class="md-header-nav__button md-logo">
+<img src="https://http4s.org/images/http4s-logo.svg" width="24" height="24">
+</a>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch">
+<div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+http4s-jdk-http-client
+</div>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+<label class="md-icon md-search__icon" for="__search"></label>
+<button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">&#xE5CD;</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix>
+<div class="md-search-result" data-md-component="result">
+<div class="md-search-result__meta">
+Type to start searching
+</div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<div class="md-header-nav__source">
+<a href="https://github.com/http4s/http4s-jdk-http-client"
+title="Go to repository"
+class="md-source"
+data-md-source="github">
+<div class="md-source__icon">
+<i class="fa fa-github"></i>
+</div>
+<div class="md-source__repository">
+http4s/http4s-jdk-http-client
+</div>
+</a>
+
+</div>
+</div>
+</div>
+</nav>
+</header>
+
+<div class="md-container">
+<main class="md-main">
+<div class="md-main__inner md-grid" data-md-component="container">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
+<label class="md-nav__title md-nav__title--site" for="drawer">
+<a href="index.html" title="http4s-jdk-http-client" class="md-nav__button md-logo">
+<span class="md-nav__button md-logo">
+<img src="https://http4s.org/images/http4s-logo.svg" width="24" height="24">
+</a>
+<a href="index.html" title="http4s-jdk-http-client">
+http4s-jdk-http-client
+</a>
+</label>
+<div class="md-nav__source">
+<a href="https://github.com/http4s/http4s-jdk-http-client"
+title="Go to repository"
+class="md-source"
+data-md-source="github">
+<div class="md-source__icon">
+<i class="fa fa-github"></i>
+</div>
+<div class="md-source__repository">
+http4s/http4s-jdk-http-client
+</div>
+</a>
+
+</div>
+<ul>
+</ul>
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="index.html#http4s-jdk-http-client" class="header">http4s-jdk-http-client</a>
+  <ul>
+    <li><a href="index.html#http-client" class="header">HTTP client</a></li>
+    <li><a href="index.html#websocket-client" class="header">Websocket client</a></li>
+  </ul></li>
+</ul>
+</nav>
+
+</nav>
+<ul style="display: none">
+<li class="md-nav__item md-version" id="project.version">
+<label class="md-nav__link" for="__version">
+<i class="md-icon" title="Version">label_outline</i> 0.6.0-M4
+</label>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="index.html#http4s-jdk-http-client" class="header">http4s-jdk-http-client</a>
+  <ul>
+    <li><a href="index.html#http-client" class="header">HTTP client</a></li>
+    <li><a href="index.html#websocket-client" class="header">Websocket client</a></li>
+  </ul></li>
+</ul>
+</nav>
+
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<div class="md-content__searchable">
+<h1><a href="#http4s-jdk-http-client" name="http4s-jdk-http-client" class="anchor"><span class="anchor-link"></span></a>http4s-jdk-http-client</h1>
+<p><a href="https://github.com/http4s/http4s-jdk-http-client/actions"><img src="https://github.com/http4s/http4s-jdk-http-client/workflows/CI/badge.svg?branch=master" alt="Build Status" /></a> <a href="https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_2.12"><img src="https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_2.12/badge.svg" alt="Maven Central" /></a> <a href="https://javadoc-badge.appspot.com/org.http4s/http4s-jdk-http-client_2.12"><img src="https://javadoc-badge.appspot.com/org.http4s/http4s-jdk-http-client_2.12.svg?label=scaladoc" alt="Scaladoc" /></a></p>
+<h2><a href="#http-client" name="http-client" class="anchor"><span class="anchor-link"></span></a>HTTP client</h2>
+<p><code>http4s-jdk-http-client</code> contains a <a href="https://http4s.org/v1.0/client/">http4s-client</a> implementation based on the <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpClient.html"><code>java.net.http.HttpClient</code></a> introduced in Java 11.</p>
+<h3><a href="#installation" name="installation" class="anchor"><span class="anchor-link"></span></a>Installation</h3>
+<p>To use http4s-jdk-http-client in an existing SBT project, add the following dependency to your <code>build.sbt</code>:</p>
+<pre class="prettyprint"><code class="language-scala">libraryDependencies ++= Seq(
+  &quot;org.http4s&quot; %% &quot;http4s-jdk-http-client&quot; % &quot;0.6.0-M4&quot;
+)
+</code></pre>
+<h3><a href="#compatibility" name="compatibility" class="anchor"><span class="anchor-link"></span></a>Compatibility</h3>
+<ul>
+  <li>Requires Java 11 or greater</li>
+  <li>Built for Scala 2.12, 2.13 and 3</li>
+  <li>Works with http4s-client-1.0.0-M27</li>
+</ul><div class="callout note "><div class="callout-title">TLS 1.3 on Java 11</div>
+<p>On Java 11, TLS 1.3 is disabled by default (when using <code>JdkHttpClient.simple</code>). This is a workaround for a spurious bug, see <a href="https://github.com/http4s/http4s-jdk-http-client/issues/200">#200</a>.</p></div>
+<h3><a href="#creating-the-client" name="creating-the-client" class="anchor"><span class="anchor-link"></span></a>Creating the client</h3>
+<h4><a href="#simple" name="simple" class="anchor"><span class="anchor-link"></span></a>Simple</h4>
+<p>A default JDK HTTP client can be created with a call to <code>simple</code> for any <a href="https://typelevel.org/cats-effect/docs/typeclasses/async"><code>Async</code></a> type, such as <code>cats.effect.IO</code>:</p>
+<pre class="prettyprint"><code class="language-scala">import cats.effect.{IO, Resource}
+import org.http4s.client.Client
+import org.http4s.jdkhttpclient.JdkHttpClient
+
+// Here, we import the global runtime.
+// It comes for free with `cats.effect.IOApp`:
+import cats.effect.unsafe.implicits.global
+
+val client: Resource[IO, Client[IO]] = JdkHttpClient.simple[IO]
+</code></pre>
+<h4><a href="#custom-clients" name="custom-clients" class="anchor"><span class="anchor-link"></span></a>Custom clients</h4>
+<p>A JDK HTTP client can be passed to <code>JdkHttpClient.apply</code> for use as an http4s-client backend. It is a good idea to create the <code>HttpClient</code> in an effect, as it creates a default executor and SSL context:</p>
+<pre class="prettyprint"><code class="language-scala">import java.net.{InetSocketAddress, ProxySelector}
+import java.net.http.HttpClient
+
+val client0: Resource[IO, Client[IO]] = Resource.eval(IO {
+  HttpClient.newBuilder()
+    .version(HttpClient.Version.HTTP_2)
+    .proxy(ProxySelector.of(new InetSocketAddress(&quot;www-proxy&quot;, 8080)))
+    .build()
+}).flatMap(JdkHttpClient(_))
+</code></pre>
+<h3><a href="#sharing" name="sharing" class="anchor"><span class="anchor-link"></span></a>Sharing</h3>
+<p>The client instance contains shared resources such as a connection pool, and should be passed as an argument to code that uses it:</p>
+<pre class="prettyprint"><code class="language-scala">import cats.effect._
+import cats.implicits._
+import org.http4s._
+import org.http4s.implicits._
+  
+def fetchStatus[F[_]](c: Client[F], uri: Uri): F[Status] =
+  c.status(Request[F](Method.GET, uri = uri))
+
+client
+  .use(c =&gt; fetchStatus(c, uri&quot;https://http4s.org/&quot;))
+  .unsafeRunSync()
+// res1: Status = Status(200)
+</code></pre><div class="callout warning "><div class="callout-title">Failure to share</div>
+<p>Contrast with this alternate definition of <code>fetchStatus</code>, which would create a new <code>HttpClient</code> instance on every invocation:</p>
+<pre class="prettyprint"><code class="language-scala">def fetchStatusInefficiently[F[_]: Async](uri: Uri): F[Status] =
+  JdkHttpClient.simple[F].use(_.status(Request[F](Method.GET, uri = uri)))
+</code></pre></div>
+<h3><a href="#restricted-headers" name="restricted-headers" class="anchor"><span class="anchor-link"></span></a>Restricted headers</h3>
+<p>The underlying <code>HttpClient</code> may disallow certain request headers like <code>Host</code> or <code>Content-Length</code> to be set directly by the user. Therefore, you can pass a set of ignored headers to <code>JdkHttpClient.apply</code>. By default, the set of restricted headers of OpenJDK 11 is used.</p>
+<p>In OpenJDK 12+, there are less restricted headers by default, and you can disable the restriction for certain headers by passing <code>-Djdk.httpclient.allowRestrictedHeaders=host,content-length</code> etc. to <code>java</code>.</p>
+<h3><a href="#further-reading" name="further-reading" class="anchor"><span class="anchor-link"></span></a>Further reading</h3>
+<p>For more details on the http4s-client, please see the <a href="https://http4s.org/v1.0/client/">core client documentation</a>.</p>
+<h2><a href="#websocket-client" name="websocket-client" class="anchor"><span class="anchor-link"></span></a>Websocket client</h2>
+<p>This package also contains a functional websocket client. Please note that the API may change in the future.</p>
+<h3><a href="#creation" name="creation" class="anchor"><span class="anchor-link"></span></a>Creation</h3>
+<p>A <code>WSClient</code> is created using an <code>HttpClient</code> as above. It is encouraged to use the same <code>HttpClient</code> to construct a <code>Client[F]</code> and a <code>WSClient[F]</code>.</p>
+<pre class="prettyprint"><code class="language-scala">import org.http4s.jdkhttpclient._
+
+val (http, webSocket) =
+  Resource.eval(IO(HttpClient.newHttpClient()))
+    .flatMap { httpClient =&gt;
+      (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient)).tupled
+    }
+    // in almost all cases, it is better to call `use` instead
+    .allocated.map(_._1).unsafeRunSync()
+// http: Client[IO] = org.http4s.client.Client$$anon$1@1084755a
+// webSocket: WSClient[IO] = org.http4s.jdkhttpclient.WSClient$$anon$1@2ac80b95
+</code></pre>
+<p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
+<h3><a href="#overview" name="overview" class="anchor"><span class="anchor-link"></span></a>Overview</h3>
+<p>We have the following websocket frame hierarchy:</p>
+<ul>
+  <li><code>WSFrame</code>
+    <ul>
+      <li><code>WSControlFrame</code>
+        <ul>
+          <li><code>WSFrame.Close</code></li>
+          <li><code>WSFrame.Ping</code></li>
+          <li><code>WSFrame.Pong</code></li>
+        </ul>
+      </li>
+      <li><code>WSDataFrame</code>
+        <ul>
+          <li><code>WSFrame.Text</code></li>
+          <li><code>WSFrame.Binary</code></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<p>There are two connection modes: &ldquo;low-level&rdquo; and &ldquo;high-level&rdquo;. Both manage the lifetime of a websocket connection via a <a href="https://typelevel.org/cats-effect/docs/std/resource"><code>Resource</code></a>. In the low-level mode, you can send and have to receive arbitrary <code>WSFrame</code>s. The high-level mode does the following things for you:</p>
+<ul>
+  <li>Hides the control frames (you can still send Ping and Close frames).</li>
+  <li>Responds to Ping frames with Pongs and echoes Close frames (the received Close frame is exposed  as a <a href="https://typelevel.org/cats-effect/docs/std/deferred"><code>Deferred</code></a>). In fact, this currently also the case for the  &ldquo;low-level&rdquo; mode, but this will change when other websocket backends are added.</li>
+  <li>Groups the data frames by their <code>last</code> attribute.</li>
+</ul>
+<h3><a href="#usage-example" name="usage-example" class="anchor"><span class="anchor-link"></span></a>Usage example</h3>
+<p>We use the &ldquo;high-level&rdquo; connection mode to build a simple websocket app.</p>
+<pre class="prettyprint"><code class="language-scala">echoServer.use { echoUri =&gt;
+  webSocket
+    .connectHighLevel(WSRequest(echoUri))
+    .use { conn =&gt;
+      for {
+        // send a single Text frame
+        _ &lt;- conn.send(WSFrame.Text(&quot;reality&quot;))
+        // send multiple frames (both Text and Binary are possible)
+        // &quot;faster&quot; than individual `send` calls
+        _ &lt;- conn.sendMany(List(
+          WSFrame.Text(&quot;is often&quot;),
+          WSFrame.Text(&quot;disappointing.&quot;)
+        ))
+        received &lt;- conn
+          // a backpressured stream of incoming frames
+          .receiveStream
+          // we do not care about Binary frames (and will never receive any)
+          .collect { case WSFrame.Text(str, _) =&gt; str }
+          // send back the modified text
+          .evalTap(str =&gt; conn.send(WSFrame.Text(str.toUpperCase)))
+          .take(6)
+          .compile
+          .toList
+      } yield received.mkString(&quot; &quot;)
+    } // the connection is closed here
+  }
+  .unsafeRunSync()
+// res2: String = &quot;reality is often disappointing. REALITY IS OFTEN DISAPPOINTING.&quot;
+</code></pre>
+<p>For an overview of all options and functions visit the <a href="https://static.javadoc.io/org.http4s/http4s-jdk-http-client_2.12/0.6.0-M4/org/http4s/jdkhttpclient/index.html">scaladoc</a>.</p>
+</div>
+<div>
+<a href="https://github.com/http4s/http4s-jdk-http-client/tree/v0.6.0-M4/docs/target/mdoc/index.md" title="Edit this page" class="md-source-file md-edit">
+Edit this page
+</a>
+</div>
+<div class="print-only">
+<span class="md-source-file md-version">
+0.6.0-M4
+</span>
+</div>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+Powered by
+<a href="https://github.com/lightbend/paradox">Paradox</a>
+and
+<a href="https://jonas.github.io/paradox-material-theme/">Paradox Material Theme</a>
+
+</div>
+</div>
+</div>
+</footer>
+
+</div>
+<script src="assets/javascripts/application.583bbe55.js"></script>
+<script src="assets/javascripts/paradox-material-theme.js"></script>
+<script>app.initialize({version:"0.17",url:{base:"."}})</script>
+<script type="text/javascript" src="lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function(event) {
+window.prettyPrint && prettyPrint();
+});
+</script>
+</body>
+</html>
