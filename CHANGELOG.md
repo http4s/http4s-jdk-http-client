@@ -4,6 +4,15 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.6.0-M4 (2021-09-21)
+
+### Dependency updates
+
+* **http4s-1.0.0-M27**
+* scala-2.12.15
+* cats-effect-3.2.9
+* vault-3.1.0
+
 ## v0.6.0-M3 (2021-09-15)
 
 ### Dependency updates
