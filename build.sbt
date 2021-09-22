@@ -92,7 +92,7 @@ inThisBuild(
         url("https://github.com/rossabaker")
       )
     ),
-    githubWorkflowJavaVersions := Seq("adopt@1.11", "adopt@1.16"),
+    githubWorkflowJavaVersions := Seq("adoptium@11", "adoptium@17"),
     githubWorkflowBuild := Seq(
       WorkflowStep
         .Sbt(List("scalafmtCheckAll", "scalafmtSbtCheck"), name = Some("Check formatting")),

@@ -1,4 +1,4 @@
-addSbtPlugin("org.http4s" % "sbt-http4s-org" % "0.8.2")
+addSbtPlugin("org.http4s" % "sbt-http4s-org" % "0.8.3")
 addSbtPlugin("com.lightbend.paradox" % "sbt-paradox" % "0.9.2")
 addSbtPlugin("io.github.jonas" % "sbt-paradox-material-theme" % "0.6.0")
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.3")
