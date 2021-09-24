@@ -22,7 +22,7 @@ lazy val docs = project
 
 val catsV = "2.6.1"
 val catsEffectV = "3.2.9"
-val fs2V = "3.1.2"
+val fs2V = "3.1.3"
 val scodecV = "1.1.28"
 val http4sV = "1.0.0-M27"
 val reactiveStreamsV = "1.0.3"
