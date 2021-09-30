@@ -44,7 +44,7 @@ class JdkWSClientSpec extends CatsEffectSuite {
     val routes = HttpRoutes
       .of[IO] { case GET -> Root => WebSocketBuilder[IO].build(identity) }
       .orNotFound
-    BlazeServerBuilder[IO](ioRuntime.compute)
+    BlazeServerBuilder[IO](munitIoRuntime.compute)
       .bindAny()
       .withHttpApp(routes)
       .resource
@@ -191,7 +191,7 @@ class JdkWSClientSpec extends CatsEffectSuite {
         val routes = HttpRoutes.of[IO] { case r @ GET -> Root =>
           ref.set(r.headers.some) *> WebSocketBuilder[IO].build(Stream.empty, _ => Stream.empty)
         }
-        BlazeServerBuilder[IO](ioRuntime.compute)
+        BlazeServerBuilder[IO](munitIoRuntime.compute)
           .bindAny()
           .withHttpApp(routes.orNotFound)
           .resource
