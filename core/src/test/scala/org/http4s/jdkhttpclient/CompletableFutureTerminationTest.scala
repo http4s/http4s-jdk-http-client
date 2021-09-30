@@ -76,7 +76,7 @@ final class CompletableFutureTerminationTest extends CatsEffectSuite {
           gotRequest.acquire *>
           // Start a Http4s Server, it will be terminated at the conclusion of
           // this test.
-          stallingServerR[IO](stallServer, gotRequest, ioRuntime.compute).use { (server: Server) =>
+          stallingServerR[IO](stallServer, gotRequest, munitIoRuntime.compute).use { (server: Server) =>
             // Call the server, using the JDK client. We call directly with
             // the JDK client because we need to have low level control over
             // the result to observe whether or not the
