@@ -30,7 +30,7 @@ val vaultV = "3.1.0"
 val caseInsensitiveV = "1.1.4"
 
 val munitV = "0.7.29"
-val munitCatsEffectV = "1.0.5"
+val munitCatsEffectV = "1.0.6"
 val javaWebsocketV = "1.5.2"
 
 val blazeServer = Seq(
