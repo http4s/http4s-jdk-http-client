@@ -197,7 +197,7 @@ object JdkHttpClient {
         .flatMap { case (subscription, res) =>
           val body: Stream[F, util.List[ByteBuffer]] =
             Stream
-              .eval(StreamSubscriber[F, util.List[ByteBuffer]](dispatcher))
+              .eval(StreamSubscriber[F, util.List[ByteBuffer]])
               .flatMap(s =>
                 s.sub.stream(
                   // Complete the TrybleDeferred so that we indicate we have
