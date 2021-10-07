@@ -4,6 +4,14 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.6.0-M5 (2021-10-07)
+
+### Dependency updates
+
+* **http4s-1.0.0-M28**
+* fs2-3.1.4
+* scodec-1.1.29
+
 ## v0.6.0-M4 (2021-09-21)
 
 ### Dependency updates
