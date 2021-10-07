@@ -45,7 +45,7 @@ object BodyLeakExample extends IOApp {
       )
 
   override def run(args: List[String]): IO[ExitCode] =
-    BlazeServerBuilder[IO](runtime.compute)
+    BlazeServerBuilder[IO]
       .bindLocal(8080)
       .withHttpApp(app)
       .resource

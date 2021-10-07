@@ -171,11 +171,10 @@ We use the "high-level" connection mode to build a simple websocket app.
 import org.http4s.dsl.io._
 import org.http4s.implicits._
 import org.http4s.blaze.server.BlazeServerBuilder
-import org.http4s.server.websocket._
-val echoServer = BlazeServerBuilder[IO](global.compute)
+val echoServer = BlazeServerBuilder[IO]
   .bindAny()
-  .withHttpApp(HttpRoutes.of[IO] {
-    case GET -> Root => WebSocketBuilder[IO].build(identity)
+  .withHttpWebSocketApp(wsb => HttpRoutes.of[IO] {
+    case GET -> Root => wsb.build(identity)
   }.orNotFound)
   .resource
   .map(s => s.baseUri.copy(scheme = scheme"ws".some))
