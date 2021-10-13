@@ -4,6 +4,13 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.6.0-M6 (2021-10-13)
+
+### Dependency updates
+
+* **http4s-1.0.0-M29**
+* fs2-3.1.5
+
 ## v0.6.0-M5 (2021-10-07)
 
 ### Dependency updates
