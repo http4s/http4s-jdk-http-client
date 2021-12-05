@@ -6,9 +6,9 @@ pull_request_rules:
   conditions:
   - author=scala-steward
   - body~=labels:.*semver-patch.*
-  - status-success=Build and Test (ubuntu-latest, 2.12.15, adoptium@11)
-  - status-success=Build and Test (ubuntu-latest, 2.12.15, adoptium@17)
-  - status-success=Build and Test (ubuntu-latest, 2.13.6, adoptium@11)
-  - status-success=Build and Test (ubuntu-latest, 2.13.6, adoptium@17)
-  - status-success=Build and Test (ubuntu-latest, 3.1.0, adoptium@11)
-  - status-success=Build and Test (ubuntu-latest, 3.1.0, adoptium@17)
+  - status-success=Build and Test (ubuntu-latest, 2.12.15, temurin@11)
+  - status-success=Build and Test (ubuntu-latest, 2.12.15, temurin@17)
+  - status-success=Build and Test (ubuntu-latest, 2.13.6, temurin@11)
+  - status-success=Build and Test (ubuntu-latest, 2.13.6, temurin@17)
+  - status-success=Build and Test (ubuntu-latest, 3.1.0, temurin@11)
+  - status-success=Build and Test (ubuntu-latest, 3.1.0, temurin@17)
