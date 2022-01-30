@@ -146,7 +146,7 @@ http4s/http4s-jdk-http-client
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.6-19-ad84b90*
+<i class="md-icon" title="Version">label_outline</i> 0.6-21-84fdb3d*
 </label>
 </li>
 </ul>
@@ -180,7 +180,7 @@ http4s/http4s-jdk-http-client
 <h3><a href="#installation" name="installation" class="anchor"><span class="anchor-link"></span></a>Installation</h3>
 <p>To use http4s-jdk-http-client in an existing SBT project, add the following dependency to your <code>build.sbt</code>:</p>
 <pre class="prettyprint"><code class="language-scala">libraryDependencies ++= Seq(
-  &quot;org.http4s&quot; %% &quot;http4s-jdk-http-client&quot; % &quot;0.6-19-ad84b90-SNAPSHOT&quot;
+  &quot;org.http4s&quot; %% &quot;http4s-jdk-http-client&quot; % &quot;0.6-21-84fdb3d-SNAPSHOT&quot;
 )
 </code></pre>
 <h3><a href="#compatibility" name="compatibility" class="anchor"><span class="anchor-link"></span></a>Compatibility</h3>
@@ -228,7 +228,7 @@ def fetchStatus[F[_]](c: Client[F], uri: Uri): F[Status] =
 client
   .use(c =&gt; fetchStatus(c, uri&quot;https://http4s.org/&quot;))
   .unsafeRunSync()
-// res1: Status = Status(200)
+// res1: Status = Status(404)
 </code></pre><div class="callout warning "><div class="callout-title">Failure to share</div>
 <p>Contrast with this alternate definition of <code>fetchStatus</code>, which would create a new <code>HttpClient</code> instance on every invocation:</p>
 <pre class="prettyprint"><code class="language-scala">def fetchStatusInefficiently[F[_]: Async](uri: Uri): F[Status] =
@@ -252,8 +252,8 @@ val (http, webSocket) =
     }
     // in almost all cases, it is better to call `use` instead
     .allocated.map(_._1).unsafeRunSync()
-// http: Client[IO] = org.http4s.client.Client$$anon$1@5674e267
-// webSocket: WSClient[IO] = org.http4s.jdkhttpclient.WSClient$$anon$1@5d00b3d6
+// http: Client[IO] = org.http4s.client.Client$$anon$1@3a5af30c
+// webSocket: WSClient[IO] = org.http4s.jdkhttpclient.WSClient$$anon$1@6e9db29c
 </code></pre>
 <p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
 <h3><a href="#overview" name="overview" class="anchor"><span class="anchor-link"></span></a>Overview</h3>
@@ -314,7 +314,7 @@ val (http, webSocket) =
   .unsafeRunSync()
 // res2: String = &quot;reality is often disappointing. REALITY IS OFTEN DISAPPOINTING.&quot;
 </code></pre>
-<p>For an overview of all options and functions visit the <a href="https://static.javadoc.io/org.http4s/http4s-jdk-http-client_2.12/0.6-19-ad84b90-SNAPSHOT/org/http4s/jdkhttpclient/index.html">scaladoc</a>.</p>
+<p>For an overview of all options and functions visit the <a href="https://static.javadoc.io/org.http4s/http4s-jdk-http-client_2.12/0.6-21-84fdb3d-SNAPSHOT/org/http4s/jdkhttpclient/index.html">scaladoc</a>.</p>
 </div>
 <div>
 <a href="https://github.com/http4s/http4s-jdk-http-client/tree/master/docs/target/mdoc/index.md" title="Edit this page" class="md-source-file md-edit">
@@ -323,7 +323,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.6-19-ad84b90*
+0.6-21-84fdb3d*
 </span>
 </div>
 </article>
