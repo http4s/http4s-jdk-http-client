@@ -177,7 +177,7 @@ object CompletableFutureTerminationTest {
       gotRequest: Semaphore[F],
       ec: ExecutionContext
   )(implicit F: Async[F]): Resource[F, Server] =
-    BlazeServerBuilder(ec)
+    BlazeServerBuilder[F]
       .withHttpApp(
         Kleisli(
           Function.const(

@@ -29,7 +29,6 @@ import org.http4s._
 import org.http4s.dsl.io._
 import org.http4s.implicits._
 import org.http4s.blaze.server.BlazeServerBuilder
-import org.http4s.server.websocket._
 import org.http4s.websocket.WebSocketFrame
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
@@ -40,16 +39,16 @@ import scodec.bits.ByteVector
 class JdkWSClientSpec extends CatsEffectSuite {
 
   val webSocket = JdkWSClient.simple[IO]
-  val echoServer: Resource[IO, Uri] = {
-    val routes = HttpRoutes
-      .of[IO] { case GET -> Root => WebSocketBuilder[IO].build(identity) }
-      .orNotFound
-    BlazeServerBuilder[IO](munitIoRuntime.compute)
+  val echoServer: Resource[IO, Uri] =
+    BlazeServerBuilder[IO]
       .bindAny()
-      .withHttpApp(routes)
+      .withHttpWebSocketApp { wsb =>
+        HttpRoutes
+          .of[IO] { case GET -> Root => wsb.build(identity) }
+          .orNotFound
+      }
       .resource
       .map(s => httpToWsUri(s.baseUri))
-  }
 
   val webSocketFixture = ResourceFixture(webSocket)
   val webSocketEchoFixture = ResourceFixture((webSocket, echoServer).tupled)
@@ -188,12 +187,15 @@ class JdkWSClientSpec extends CatsEffectSuite {
     Ref[IO]
       .of(None: Option[Headers])
       .flatMap { ref =>
-        val routes = HttpRoutes.of[IO] { case r @ GET -> Root =>
-          ref.set(r.headers.some) *> WebSocketBuilder[IO].build(Stream.empty, _ => Stream.empty)
-        }
-        BlazeServerBuilder[IO](munitIoRuntime.compute)
+        BlazeServerBuilder[IO]
           .bindAny()
-          .withHttpApp(routes.orNotFound)
+          .withHttpWebSocketApp { wsb =>
+            HttpRoutes
+              .of[IO] { case r @ GET -> Root =>
+                ref.set(r.headers.some) *> wsb.build(Stream.empty, _ => Stream.empty)
+              }
+              .orNotFound
+          }
           .resource
           .use { server =>
             webSocket.connect(WSRequest(httpToWsUri(server.baseUri), sentHeaders)).use(_ => IO.unit)
