@@ -58,6 +58,7 @@ val coreDeps = Seq(
 ThisBuild / crossScalaVersions := Seq("2.12.15", "2.13.7", "3.1.0")
 ThisBuild / scalaVersion := (ThisBuild / crossScalaVersions).value.head
 ThisBuild / tlBaseVersion := "0.7"
+ThisBuild / startYear := Some(2021)
 ThisBuild / developers := List(
   Developer(
     "ChristopherDavenport",
