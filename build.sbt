@@ -85,6 +85,7 @@ ThisBuild / tlSitePublishBranch := Some("series/0.7")
 
 lazy val docsSettings =
   Seq(
+    fork := true,
     mdocVariables ++= Map(
       "HTTP4S_VERSION" -> http4sV,
       "HTTP4S_VERSION_SHORT" -> http4sV.split("\\.").take(2).mkString("."),
