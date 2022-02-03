@@ -23,7 +23,6 @@ import java.net.http.HttpResponse
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
-import scala.concurrent._
 import scala.concurrent.duration._
 
 import cats.data._
@@ -76,7 +75,7 @@ final class CompletableFutureTerminationTest extends CatsEffectSuite {
           gotRequest.acquire *>
           // Start a Http4s Server, it will be terminated at the conclusion of
           // this test.
-          stallingServerR[IO](stallServer, gotRequest, munitIoRuntime.compute).use {
+          stallingServerR[IO](stallServer, gotRequest).use {
             (server: Server) =>
               // Call the server, using the JDK client. We call directly with
               // the JDK client because we need to have low level control over
@@ -175,7 +174,6 @@ object CompletableFutureTerminationTest {
   private def stallingServerR[F[_]](
       semaphore: Semaphore[F],
       gotRequest: Semaphore[F],
-      ec: ExecutionContext
   )(implicit F: Async[F]): Resource[F, Server] =
     BlazeServerBuilder[F]
       .withHttpApp(
