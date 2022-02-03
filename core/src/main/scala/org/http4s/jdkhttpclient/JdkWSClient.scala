@@ -33,6 +33,7 @@ import cats.implicits._
 import fs2.CompositeFailure
 import fs2.Stream
 import org.http4s.Header
+import org.http4s.client.websocket._
 import org.http4s.internal.unsafeToCompletionStage
 import org.typelevel.ci._
 import scodec.bits.ByteVector
@@ -46,13 +47,13 @@ object JdkWSClient {
   def apply[F[_]](
       jdkHttpClient: HttpClient
   )(implicit F: Async[F]): Resource[F, WSClient[F]] = Dispatcher[F].map { dispatcher =>
-    WSClient.defaultImpl(respondToPings = false) { case WSRequest(uri, headers, _) =>
+    WSClient(respondToPings = false) { req =>
       Resource
         .make {
           for {
             wsBuilder <- F.delay {
               val builder = jdkHttpClient.newWebSocketBuilder()
-              val (subprotocols, hs) = headers.headers.partitionEither {
+              val (subprotocols, hs) = req.headers.headers.partitionEither {
                 case Header.Raw(ci"Sec-WebSocket-Protocol", p) => Left(p)
                 case h => Right(h)
               }
@@ -99,7 +100,7 @@ object JdkWSClient {
               }
             }
             webSocket <- fromCompletableFuture(
-              F.delay(wsBuilder.buildAsync(URI.create(uri.renderString), wsListener))
+              F.delay(wsBuilder.buildAsync(URI.create(req.uri.renderString), wsListener))
             )
             sendSem <- Semaphore[F](1L)
           } yield (webSocket, queue, closedDef, sendSem)

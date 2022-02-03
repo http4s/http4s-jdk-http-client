@@ -29,6 +29,7 @@ import org.http4s._
 import org.http4s.dsl.io._
 import org.http4s.implicits._
 import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.client.websocket._
 import org.http4s.websocket.WebSocketFrame
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
@@ -83,8 +84,7 @@ class JdkWSClientSpec extends CatsEffectSuite {
           for {
             _ <- conn.send(WSFrame.Binary(ByteVector(15, 2, 3)))
             _ <- conn.sendMany(List(WSFrame.Text("foo"), WSFrame.Text("bar")))
-            _ <- conn.sendClose()
-            recv <- conn.receiveStream.compile.toList
+            recv <- conn.receiveStream.take(3).compile.toList
           } yield recv
         }
         .assertEquals(
@@ -119,8 +119,7 @@ class JdkWSClientSpec extends CatsEffectSuite {
                 WSFrame.Binary(ByteVector(7), last = false)
               )
             )
-            _ <- conn.sendClose()
-            recv <- conn.receiveStream.compile.toList
+            recv <- conn.receiveStream.take(6).compile.toList
           } yield recv
         }
         .assertEquals(
@@ -198,7 +197,9 @@ class JdkWSClientSpec extends CatsEffectSuite {
           }
           .resource
           .use { server =>
-            webSocket.connect(WSRequest(httpToWsUri(server.baseUri), sentHeaders)).use(_ => IO.unit)
+            webSocket
+              .connect(WSRequest(httpToWsUri(server.baseUri)).withHeaders(sentHeaders))
+              .use(_ => IO.unit)
           } *> ref.get
       }
       .map(_.map(recvHeaders => sentHeaders.headers.toSet.subsetOf(recvHeaders.headers.toSet)))

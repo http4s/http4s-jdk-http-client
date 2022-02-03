@@ -22,6 +22,7 @@ import cats.effect._
 import cats.syntax.all._
 import munit.CatsEffectSuite
 import org.http4s.implicits._
+import org.http4s.client.websocket._
 
 class DeadlockWorkaround extends CatsEffectSuite {
 
