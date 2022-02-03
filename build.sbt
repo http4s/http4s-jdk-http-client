@@ -18,8 +18,8 @@ lazy val docs = project
   .settings(libraryDependencies ++= blazeServer)
 
 val catsV = "2.7.0"
-val catsEffectV = "3.3.0"
-val fs2V = "3.2.2"
+val catsEffectV = "3.3.5"
+val fs2V = "3.2.4"
 val scodecV = "1.1.30"
 val http4sV = "0.23.10"
 val reactiveStreamsV = "1.0.3"
@@ -40,7 +40,6 @@ val coreDeps = Seq(
   "org.typelevel" %% "cats-effect" % catsEffectV,
   "org.typelevel" %% "cats-effect-kernel" % catsEffectV,
   "org.typelevel" %% "cats-effect-std" % catsEffectV,
-  "org.typelevel" %% "cats-kernel" % catsV,
   "co.fs2" %% "fs2-core" % fs2V,
   "co.fs2" %% "fs2-reactive-streams" % fs2V,
   "org.http4s" %% "http4s-client" % http4sV,
@@ -103,7 +102,10 @@ lazy val docsSettings =
           "keep_files" -> "true"
         )
       )
-    )
+    ),
+    unusedCompileDependenciesFilter -= moduleFilter("org.http4s", "http4s-blaze-server"),
+    unusedCompileDependenciesFilter -= moduleFilter("org.http4s", "http4s-dsl"),
+    unusedCompileDependenciesFilter -= moduleFilter("org.scalameta", "mdoc")
   )
 
 def formatCrossScalaVersions(crossScalaVersions: List[String]): String = {
