@@ -1,1 +1,1 @@
-addSbtPlugin("org.http4s" % "sbt-http4s-org" % "0.11.1")
+addSbtPlugin("org.http4s" % "sbt-http4s-org" % "0.12.0")
