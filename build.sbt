@@ -67,7 +67,7 @@ ThisBuild / developers := List(
 
 ThisBuild / githubWorkflowJavaVersions := Seq("11", "17").map(JavaSpec.temurin(_))
 ThisBuild / tlCiReleaseBranches := Seq("main")
-ThisBuild / tlSitePublishBranch := Some("main")
+ThisBuild / tlSitePublishBranch := Some("series/0.7")
 
 lazy val docsSettings =
   Seq(
