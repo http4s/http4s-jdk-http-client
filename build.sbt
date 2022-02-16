@@ -57,12 +57,11 @@ val coreDeps = Seq(
 ThisBuild / crossScalaVersions := Seq("2.12.15", "2.13.7", "3.1.0")
 ThisBuild / scalaVersion := (ThisBuild / crossScalaVersions).value.head
 ThisBuild / tlBaseVersion := "0.7"
-ThisBuild / startYear := Some(2021)
+ThisBuild / startYear := Some(2019)
 ThisBuild / developers := List(
   tlGitHubDev("ChristopherDavenport", "Christopher Davenport"),
   tlGitHubDev("amesgen", "Alexander Esgen"),
   tlGitHubDev("rossabaker", "Ross A. Baker")
-  )
 )
 
 ThisBuild / githubWorkflowJavaVersions := Seq("11", "17").map(JavaSpec.temurin(_))
