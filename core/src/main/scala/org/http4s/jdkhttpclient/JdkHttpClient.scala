@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 http4s.org
+ * Copyright 2019 http4s.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.net.http.HttpResponse.BodyHandlers
 import java.nio.ByteBuffer
 import java.util
 import java.util.concurrent.Flow
+import scala.jdk.CollectionConverters._
 
 import cats._
 import cats.effect._
@@ -35,6 +36,7 @@ import fs2.Chunk
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 import fs2.interop.reactivestreams._
+import org.http4s.Entity
 import org.http4s.Header
 import org.http4s.Headers
 import org.http4s.HttpVersion
@@ -42,7 +44,6 @@ import org.http4s.Request
 import org.http4s.Response
 import org.http4s.Status
 import org.http4s.client.Client
-import org.http4s.internal.CollectionCompat.CollectionConverters._
 import org.reactivestreams.FlowAdapters
 import org.typelevel.ci.CIString
 
@@ -225,12 +226,14 @@ object JdkHttpClient {
                     case HttpClient.Version.HTTP_1_1 => HttpVersion.`HTTP/1.1`
                     case HttpClient.Version.HTTP_2 => HttpVersion.`HTTP/2`
                   },
-                  body = body
-                    .interruptWhen(signal)
-                    .flatMap(bs =>
-                      Stream.fromIterator(bs.iterator.asScala.map(Chunk.byteBuffer), 1)
-                    )
-                    .flatMap(Stream.chunk)
+                  entity = Entity(
+                    body
+                      .interruptWhen(signal)
+                      .flatMap(bs =>
+                        Stream.fromIterator(bs.iterator.asScala.map(Chunk.byteBuffer), 1)
+                      )
+                      .flatMap(Stream.chunk)
+                  )
                 ) -> signal.set(true)
             }
           )

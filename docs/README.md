@@ -1,6 +1,6 @@
 # http4s-jdk-http-client
 
-[![Build Status](https://github.com/http4s/http4s-jdk-http-client/workflows/CI/badge.svg?branch=master)](https://github.com/http4s/http4s-jdk-http-client/actions) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@) [![Scaladoc](https://javadoc-badge.appspot.com/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@.svg?label=scaladoc)](https://javadoc-badge.appspot.com/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@)
+[![Build Status](https://github.com/http4s/http4s-jdk-http-client/workflows/CI/badge.svg?branch=master)](https://github.com/http4s/http4s-jdk-http-client/actions) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@) [![javadoc](https://javadoc.io/badge2/org.http4s/http4s-jdk-http-client_2.13/javadoc.svg)](https://javadoc.io/doc/org.http4s/http4s-jdk-http-client_2.13)
 
 ## HTTP client
 
@@ -25,10 +25,12 @@ libraryDependencies ++= Seq(
 * Built for Scala @SCALA_VERSIONS@
 * Works with http4s-client-@HTTP4S_VERSION@
 
-@@@note { title='TLS 1.3 on Java 11' }
-On Java 11, TLS 1.3 is disabled by default (when using `JdkHttpClient.simple`).
+@:callout(warning)
+
+**TLS 1.3 on Java 11.** On Java 11, TLS 1.3 is disabled by default (when using `JdkHttpClient.simple`).
 This is a workaround for a spurious bug, see [#200](https://github.com/http4s/http4s-jdk-http-client/issues/200).
-@@@
+
+@:@
 
 ### Creating the client
 
@@ -86,8 +88,9 @@ client
   .unsafeRunSync()
 ```
 
-@@@warning { title='Failure to share' }
+@:callout(warning)
 
+**Failure to share.**
 Contrast with this alternate definition of `fetchStatus`, which would
 create a new `HttpClient` instance on every invocation:
 
@@ -96,7 +99,7 @@ def fetchStatusInefficiently[F[_]: Async](uri: Uri): F[Status] =
   JdkHttpClient.simple[F].use(_.status(Request[F](Method.GET, uri = uri)))
 ```
 
-@@@
+@:@
 
 ### Restricted headers
 
@@ -126,6 +129,7 @@ using an `HttpClient` as above. It is encouraged to use the same `HttpClient`
 to construct a `Client[F]` and a `WSClient[F]`.
 
 ```scala mdoc
+// import org.http4s.client.websocket._
 import org.http4s.jdkhttpclient._
 
 val (http, webSocket) =
@@ -180,7 +184,7 @@ val echoServer = BlazeServerBuilder[IO]
   .map(s => s.baseUri.copy(scheme = scheme"ws".some))
 ```
 
-```scala mdoc
+```scala
 echoServer.use { echoUri =>
   webSocket
     .connectHighLevel(WSRequest(echoUri))

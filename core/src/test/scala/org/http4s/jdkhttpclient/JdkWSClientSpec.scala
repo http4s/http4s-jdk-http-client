@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 http4s.org
+ * Copyright 2019 http4s.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.http4s._
 import org.http4s.dsl.io._
 import org.http4s.implicits._
 import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.client.websocket._
 import org.http4s.websocket.WebSocketFrame
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
@@ -83,8 +84,7 @@ class JdkWSClientSpec extends CatsEffectSuite {
           for {
             _ <- conn.send(WSFrame.Binary(ByteVector(15, 2, 3)))
             _ <- conn.sendMany(List(WSFrame.Text("foo"), WSFrame.Text("bar")))
-            _ <- conn.sendClose()
-            recv <- conn.receiveStream.compile.toList
+            recv <- conn.receiveStream.take(3).compile.toList
           } yield recv
         }
         .assertEquals(
@@ -119,8 +119,7 @@ class JdkWSClientSpec extends CatsEffectSuite {
                 WSFrame.Binary(ByteVector(7), last = false)
               )
             )
-            _ <- conn.sendClose()
-            recv <- conn.receiveStream.compile.toList
+            recv <- conn.receiveStream.take(6).compile.toList
           } yield recv
         }
         .assertEquals(
@@ -189,16 +188,18 @@ class JdkWSClientSpec extends CatsEffectSuite {
       .flatMap { ref =>
         BlazeServerBuilder[IO]
           .bindAny()
-          .withHttpWebSocketApp(wsb =>
+          .withHttpWebSocketApp { wsb =>
             HttpRoutes
               .of[IO] { case r @ GET -> Root =>
                 ref.set(r.headers.some) *> wsb.build(Stream.empty, _ => Stream.empty)
               }
               .orNotFound
-          )
+          }
           .resource
           .use { server =>
-            webSocket.connect(WSRequest(httpToWsUri(server.baseUri), sentHeaders)).use(_ => IO.unit)
+            webSocket
+              .connect(WSRequest(httpToWsUri(server.baseUri)).withHeaders(sentHeaders))
+              .use(_ => IO.unit)
           } *> ref.get
       }
       .map(_.map(recvHeaders => sentHeaders.headers.toSet.subsetOf(recvHeaders.headers.toSet)))
