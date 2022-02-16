@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 http4s.org
+ * Copyright 2019 http4s.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -223,7 +223,7 @@ object JdkHttpClient {
                   }.toList),
                   httpVersion = res.version match {
                     case HttpClient.Version.HTTP_1_1 => HttpVersion.`HTTP/1.1`
-                    case HttpClient.Version.HTTP_2 => HttpVersion.`HTTP/2.0`
+                    case HttpClient.Version.HTTP_2 => HttpVersion.`HTTP/2`
                   },
                   body = body
                     .interruptWhen(signal)
@@ -269,7 +269,7 @@ object JdkHttpClient {
   )(implicit F: ApplicativeThrow[F]): F[HttpClient.Version] =
     version match {
       case HttpVersion.`HTTP/1.1` => HttpClient.Version.HTTP_1_1.pure[F]
-      case HttpVersion.`HTTP/2.0` => HttpClient.Version.HTTP_2.pure[F]
+      case HttpVersion.`HTTP/2` => HttpClient.Version.HTTP_2.pure[F]
       case _ => F.raiseError(new IllegalArgumentException("invalid HTTP version"))
     }
 

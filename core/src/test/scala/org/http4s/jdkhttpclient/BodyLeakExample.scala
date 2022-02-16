@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 http4s.org
+ * Copyright 2019 http4s.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ object BodyLeakExample extends IOApp {
       )
 
   override def run(args: List[String]): IO[ExitCode] =
-    BlazeServerBuilder[IO](runtime.compute)
+    BlazeServerBuilder[IO]
       .bindLocal(8080)
       .withHttpApp(app)
       .resource

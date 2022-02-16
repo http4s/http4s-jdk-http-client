@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 http4s.org
+ * Copyright 2019 http4s.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import cats.effect._
 import cats.syntax.all._
 import munit.CatsEffectSuite
 import org.http4s.implicits._
+import org.http4s.client.websocket._
 
 class DeadlockWorkaround extends CatsEffectSuite {
 
