@@ -59,23 +59,9 @@ ThisBuild / scalaVersion := (ThisBuild / crossScalaVersions).value.head
 ThisBuild / tlBaseVersion := "0.7"
 ThisBuild / startYear := Some(2021)
 ThisBuild / developers := List(
-  Developer(
-    "ChristopherDavenport",
-    "Christopher Davenport",
-    "chris@christopherdavenport.tech",
-    url("https://github.com/ChristopherDavenport")
-  ),
-  Developer(
-    "amesgen",
-    "Alexander Esgen",
-    "amesgen@amesgen.de",
-    url("https://github.com/amesgen")
-  ),
-  Developer(
-    "rossabaker",
-    "Ross A. Baker",
-    "ross@rossabaker.com",
-    url("https://github.com/rossabaker")
+  tlGitHubDev("ChristopherDavenport", "Christopher Davenport"),
+  tlGitHubDev("amesgen", "Alexander Esgen"),
+  tlGitHubDev("rossabaker", "Ross A. Baker")
   )
 )
 
@@ -104,9 +90,7 @@ lazy val docsSettings =
         )
       )
     ),
-    unusedCompileDependenciesFilter -= moduleFilter("org.http4s", "http4s-blaze-server"),
-    unusedCompileDependenciesFilter -= moduleFilter("org.http4s", "http4s-dsl"),
-    unusedCompileDependenciesFilter -= moduleFilter("org.scalameta", "mdoc")
+    unusedCompileDependenciesFilter -= moduleFilter()
   )
 
 def formatCrossScalaVersions(crossScalaVersions: List[String]): String = {
