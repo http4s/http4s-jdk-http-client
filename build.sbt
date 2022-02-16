@@ -54,8 +54,9 @@ val coreDeps = Seq(
   "org.typelevel" %% "munit-cats-effect-3" % munitCatsEffectV
 )).map(_ % Test)
 
-ThisBuild / crossScalaVersions := Seq("2.12.15", "2.13.7", "3.1.0")
-ThisBuild / scalaVersion := (ThisBuild / crossScalaVersions).value.head
+val scala213 = "2.13.8"
+ThisBuild / crossScalaVersions := Seq("2.12.15", scala213, "3.1.1")
+ThisBuild / scalaVersion := scala213
 ThisBuild / tlBaseVersion := "0.7"
 ThisBuild / startYear := Some(2019)
 ThisBuild / developers := List(
@@ -76,18 +77,6 @@ lazy val docsSettings =
       "HTTP4S_VERSION_SHORT" -> http4sV.split("\\.").take(2).mkString("."),
       "SCALA_VERSION" -> CrossVersion.binaryScalaVersion(scalaVersion.value),
       "SCALA_VERSIONS" -> formatCrossScalaVersions((core / crossScalaVersions).value.toList)
-    ),
-    tlSitePublish := List( // TODO remove after upstreamed
-      WorkflowStep.Use(
-        UseRef.Public("peaceiris", "actions-gh-pages", "v3.8.0"),
-        Map(
-          "github_token" -> s"$${{ secrets.GITHUB_TOKEN }}",
-          "publish_dir" -> (ThisBuild / baseDirectory).value.toPath.toAbsolutePath
-            .relativize(((Laika / target).value / "site").toPath)
-            .toString,
-          "keep_files" -> "true"
-        )
-      )
     ),
     unusedCompileDependenciesFilter -= moduleFilter()
   )

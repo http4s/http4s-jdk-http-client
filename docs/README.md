@@ -1,6 +1,6 @@
 # http4s-jdk-http-client
 
-[![Build Status](https://github.com/http4s/http4s-jdk-http-client/workflows/CI/badge.svg?branch=master)](https://github.com/http4s/http4s-jdk-http-client/actions) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@) [![Scaladoc](https://javadoc-badge.appspot.com/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@.svg?label=scaladoc)](https://javadoc-badge.appspot.com/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@)
+[![Build Status](https://github.com/http4s/http4s-jdk-http-client/workflows/CI/badge.svg?branch=master)](https://github.com/http4s/http4s-jdk-http-client/actions) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_@SCALA_VERSION@) [![javadoc](https://javadoc.io/badge2/org.http4s/http4s-jdk-http-client_2.13/javadoc.svg)](https://javadoc.io/doc/org.http4s/http4s-jdk-http-client_2.13)
 
 ## HTTP client
 
