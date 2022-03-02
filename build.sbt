@@ -67,11 +67,23 @@ ThisBuild / developers := List(
 
 ThisBuild / githubWorkflowJavaVersions := Seq("11", "17").map(JavaSpec.temurin(_))
 ThisBuild / tlCiReleaseBranches := Seq("series/0.7")
-ThisBuild / tlSitePublishBranch := Some("series/0.7")
+// ThisBuild / tlSitePublishBranch := Some("series/0.7")
+ThisBuild / tlSitePublishBranch := Some("doc/versioned-0.7")
 
 lazy val docsSettings =
   Seq(
-    fork := true,
+    tlSiteHeliumConfig ~= {
+      import laika.rewrite._
+      _.site.versions(
+        Versions(
+          currentVersion = Version("0.7.x", "0.7"),
+          olderVersions = Seq(
+            Version("0.5.x", "0.5"),
+            Version("0.4.x", "0.4")
+          )
+        )
+      )
+    },
     mdocVariables ++= Map(
       "HTTP4S_VERSION" -> http4sV,
       "HTTP4S_VERSION_SHORT" -> http4sV.split("\\.").take(2).mkString("."),
