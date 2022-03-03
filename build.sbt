@@ -78,13 +78,14 @@ lazy val docsSettings =
       import laika.rewrite._
       _.site.versions(
         Versions(
-          currentVersion = Version("0.7.x", "0.7"),
+          currentVersion = Version("1.x", "1.x"),
           olderVersions = Seq(
+            Version("0.7.x", "0.7"),
             Version("0.6.x", "0.6.0-M7"),
             Version("0.5.x", "0.5.0"),
             Version("0.4.x", "0.4.0")
           ),
-          renderUnversioned = false
+          renderUnversioned = true
         )
       )
     },
