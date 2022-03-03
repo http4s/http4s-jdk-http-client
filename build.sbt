@@ -65,13 +65,30 @@ ThisBuild / developers := List(
   tlGitHubDev("rossabaker", "Ross A. Baker")
 )
 
+ThisBuild / tlJdkRelease := Some(11)
 ThisBuild / githubWorkflowJavaVersions := Seq("11", "17").map(JavaSpec.temurin(_))
 ThisBuild / tlCiReleaseBranches := Seq("main")
-ThisBuild / tlSitePublishBranch := Some("series/0.7")
+ThisBuild / tlSitePublishBranch := Some("main")
 
 lazy val docsSettings =
   Seq(
-    fork := true,
+    tlSiteApiModule := Some((core / projectID).value),
+    tlSiteApiPackage := Some("org.http4s.jdkhttpclient"),
+    tlSiteHeliumConfig ~= {
+      import laika.rewrite._
+      _.site.versions(
+        Versions(
+          currentVersion = Version("1.x", "1.x"),
+          olderVersions = Seq(
+            Version("0.7.x", "0.7"),
+            Version("0.6.x", "0.6.0-M7"),
+            Version("0.5.x", "0.5.0"),
+            Version("0.4.x", "0.4.0")
+          ),
+          renderUnversioned = true
+        )
+      )
+    },
     mdocVariables ++= Map(
       "HTTP4S_VERSION" -> http4sV,
       "HTTP4S_VERSION_SHORT" -> http4sV.split("\\.").take(2).mkString("."),
