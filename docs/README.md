@@ -17,7 +17,7 @@ following dependency to your `build.sbt`:
 
 ```scala
 libraryDependencies ++= Seq(
-  "org.http4s" %% "http4s-jdk-http-client" % "@SNAPSHOT_VERSION@"
+  "org.http4s" %% "http4s-jdk-http-client" % "@VERSION@"
 )
 ```
 
@@ -186,7 +186,7 @@ val echoServer = BlazeServerBuilder[IO]
   .map(s => s.baseUri.copy(scheme = scheme"ws".some))
 ```
 
-```scala
+```scala mdoc
 echoServer.use { echoUri =>
   webSocket
     .connectHighLevel(WSRequest(echoUri))
