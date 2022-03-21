@@ -17,7 +17,7 @@ following dependency to your `build.sbt`:
 
 ```scala
 libraryDependencies ++= Seq(
-  "org.http4s" %% "http4s-jdk-http-client" % "@SNAPSHOT_VERSION@"
+  "org.http4s" %% "http4s-jdk-http-client" % "@VERSION@"
 )
 ```
 
