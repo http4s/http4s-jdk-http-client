@@ -131,7 +131,7 @@ using an `HttpClient` as above. It is encouraged to use the same `HttpClient`
 to construct a `Client[F]` and a `WSClient[F]`.
 
 ```scala mdoc
-// import org.http4s.client.websocket._
+import org.http4s.client.websocket._
 import org.http4s.jdkhttpclient._
 
 val (http, webSocket) =
@@ -186,7 +186,7 @@ val echoServer = BlazeServerBuilder[IO]
   .map(s => s.baseUri.copy(scheme = scheme"ws".some))
 ```
 
-```scala
+```scala mdoc
 echoServer.use { echoUri =>
   webSocket
     .connectHighLevel(WSRequest(echoUri))
