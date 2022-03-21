@@ -1,0 +1,13 @@
+pull_request_rules:
+- name: automatically merge scala-steward's PRs
+  actions:
+    merge:
+      method: squash
+  conditions:
+  - author=scala-steward
+  - body~=labels:.*semver-patch.*
+  - status-success=Build and Test (ubuntu-latest, 2.12.15, temurin@11)
+  - status-success=Build and Test (ubuntu-latest, 2.13.8, temurin@11)
+  - status-success=Build and Test (ubuntu-latest, 2.13.8, temurin@17)
+  - status-success=Build and Test (ubuntu-latest, 3.1.1, temurin@11)
+  - status-success=Generate Site (ubuntu-latest, 2.13.8, temurin@11)
