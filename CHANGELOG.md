@@ -4,6 +4,21 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v1.0.0-M1 (2022-03-21)
+
+This is the spiritual successor to v0.6.0-M7.
+
+### Breaking changes
+
+* We now use the upstream WebSocket model made public in http4s-1.0.0-M32.
+
+### Dependency updates
+
+* scala-2.13.8, scala-3.1.1
+* cats-effect-3.3.8
+* fs2-3.2.5
+* http4s-1.0.0-M32
+
 ## v0.6.0-M7 (2021-12-09)
 
 ### Dependency updates
