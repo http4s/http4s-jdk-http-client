@@ -20,6 +20,7 @@ lazy val docs = project
 ThisBuild / mergifyStewardConfig := Some(
   MergifyStewardConfig(action = MergifyAction.Merge(method = Some("squash")))
 )
+ThisBuild / mergifyRequiredJobs += "site"
 ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
 val catsV = "2.7.0"
