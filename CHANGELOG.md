@@ -16,7 +16,7 @@ This is the spiritual successor to v0.5.0.
 
 * scala-2.12.15, scala-2.13.8, scala-3.1.1
 * cats-2.7.0
-* cats-effect-3.2.5
+* cats-effect-3.3.8
 * fs2-3.2.5
 * http4s-0.23.11
 
