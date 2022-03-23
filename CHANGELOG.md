@@ -4,6 +4,22 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.7.0 (2022-03-23)
+
+This is the spiritual successor to v0.5.0.
+
+### Breaking changes
+
+* We now use the upstream WebSocket model made public in http4s-0.23.11.
+
+### Dependency updates
+
+* scala-2.12.15, scala-2.13.8, scala-3.1.1
+* cats-2.7.0
+* cats-effect-3.3.8
+* fs2-3.2.5
+* http4s-0.23.11
+
 ## v0.5.0 (2021-07-31)
 
 This release is considered stable.
