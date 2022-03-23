@@ -4,7 +4,7 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
-## v0.7.0 (2022-03-21)
+## v0.7.0 (2022-03-23)
 
 This is the spiritual successor to v0.5.0.
 
