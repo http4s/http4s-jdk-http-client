@@ -1,11 +1,12 @@
 {
   "versions": [
+    { "displayValue": "1.x", "pathSegment": "1.x", "fallbackLink": "/index.html" },
     { "displayValue": "0.7.x", "pathSegment": "0.7", "fallbackLink": "/index.html" },
     { "displayValue": "0.6.x", "pathSegment": "0.6.0-M7", "fallbackLink": "/index.html" },
     { "displayValue": "0.5.x", "pathSegment": "0.5.0", "fallbackLink": "/index.html" },
     { "displayValue": "0.4.x", "pathSegment": "0.4.0", "fallbackLink": "/index.html" }
   ],
   "linkTargets": [
-    { "path": "/index.html", "versions": ["0.7"] }
+    { "path": "/index.html", "versions": ["1.x"] }
   ]
 }
