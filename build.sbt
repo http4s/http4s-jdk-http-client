@@ -34,7 +34,7 @@ val caseInsensitiveV = "1.2.0"
 
 val munitV = "0.7.29"
 val munitCatsEffectV = "1.0.7"
-val javaWebsocketV = "1.5.2"
+val javaWebsocketV = "1.5.3"
 
 val blazeServer = Seq(
   "org.http4s" %% "http4s-blaze-server" % http4sV,
