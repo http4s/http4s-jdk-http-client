@@ -47,13 +47,13 @@ package object jdkhttpclient {
         }; ();
       }
     }((cs, o) =>
-      (o match {
+      o match {
         case Outcome.Succeeded(_) => F.unit
         case Outcome.Errored(e) =>
           F.delay(cs.completeExceptionally(e)).void
         case Outcome.Canceled() =>
           F.delay(cs.cancel(true)).void
-      })
+      }
     )
 
 }
