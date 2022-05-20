@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-// TODO uncomment in the future
-/*
 package org.http4s.jdkhttpclient
 
 import cats.effect._
-import org.http4s.client.ClientRouteTestBattery
+import org.http4s.client.testkit.ClientRouteTestBattery
 
 class JdkHttpClientSpec extends ClientRouteTestBattery("JdkHttpClient") {
-  def clientResource = Resource.liftF(JdkHttpClient.simple[IO])
+  def clientResource = JdkHttpClient.simple[IO]
 }
- */
