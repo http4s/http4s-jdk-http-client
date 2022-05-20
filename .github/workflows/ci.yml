@@ -76,7 +76,7 @@ jobs:
           jdkFile: ${{ steps.download-java-temurin-17.outputs.jdkFile }}
 
       - name: Cache sbt
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.sbt
@@ -173,7 +173,7 @@ jobs:
           jdkFile: ${{ steps.download-java-temurin-17.outputs.jdkFile }}
 
       - name: Cache sbt
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.sbt
@@ -285,7 +285,7 @@ jobs:
           jdkFile: ${{ steps.download-java-temurin-17.outputs.jdkFile }}
 
       - name: Cache sbt
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.sbt
