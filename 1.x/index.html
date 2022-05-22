@@ -182,11 +182,14 @@
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">net</span><span>.{</span><span class="type-name">InetSocketAddress</span><span>, </span><span class="type-name">ProxySelector</span><span>}
 </span><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">net</span><span>.</span><span class="identifier">http</span><span>.</span><span class="type-name">HttpClient</span><span>
 
-</span><span class="keyword">val</span><span> </span><span class="identifier">client0</span><span>: </span><span class="type-name">Resource</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Client</span><span>[</span><span class="type-name">IO</span><span>]] = </span><span class="type-name">Resource</span><span>.</span><span class="identifier">eval</span><span>(</span><span class="type-name">IO</span><span> {
-  </span><span class="type-name">HttpClient</span><span>.</span><span class="identifier">newBuilder</span><span>()
-    .</span><span class="identifier">version</span><span>(</span><span class="type-name">HttpClient</span><span>.</span><span class="type-name">Version</span><span>.</span><span class="type-name">HTTP_2</span><span>)
-    .</span><span class="identifier">proxy</span><span>(</span><span class="type-name">ProxySelector</span><span>.</span><span class="identifier">of</span><span>(</span><span class="keyword">new</span><span> </span><span class="type-name">InetSocketAddress</span><span>(</span><span class="string-literal">&quot;www-proxy&quot;</span><span>, </span><span class="number-literal">8080</span><span>)))
-    .</span><span class="identifier">build</span><span>()
+</span><span class="keyword">val</span><span> </span><span class="identifier">client0</span><span>: </span><span class="type-name">Resource</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Client</span><span>[</span><span class="type-name">IO</span><span>]] = </span><span class="type-name">Resource</span><span>.</span><span class="identifier">eval</span><span>(</span><span class="type-name">IO</span><span>.</span><span class="identifier">executionContext</span><span>.</span><span class="identifier">flatMap</span><span> { </span><span class="identifier">ec</span><span> =&gt;
+  </span><span class="type-name">IO</span><span> {
+    </span><span class="type-name">HttpClient</span><span>.</span><span class="identifier">newBuilder</span><span>()
+      .</span><span class="identifier">version</span><span>(</span><span class="type-name">HttpClient</span><span>.</span><span class="type-name">Version</span><span>.</span><span class="type-name">HTTP_2</span><span>)
+      .</span><span class="identifier">proxy</span><span>(</span><span class="type-name">ProxySelector</span><span>.</span><span class="identifier">of</span><span>(</span><span class="keyword">new</span><span> </span><span class="type-name">InetSocketAddress</span><span>(</span><span class="string-literal">&quot;www-proxy&quot;</span><span>, </span><span class="number-literal">8080</span><span>)))
+      .</span><span class="identifier">executor</span><span>(</span><span class="identifier">ec</span><span>.</span><span class="identifier">execute</span><span>(</span><span class="identifier">_</span><span>))
+      .</span><span class="identifier">build</span><span>()
+  }
 }).</span><span class="identifier">flatMap</span><span>(</span><span class="type-name">JdkHttpClient</span><span>(</span><span class="identifier">_</span><span>))</span></code></pre>
         
         <h3 id="sharing" class="section">Sharing<a class="anchor-link right" href="#sharing"><i class="icofont-laika">&#xef71;</i></a></h3>
@@ -244,8 +247,8 @@
     }
     </span><span class="comment">// in almost all cases, it is better to call `use` instead
 </span><span>    .</span><span class="identifier">allocated</span><span>.</span><span class="identifier">map</span><span>(</span><span class="identifier">_</span><span class="number-literal">._1</span><span>).</span><span class="identifier">unsafeRunSync</span><span>()
-</span><span class="comment">// http: Client[IO] = org.http4s.client.Client$$anon$1@301d6647
-// webSocket: WSClient[IO] = org.http4s.client.websocket.WSClient$$anon$7@5f902081</span></code></pre>
+</span><span class="comment">// http: Client[IO] = org.http4s.client.Client$$anon$1@47ecc2d5
+// webSocket: WSClient[IO] = org.http4s.client.websocket.WSClient$$anon$7@5af37dc3</span></code></pre>
         <p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
         
         <h3 id="overview" class="section">Overview<a class="anchor-link right" href="#overview"><i class="icofont-laika">&#xef71;</i></a></h3>
