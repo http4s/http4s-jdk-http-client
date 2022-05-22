@@ -1,3 +1,5 @@
+import com.typesafe.tools.mima.core._
+
 lazy val root = project
   .in(file("."))
   .enablePlugins(NoPublishPlugin)
@@ -7,7 +9,13 @@ lazy val core = project
   .in(file("core"))
   .settings(
     name := "http4s-jdk-http-client",
-    libraryDependencies ++= coreDeps
+    libraryDependencies ++= coreDeps,
+    mimaBinaryIssueFilters ++= Seq(
+      // package private, due to #641
+      ProblemFilters.exclude[IncompatibleMethTypeProblem](
+        "org.http4s.jdkhttpclient.JdkHttpClient.defaultHttpClient"
+      )
+    )
   )
 
 lazy val docs = project

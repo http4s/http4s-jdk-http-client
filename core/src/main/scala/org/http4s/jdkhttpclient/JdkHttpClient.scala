@@ -252,16 +252,24 @@ object JdkHttpClient {
   def simple[F[_]](implicit F: Async[F]): Resource[F, Client[F]] =
     Resource.eval(defaultHttpClient[F]).flatMap(apply(_))
 
-  private[jdkhttpclient] def defaultHttpClient[F[_]](implicit F: Sync[F]): F[HttpClient] =
-    F.delay {
-      val builder = HttpClient.newBuilder()
-      // workaround for https://github.com/http4s/http4s-jdk-http-client/issues/200
-      if (Runtime.version().feature() == 11) {
-        val params = javax.net.ssl.SSLContext.getDefault().getDefaultSSLParameters()
-        params.setProtocols(params.getProtocols().filter(_ != "TLSv1.3"))
-        builder.sslParameters(params)
+  private[jdkhttpclient] def defaultHttpClient[F[_]](implicit F: Async[F]): F[HttpClient] =
+    F.executionContext.flatMap { ec =>
+      F.delay {
+        val builder = HttpClient.newBuilder()
+        // workaround for https://github.com/http4s/http4s-jdk-http-client/issues/200
+        if (Runtime.version().feature() == 11) {
+          val params = javax.net.ssl.SSLContext.getDefault().getDefaultSSLParameters()
+          params.setProtocols(params.getProtocols().filter(_ != "TLSv1.3"))
+          builder.sslParameters(params)
+        }
+
+        ec match {
+          case exec: util.concurrent.Executor => builder.executor(exec)
+          case _ => builder.executor(ec.execute(_))
+        }
+
+        builder.build()
       }
-      builder.build()
     }
 
   def convertHttpVersionFromHttp4s[F[_]](
