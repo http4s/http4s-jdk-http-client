@@ -63,11 +63,14 @@ in an effect, as it creates a default executor and SSL context:
 import java.net.{InetSocketAddress, ProxySelector}
 import java.net.http.HttpClient
 
-val client0: Resource[IO, Client[IO]] = Resource.eval(IO {
-  HttpClient.newBuilder()
-    .version(HttpClient.Version.HTTP_2)
-    .proxy(ProxySelector.of(new InetSocketAddress("www-proxy", 8080)))
-    .build()
+val client0: Resource[IO, Client[IO]] = Resource.eval(IO.executionContext.flatMap { ec =>
+  IO {
+    HttpClient.newBuilder()
+      .version(HttpClient.Version.HTTP_2)
+      .proxy(ProxySelector.of(new InetSocketAddress("www-proxy", 8080)))
+      .executor(ec.execute(_))
+      .build()
+  }
 }).flatMap(JdkHttpClient(_))
 ```
 
