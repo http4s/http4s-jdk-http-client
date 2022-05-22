@@ -16,4 +16,15 @@
 
 package org.http4s
 
-package object jdkhttpclient // vestigial package object for bincompat
+import java.util.concurrent.CompletableFuture
+
+import cats.effect._
+
+package object jdkhttpclient {
+
+  @deprecated("Retained for bincompat", "0.7.1")
+  private[jdkhttpclient] def fromCompletableFuture[F[_], A](
+      fcs: F[CompletableFuture[A]]
+  )(implicit F: Async[F]): F[A] = F.fromCompletableFuture(fcs)
+
+}
