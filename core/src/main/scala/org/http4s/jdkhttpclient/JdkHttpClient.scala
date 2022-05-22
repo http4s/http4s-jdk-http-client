@@ -265,7 +265,7 @@ object JdkHttpClient {
 
         ec match {
           case exec: util.concurrent.Executor => builder.executor(exec)
-          case _ => builder.executor(ec.execute)
+          case _ => builder.executor(ec.execute(_))
         }
 
         builder.build()
