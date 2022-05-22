@@ -16,44 +16,15 @@
 
 package org.http4s
 
-import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionException
 
 import cats.effect._
-import cats.syntax.all._
 
 package object jdkhttpclient {
 
-  /** Convert a [[java.util.concurrent.CompletableFuture]] into an effect type.
-    *
-    * If the effect type terminates in cancellation or error, the underlying
-    * [[java.util.concurrent.CompletableFuture]] is terminated in an analogous manner. This is
-    * important, otherwise a resource leak may occur.
-    */
-  // TODO upstream?
+  @deprecated("Retained for bincompat", "0.7.1")
   private[jdkhttpclient] def fromCompletableFuture[F[_], A](
       fcs: F[CompletableFuture[A]]
-  )(implicit F: Async[F]): F[A] =
-    F.bracketCase(fcs) { cs =>
-      F.async_[A] { cb =>
-        cs.handle[Unit] { (result, err) =>
-          err match {
-            case null => cb(Right(result))
-            case _: CancellationException => ()
-            case ex: CompletionException if ex.getCause ne null => cb(Left(ex.getCause))
-            case ex => cb(Left(ex))
-          }
-        }; ();
-      }
-    }((cs, o) =>
-      o match {
-        case Outcome.Succeeded(_) => F.unit
-        case Outcome.Errored(e) =>
-          F.delay(cs.completeExceptionally(e)).void
-        case Outcome.Canceled() =>
-          F.delay(cs.cancel(true)).void
-      }
-    )
+  )(implicit F: Async[F]): F[A] = F.fromCompletableFuture(fcs)
 
 }

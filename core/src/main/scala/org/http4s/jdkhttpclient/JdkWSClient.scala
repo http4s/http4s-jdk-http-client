@@ -99,7 +99,7 @@ object JdkWSClient {
                 handleReceive(error.asLeft); ()
               }
             }
-            webSocket <- fromCompletableFuture(
+            webSocket <- F.fromCompletableFuture(
               F.delay(wsBuilder.buildAsync(URI.create(req.uri.renderString), wsListener))
             )
             sendSem <- Semaphore[F](1L)
@@ -107,7 +107,7 @@ object JdkWSClient {
         } { case (webSocket, queue, _, _) =>
           for {
             isOutputOpen <- F.delay(!webSocket.isOutputClosed)
-            closeOutput = fromCompletableFuture(
+            closeOutput = F.fromCompletableFuture(
               F.delay(webSocket.sendClose(JWebSocket.NORMAL_CLOSURE, ""))
             )
             _ <-
@@ -133,13 +133,14 @@ object JdkWSClient {
         .map { case (webSocket, queue, closedDef, sendSem) =>
           // sending will throw if done in parallel
           val rawSend = (wsf: WSFrame) =>
-            fromCompletableFuture(F.delay(wsf match {
+            F.fromCompletableFuture(F.delay(wsf match {
               case WSFrame.Text(text, last) => webSocket.sendText(text, last)
               case WSFrame.Binary(data, last) => webSocket.sendBinary(data.toByteBuffer, last)
               case WSFrame.Ping(data) => webSocket.sendPing(data.toByteBuffer)
               case WSFrame.Pong(data) => webSocket.sendPong(data.toByteBuffer)
               case WSFrame.Close(statusCode, reason) => webSocket.sendClose(statusCode, reason)
-            })).void
+            }))
+              .void
           new WSConnection[F] {
             override def send(wsf: WSFrame) =
               sendSem.permit.use(_ => rawSend(wsf))
