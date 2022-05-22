@@ -11,8 +11,8 @@ lazy val core = project
     name := "http4s-jdk-http-client",
     libraryDependencies ++= coreDeps,
     mimaBinaryIssueFilters ++= Seq(
+      // package private, due to #641
       ProblemFilters.exclude[IncompatibleMethTypeProblem](
-        // package private, due to #641
         "org.http4s.jdkhttpclient.JdkHttpClient.defaultHttpClient"
       )
     )
