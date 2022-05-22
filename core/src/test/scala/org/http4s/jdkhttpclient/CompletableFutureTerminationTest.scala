@@ -114,7 +114,7 @@ final class CompletableFutureTerminationTest extends CatsEffectSuite {
                   // releasing any resources being held. If not, then it
                   // will still receive bytes, meaning there is a resource
                   // leak.
-                  fromCompletableFuture(IO(cf)).void
+                  IO.fromCompletableFuture(IO(cf)).void
                     .timeoutTo(duration, stallServer.release) *>
                   // After the timeout has triggered, wait for the observation to complete.
                   fiber.join *>
