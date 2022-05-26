@@ -23,12 +23,13 @@ import scala.concurrent.duration._
 
 import cats.effect._
 import cats.implicits._
+import com.comcast.ip4s._
 import fs2.Stream
 import munit.CatsEffectSuite
 import org.http4s._
 import org.http4s.dsl.io._
 import org.http4s.implicits._
-import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.client.websocket._
 import org.http4s.websocket.WebSocketFrame
 import org.java_websocket.WebSocket
@@ -41,14 +42,15 @@ class JdkWSClientSpec extends CatsEffectSuite {
 
   val webSocket = JdkWSClient.simple[IO]
   val echoServer: Resource[IO, Uri] =
-    BlazeServerBuilder[IO]
-      .bindAny()
+    EmberServerBuilder
+      .default[IO]
+      .withPort(port"0")
       .withHttpWebSocketApp { wsb =>
         HttpRoutes
           .of[IO] { case GET -> Root => wsb.build(identity) }
           .orNotFound
       }
-      .resource
+      .build
       .map(s => httpToWsUri(s.baseUri))
 
   val webSocketFixture = ResourceFixture(webSocket)
@@ -186,8 +188,9 @@ class JdkWSClientSpec extends CatsEffectSuite {
     Ref[IO]
       .of(None: Option[Headers])
       .flatMap { ref =>
-        BlazeServerBuilder[IO]
-          .bindAny()
+        EmberServerBuilder
+          .default[IO]
+          .withPort(port"0")
           .withHttpWebSocketApp { wsb =>
             HttpRoutes
               .of[IO] { case r @ GET -> Root =>
@@ -195,7 +198,7 @@ class JdkWSClientSpec extends CatsEffectSuite {
               }
               .orNotFound
           }
-          .resource
+          .build
           .use { server =>
             webSocket
               .connect(WSRequest(httpToWsUri(server.baseUri)).withHeaders(sentHeaders))

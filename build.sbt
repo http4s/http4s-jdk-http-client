@@ -23,7 +23,7 @@ lazy val docs = project
   .enablePlugins(Http4sOrgSitePlugin)
   .dependsOn(core)
   .settings(docsSettings)
-  .settings(libraryDependencies ++= blazeServer)
+  .settings(libraryDependencies ++= emberServer)
 
 ThisBuild / mergifyStewardConfig := Some(
   MergifyStewardConfig(action = MergifyAction.Merge(method = Some("squash")))
@@ -44,8 +44,8 @@ val munitV = "0.7.29"
 val munitCatsEffectV = "1.0.7"
 val javaWebsocketV = "1.5.3"
 
-val blazeServer = Seq(
-  "org.http4s" %% "http4s-blaze-server" % http4sV,
+val emberServer = Seq(
+  "org.http4s" %% "http4s-ember-server" % http4sV,
   "org.http4s" %% "http4s-dsl" % http4sV
 )
 
@@ -62,7 +62,7 @@ val coreDeps = Seq(
   "org.scodec" %% "scodec-bits" % scodecV,
   "org.typelevel" %% "vault" % vaultV,
   "org.typelevel" %% "case-insensitive" % caseInsensitiveV
-) ++ (blazeServer ++ Seq(
+) ++ (emberServer ++ Seq(
   "org.java-websocket" % "Java-WebSocket" % javaWebsocketV,
   "org.scalameta" %% "munit" % munitV,
   "org.typelevel" %% "munit-cats-effect-3" % munitCatsEffectV

@@ -29,10 +29,11 @@ import cats.data._
 import cats.effect._
 import cats.effect.std.Semaphore
 import cats.syntax.all._
+import com.comcast.ip4s._
 import munit.CatsEffectSuite
 import org.http4s._
 import org.http4s.server._
-import org.http4s.blaze.server._
+import org.http4s.ember.server._
 
 final class CompletableFutureTerminationTest extends CatsEffectSuite {
   import CompletableFutureTerminationTest._
@@ -175,7 +176,8 @@ object CompletableFutureTerminationTest {
       semaphore: Semaphore[F],
       gotRequest: Semaphore[F]
   )(implicit F: Async[F]): Resource[F, Server] =
-    BlazeServerBuilder[F]
+    EmberServerBuilder
+      .default[F]
       .withHttpApp(
         Kleisli(
           Function.const(
@@ -184,8 +186,8 @@ object CompletableFutureTerminationTest {
           )
         )
       )
-      .bindAny()
-      .resource
+      .withPort(port"0")
+      .build
 
   /** Just a scala wrapper class to make it easier to generate a [[java.util.function.BiFunction]].
     */
