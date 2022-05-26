@@ -67,18 +67,25 @@ object JdkHttpClient {
       convertHttpVersionFromHttp4s[F](req.httpVersion).map { version =>
         val rb = HttpRequest.newBuilder
           .method(
-            req.method.name, {
-              val publisher = FlowAdapters.toFlowPublisher(
-                StreamUnicastPublisher(req.body.chunks.map(_.toByteBuffer), dispatcher)
-              )
-              if (req.isChunked)
-                BodyPublishers.fromPublisher(publisher)
-              else
-                req.contentLength match {
-                  case Some(length) if length > 0L =>
-                    BodyPublishers.fromPublisher(publisher, length)
-                  case _ => BodyPublishers.noBody
-                }
+            req.method.name,
+            req.entity match {
+              case Entity.Empty => BodyPublishers.noBody()
+              case Entity.Strict(chunk) => // TODO
+                val bv = chunk.toByteVector
+                BodyPublishers.ofInputStream(() => bv.toInputStream)
+              case Entity.Default(body, _) =>
+                val publisher = FlowAdapters.toFlowPublisher(
+                  StreamUnicastPublisher(body.chunks.map(_.toByteBuffer), dispatcher)
+                )
+
+                if (req.isChunked)
+                  BodyPublishers.fromPublisher(publisher)
+                else
+                  req.contentLength match {
+                    case Some(length) if length > 0L =>
+                      BodyPublishers.fromPublisher(publisher, length)
+                    case _ => BodyPublishers.noBody
+                  }
             }
           )
           .uri(URI.create(req.uri.renderString))
