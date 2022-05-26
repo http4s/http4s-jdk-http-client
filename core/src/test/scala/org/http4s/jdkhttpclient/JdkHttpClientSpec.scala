@@ -14,14 +14,29 @@
  * limitations under the License.
  */
 
-// TODO uncomment in the future
-/*
 package org.http4s.jdkhttpclient
 
 import cats.effect._
-import org.http4s.client.ClientRouteTestBattery
+import org.http4s.Header
+import org.http4s.Request
+import org.http4s.Uri
+import org.http4s.client.testkit.ClientRouteTestBattery
+import org.typelevel.ci._
+import org.http4s.client.testkit.testroutes.GetRoutes
 
 class JdkHttpClientSpec extends ClientRouteTestBattery("JdkHttpClient") {
-  def clientResource = Resource.liftF(JdkHttpClient.simple[IO])
+  def clientResource = JdkHttpClient.simple[IO]
+
+  // regression test for https://github.com/http4s/http4s-jdk-http-client/issues/395
+  test("Don't error with empty body and explicit Content-Length: 0") {
+    serverClient().flatMap { case (server, client) =>
+      val address = server().addresses.head
+      val path = GetRoutes.SimplePath
+      val uri = Uri.fromString(s"http://$address$path").toOption.get
+      val req: Request[IO] = Request(uri = uri)
+        .putHeaders(Header.Raw(ci"Content-Length", "0"))
+      val body = client().expect[String](req)
+      body.assertEquals("simple path")
+    }
+  }
 }
- */
