@@ -35,18 +35,19 @@ val catsV = "2.7.0"
 val catsEffectV = "3.3.12"
 val fs2V = "3.2.7"
 val scodecV = "1.1.31"
-val http4sV = "1.0.0-M32"
+val http4sV = "1.0.0-M33"
 val reactiveStreamsV = "1.0.3"
 val vaultV = "3.1.0"
 val caseInsensitiveV = "1.2.0"
 
+val http4sBlazeV = "1.0.0-M33"
 val munitV = "0.7.29"
 val munitCatsEffectV = "1.0.7"
 val javaWebsocketV = "1.5.3"
 
 val blazeServer = Seq(
-  "org.http4s" %% "http4s-blaze-server" % http4sV,
-  "org.http4s" %% "http4s-dsl" % http4sV
+  "org.http4s" %% "http4s-blaze-server" % http4sBlazeV,
+  "org.http4s" %% "http4s-dsl" % http4sBlazeV
 )
 
 val coreDeps = Seq(
