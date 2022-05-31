@@ -64,6 +64,7 @@ val coreDeps = Seq(
   "org.typelevel" %% "vault" % vaultV,
   "org.typelevel" %% "case-insensitive" % caseInsensitiveV
 ) ++ (blazeServer ++ Seq(
+  "org.http4s" %% "http4s-client-testkit" % http4sV,
   "org.java-websocket" % "Java-WebSocket" % javaWebsocketV,
   "org.scalameta" %% "munit" % munitV,
   "org.typelevel" %% "munit-cats-effect-3" % munitCatsEffectV
