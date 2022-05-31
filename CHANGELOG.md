@@ -4,6 +4,19 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v1.0.0-M2 (2022-05-31)
+
+### Improvements
+
+* Optimizations via new entity model. [#644](https://github.com/http4s/http4s-jdk-http-client/pull/644)
+* Use Cats Effect EC as `HttpClient` executor. [#641](https://github.com/http4s/http4s-jdk-http-client/pull/641)
+
+### Dependency updates
+
+* cats-effect-3.3.12
+* fs2-3.2.7
+* **http4s-1.0.0-M33**
+
 ## v1.0.0-M1 (2022-03-23)
 
 This is the spiritual successor to v0.6.0-M7.
