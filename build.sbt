@@ -26,7 +26,10 @@ lazy val docs = project
   .settings(libraryDependencies ++= blazeServer)
 
 ThisBuild / mergifyStewardConfig := Some(
-  MergifyStewardConfig(action = MergifyAction.Merge(method = Some("squash")))
+  MergifyStewardConfig(
+    author = "http4s-steward",
+    action = MergifyAction.Merge(method = Some("squash"))
+  )
 )
 ThisBuild / mergifyRequiredJobs += "site"
 ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
