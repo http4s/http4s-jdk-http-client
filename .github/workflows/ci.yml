@@ -103,6 +103,10 @@ jobs:
         if: matrix.java == 'temurin@11'
         run: sbt '++${{ matrix.scala }}' doc
 
+      - name: Check scalafix lints
+        if: matrix.java == 'temurin@11' && !startsWith(matrix.scala, '3.')
+        run: sbt '++${{ matrix.scala }}' 'scalafixAll --check'
+
       - name: Check unused compile dependencies
         if: matrix.java == 'temurin@11'
         run: sbt '++${{ matrix.scala }}' unusedCompileDependenciesTest
