@@ -16,14 +16,6 @@
 
 package org.http4s.jdkhttpclient
 
-import java.io.IOException
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.{WebSocket => JWebSocket}
-import java.nio.ByteBuffer
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionStage
-
 import cats._
 import cats.effect._
 import cats.effect.std.Dispatcher
@@ -37,6 +29,14 @@ import org.http4s.client.websocket._
 import org.http4s.internal.unsafeToCompletionStage
 import org.typelevel.ci._
 import scodec.bits.ByteVector
+
+import java.io.IOException
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.{WebSocket => JWebSocket}
+import java.nio.ByteBuffer
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionStage
 
 /** A `WSClient` wrapper for the JDK 11+ websocket client. It will reply to Pongs with Pings even in
   * "low-level" mode. Custom (non-GET) HTTP methods are ignored.
