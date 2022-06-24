@@ -16,9 +16,9 @@
 
 package org.http4s
 
-import java.util.concurrent.CompletableFuture
-
 import cats.effect._
+
+import java.util.concurrent.CompletableFuture
 
 package object jdkhttpclient {
 
