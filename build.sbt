@@ -48,7 +48,7 @@ val munitCatsEffectV = "1.0.7"
 val javaWebsocketV = "1.5.3"
 
 val blazeServer = Seq(
-  "org.http4s" %% "http4s-blaze-server" % http4sV,
+  "org.http4s" %% "http4s-blaze-server" % "0.23.12",
   "org.http4s" %% "http4s-dsl" % http4sV
 )
 
