@@ -20,8 +20,8 @@ import cats.data._
 import cats.effect._
 import cats.syntax.all._
 import org.http4s._
-import org.http4s.client._
 import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.client._
 import org.http4s.syntax.all._
 
 // This is a *manual* test for the body leak fixed in #335

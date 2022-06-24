@@ -9,9 +9,9 @@ name: Continuous Integration
 
 on:
   pull_request:
-    branches: ['**']
+    branches: ['**', '!update/**', '!pr/**']
   push:
-    branches: ['**']
+    branches: ['**', '!update/**', '!pr/**']
     tags: [v*]
 
 env:
@@ -29,10 +29,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        scala: [2.13.8, 3.1.2]
+        scala: [2.13.8, 3.1.3]
         java: [temurin@11, temurin@17]
         exclude:
-          - scala: 3.1.2
+          - scala: 3.1.3
             java: temurin@17
     runs-on: ${{ matrix.os }}
     steps:
@@ -102,6 +102,10 @@ jobs:
       - name: Generate API documentation
         if: matrix.java == 'temurin@11'
         run: sbt '++${{ matrix.scala }}' doc
+
+      - name: Check scalafix lints
+        if: matrix.java == 'temurin@11' && !startsWith(matrix.scala, '3.')
+        run: sbt '++${{ matrix.scala }}' 'scalafixAll --check'
 
       - name: Check unused compile dependencies
         if: matrix.java == 'temurin@11'
@@ -202,12 +206,12 @@ jobs:
           tar xf targets.tar
           rm targets.tar
 
-      - name: Download target directories (3.1.2)
+      - name: Download target directories (3.1.3)
         uses: actions/download-artifact@v2
         with:
-          name: target-${{ matrix.os }}-${{ matrix.java }}-3.1.2
+          name: target-${{ matrix.os }}-${{ matrix.java }}-3.1.3
 
-      - name: Inflate target directories (3.1.2)
+      - name: Inflate target directories (3.1.3)
         run: |
           tar xf targets.tar
           rm targets.tar

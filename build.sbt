@@ -34,10 +34,10 @@ ThisBuild / mergifyStewardConfig := Some(
 ThisBuild / mergifyRequiredJobs += "site"
 ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
-val catsV = "2.7.0"
+val catsV = "2.8.0"
 val catsEffectV = "3.3.12"
-val fs2V = "3.2.7"
-val scodecV = "1.1.33"
+val fs2V = "3.2.8"
+val scodecV = "1.1.34"
 val http4sV = "1.0.0-M33"
 val reactiveStreamsV = "1.0.4"
 val vaultV = "3.2.1"
@@ -74,7 +74,7 @@ val coreDeps = Seq(
 )).map(_ % Test)
 
 val scala213 = "2.13.8"
-ThisBuild / crossScalaVersions := Seq(scala213, "3.1.2")
+ThisBuild / crossScalaVersions := Seq(scala213, "3.1.3")
 ThisBuild / scalaVersion := scala213
 ThisBuild / tlBaseVersion := "1.0"
 ThisBuild / startYear := Some(2019)

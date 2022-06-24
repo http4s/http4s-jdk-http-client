@@ -16,13 +16,13 @@
 
 package org.http4s.jdkhttpclient
 
-import javax.net.ssl.SSLHandshakeException
-
 import cats.effect._
 import cats.syntax.all._
 import munit.CatsEffectSuite
-import org.http4s.implicits._
 import org.http4s.client.websocket._
+import org.http4s.implicits._
+
+import javax.net.ssl.SSLHandshakeException
 
 class DeadlockWorkaround extends CatsEffectSuite {
 

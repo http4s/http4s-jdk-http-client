@@ -20,12 +20,13 @@ import cats.effect._
 import org.http4s.Header
 import org.http4s.Request
 import org.http4s.Uri
+import org.http4s.client.Client
 import org.http4s.client.testkit.ClientRouteTestBattery
-import org.typelevel.ci._
 import org.http4s.client.testkit.testroutes.GetRoutes
+import org.typelevel.ci._
 
 class JdkHttpClientSpec extends ClientRouteTestBattery("JdkHttpClient") {
-  def clientResource = JdkHttpClient.simple[IO]
+  def clientResource: Resource[IO, Client[IO]] = JdkHttpClient.simple[IO]
 
   // regression test for https://github.com/http4s/http4s-jdk-http-client/issues/395
   test("Don't error with empty body and explicit Content-Length: 0") {
