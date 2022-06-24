@@ -16,17 +16,6 @@
 
 package org.http4s.jdkhttpclient
 
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpRequest.BodyPublishers
-import java.net.http.HttpResponse
-import java.net.http.HttpResponse.BodyHandlers
-import java.nio.ByteBuffer
-import java.util
-import java.util.concurrent.Flow
-import scala.jdk.CollectionConverters._
-
 import cats._
 import cats.effect._
 import cats.effect.std.Dispatcher
@@ -46,6 +35,17 @@ import org.http4s.Status
 import org.http4s.client.Client
 import org.reactivestreams.FlowAdapters
 import org.typelevel.ci.CIString
+
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpRequest.BodyPublishers
+import java.net.http.HttpResponse
+import java.net.http.HttpResponse.BodyHandlers
+import java.nio.ByteBuffer
+import java.util
+import java.util.concurrent.Flow
+import scala.jdk.CollectionConverters._
 
 object JdkHttpClient {
 
