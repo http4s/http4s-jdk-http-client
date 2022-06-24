@@ -27,7 +27,7 @@ lazy val docs = project
 
 ThisBuild / mergifyStewardConfig := Some(
   MergifyStewardConfig(
-    author = "http4s-steward",
+    author = "http4s-steward[bot]",
     action = MergifyAction.Merge(method = Some("squash"))
   )
 )
