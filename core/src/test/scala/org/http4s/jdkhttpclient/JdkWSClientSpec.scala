@@ -16,20 +16,15 @@
 
 package org.http4s.jdkhttpclient
 
-import java.net.InetSocketAddress
-import java.nio.ByteBuffer
-
-import scala.concurrent.duration._
-
 import cats.effect._
 import cats.implicits._
 import fs2.Stream
 import munit.CatsEffectSuite
 import org.http4s._
-import org.http4s.dsl.io._
-import org.http4s.implicits._
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.client.websocket._
+import org.http4s.dsl.io._
+import org.http4s.implicits._
 import org.http4s.websocket.WebSocketFrame
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
@@ -37,9 +32,13 @@ import org.java_websocket.server.WebSocketServer
 import org.typelevel.ci._
 import scodec.bits.ByteVector
 
+import java.net.InetSocketAddress
+import java.nio.ByteBuffer
+import scala.concurrent.duration._
+
 class JdkWSClientSpec extends CatsEffectSuite {
 
-  val webSocket = JdkWSClient.simple[IO]
+  val webSocket: Resource[IO, WSClient[IO]] = JdkWSClient.simple[IO]
   val echoServer: Resource[IO, Uri] =
     BlazeServerBuilder[IO]
       .bindAny()
@@ -51,8 +50,10 @@ class JdkWSClientSpec extends CatsEffectSuite {
       .resource
       .map(s => httpToWsUri(s.baseUri))
 
-  val webSocketFixture = ResourceFixture(webSocket)
-  val webSocketEchoFixture = ResourceFixture((webSocket, echoServer).tupled)
+  val webSocketFixture: SyncIO[FunFixture[WSClient[IO]]] =
+    ResourceFixture(webSocket)
+  val webSocketEchoFixture: SyncIO[FunFixture[(WSClient[IO], Uri)]] =
+    ResourceFixture((webSocket, echoServer).tupled)
 
   webSocketEchoFixture.test("send and receive frames in low-level mode") {
     case (webSocket, echoUri) =>
