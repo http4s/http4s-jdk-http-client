@@ -279,21 +279,41 @@
     }
     </span><span class="comment">// in almost all cases, it is better to call `use` instead
 </span><span>    .</span><span class="identifier">allocated</span><span>.</span><span class="identifier">map</span><span>(</span><span class="identifier">_</span><span class="number-literal">._1</span><span>).</span><span class="identifier">unsafeRunSync</span><span>()
-</span><span class="comment">// http: Client[IO] = org.http4s.client.Client$$anon$3@1fb62656
-// webSocket: WSClient[IO] = org.http4s.client.websocket.WSClient$$anon$7@4b010a6b</span></code></pre>
+</span><span class="comment">// http: Client[IO] = org.http4s.client.Client$$anon$3@58cde792
+// webSocket: WSClient[IO] = org.http4s.client.websocket.WSClient$$anon$7@ad81588</span></code></pre>
         <p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
         
         <h3 id="overview" class="section">Overview<a class="anchor-link right" href="#overview"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>We have the following websocket frame hierarchy:</p>
         <ul>
-          <li><code>WSFrame</code>
-           - <code>WSControlFrame</code>
-               - <code>WSFrame.Close</code>
-               - <code>WSFrame.Ping</code>
-               - <code>WSFrame.Pong</code>
-           - <code>WSDataFrame</code>
-               - <code>WSFrame.Text</code>
-               - <code>WSFrame.Binary</code></li>
+          <li>
+            <p><code>WSFrame</code></p>
+            <ul>
+              <li>
+                <p><code>WSControlFrame</code></p>
+                <ul>
+                  <li><code>WSFrame.Close</code></li>
+                </ul>
+                <ul>
+                  <li><code>WSFrame.Ping</code></li>
+                </ul>
+                <ul>
+                  <li><code>WSFrame.Pong</code></li>
+                </ul>
+              </li>
+            </ul>
+            <ul>
+              <li>
+                <p><code>WSDataFrame</code></p>
+                <ul>
+                  <li><code>WSFrame.Text</code></li>
+                </ul>
+                <ul>
+                  <li><code>WSFrame.Binary</code></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
         </ul>
         <p>There are two connection modes: &quot;low-level&quot; and &quot;high-level&quot;. Both manage the lifetime of a
         websocket connection via a <a href="https://typelevel.org/cats-effect/docs/std/resource"><code>Resource</code></a>.
