@@ -4,6 +4,13 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v1.0.0-M3 (2022-07-07)
+
+### Dependency updates
+
+* cats-2.8.0
+* **http4s-1.0.0-M34**
+
 ## v1.0.0-M2 (2022-05-31)
 
 ### Improvements
