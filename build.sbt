@@ -43,7 +43,7 @@ val reactiveStreamsV = "1.0.4"
 val vaultV = "3.2.1"
 val caseInsensitiveV = "1.2.0"
 
-val http4sBlazeV = "1.0.0-M34"
+val http4sBlazeV = "1.0.0-M35"
 val munitV = "0.7.29"
 val munitCatsEffectV = "1.0.7"
 val javaWebsocketV = "1.5.3"
