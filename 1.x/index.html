@@ -184,7 +184,7 @@
         <ul>
           <li>Requires Java 11 or greater</li>
           <li>Built for Scala 2.13 and 3</li>
-          <li>Works with http4s-client-1.0.0-M34</li>
+          <li>Works with http4s-client-1.0.0-M35</li>
         </ul>
         <div class="callout warning">
           <i class="icofont-laika">&#xf026;</i>
@@ -279,8 +279,8 @@
     }
     </span><span class="comment">// in almost all cases, it is better to call `use` instead
 </span><span>    .</span><span class="identifier">allocated</span><span>.</span><span class="identifier">map</span><span>(</span><span class="identifier">_</span><span class="number-literal">._1</span><span>).</span><span class="identifier">unsafeRunSync</span><span>()
-</span><span class="comment">// http: Client[IO] = org.http4s.client.Client$$anon$3@2219f961
-// webSocket: WSClient[IO] = org.http4s.client.websocket.WSClient$$anon$7@6798a49d</span></code></pre>
+</span><span class="comment">// http: Client[IO] = org.http4s.client.Client$$anon$3@6945900e
+// webSocket: WSClient[IO] = org.http4s.client.websocket.WSClient$$anon$7@71ae7b01</span></code></pre>
         <p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
         
         <h3 id="overview" class="section">Overview<a class="anchor-link right" href="#overview"><i class="icofont-laika">&#xef71;</i></a></h3>
