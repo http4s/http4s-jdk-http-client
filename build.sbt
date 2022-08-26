@@ -26,18 +26,21 @@ lazy val docs = project
   .settings(libraryDependencies ++= emberServer)
 
 ThisBuild / mergifyStewardConfig := Some(
-  MergifyStewardConfig(action = MergifyAction.Merge(method = Some("squash")))
+  MergifyStewardConfig(
+    author = "http4s-steward[bot]",
+    action = MergifyAction.Merge(method = Some("squash"))
+  )
 )
 ThisBuild / mergifyRequiredJobs += "site"
 ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
-val catsV = "2.7.0"
-val catsEffectV = "3.3.12"
-val fs2V = "3.2.7"
-val scodecV = "1.1.31"
-val http4sV = "0.23.12"
-val reactiveStreamsV = "1.0.3"
-val vaultV = "3.1.0"
+val catsV = "2.8.0"
+val catsEffectV = "3.3.14"
+val fs2V = "3.2.12"
+val scodecV = "1.1.34"
+val http4sV = "0.23.15"
+val reactiveStreamsV = "1.0.4"
+val vaultV = "3.2.1"
 val caseInsensitiveV = "1.2.0"
 
 val munitV = "0.7.29"
@@ -70,7 +73,7 @@ val coreDeps = Seq(
 )).map(_ % Test)
 
 val scala213 = "2.13.8"
-ThisBuild / crossScalaVersions := Seq("2.12.15", scala213, "3.1.2")
+ThisBuild / crossScalaVersions := Seq("2.12.16", scala213, "3.1.3")
 ThisBuild / scalaVersion := scala213
 ThisBuild / tlBaseVersion := "0.7"
 ThisBuild / startYear := Some(2019)
