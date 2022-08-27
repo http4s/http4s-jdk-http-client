@@ -70,9 +70,8 @@ object JdkHttpClient {
             req.method.name,
             req.entity match {
               case Entity.Empty => BodyPublishers.noBody()
-              case Entity.Strict(chunk) =>
-                val slice = chunk.toArraySlice
-                BodyPublishers.ofByteArray(slice.values, slice.offset, slice.length)
+              case Entity.Strict(bytes) =>
+                BodyPublishers.ofInputStream(() => bytes.toInputStream)
               case Entity.Default(body, _) =>
                 val publisher = FlowAdapters.toFlowPublisher(
                   StreamUnicastPublisher(body.chunks.map(_.toByteBuffer), dispatcher)
