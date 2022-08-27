@@ -4,6 +4,12 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v1.0.0-M5 (2022-08-27)
+
+### Dependency updates
+
+* **http4s-1.0.0-M36**
+
 ## v1.0.0-M4 (2022-07-29)
 
 ### Dependency updates
