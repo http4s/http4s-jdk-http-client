@@ -38,19 +38,19 @@ val catsV = "2.8.0"
 val catsEffectV = "3.3.14"
 val fs2V = "3.2.12"
 val scodecV = "1.1.34"
-val http4sV = "1.0.0-M35"
+val http4sV = "1.0.0-M36"
 val reactiveStreamsV = "1.0.4"
 val vaultV = "3.2.1"
 val caseInsensitiveV = "1.3.0"
 
-val http4sBlazeV = "1.0.0-M35"
+val http4sBlazeV = "1.0-37710b7-SNAPSHOT"
 val munitV = "0.7.29"
 val munitCatsEffectV = "1.0.7"
 val javaWebsocketV = "1.5.3"
 
 val blazeServer = Seq(
   "org.http4s" %% "http4s-blaze-server" % http4sBlazeV,
-  "org.http4s" %% "http4s-dsl" % http4sBlazeV
+  "org.http4s" %% "http4s-dsl" % http4sV
 )
 
 val coreDeps = Seq(
@@ -88,6 +88,8 @@ ThisBuild / tlJdkRelease := Some(11)
 ThisBuild / githubWorkflowJavaVersions := Seq("11", "17").map(JavaSpec.temurin(_))
 ThisBuild / tlCiReleaseBranches := Seq("main")
 ThisBuild / tlSitePublishBranch := Some("main")
+
+ThisBuild / resolvers += "SOSSS".at("https://s01.oss.sonatype.org/content/repositories/snapshots")
 
 lazy val docsSettings =
   Seq(
