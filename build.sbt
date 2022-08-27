@@ -41,7 +41,7 @@ val scodecV = "1.1.34"
 val http4sV = "0.23.15"
 val reactiveStreamsV = "1.0.4"
 val vaultV = "3.2.1"
-val caseInsensitiveV = "1.2.0"
+val caseInsensitiveV = "1.3.0"
 
 val munitV = "0.7.29"
 val munitCatsEffectV = "1.0.7"
