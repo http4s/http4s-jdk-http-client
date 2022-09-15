@@ -40,7 +40,7 @@ val fs2V = "3.3.0"
 val scodecV = "1.1.34"
 val http4sV = "1.0.0-M36"
 val reactiveStreamsV = "1.0.4"
-val vaultV = "3.2.1"
+val vaultV = "3.3.0"
 val caseInsensitiveV = "1.3.0"
 
 val http4sBlazeV = "1.0-37710b7-SNAPSHOT"
