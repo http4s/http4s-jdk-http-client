@@ -38,14 +38,14 @@ val catsV = "2.8.0"
 val catsEffectV = "3.3.14"
 val fs2V = "3.3.0"
 val scodecV = "1.1.34"
-val http4sV = "1.0.0-M36"
+val http4sV = "1.0.0-M37"
 val reactiveStreamsV = "1.0.4"
 val vaultV = "3.3.0"
 val caseInsensitiveV = "1.3.0"
 
-val http4sBlazeV = "1.0-37710b7-SNAPSHOT"
-val munitV = "0.7.29"
-val munitCatsEffectV = "1.0.7"
+val http4sBlazeV = "1.0.0-M36"
+val munitV = "1.0.0-M6"
+val munitCatsEffectV = "2.0.0-M3"
 val javaWebsocketV = "1.5.3"
 
 val blazeServer = Seq(
@@ -70,7 +70,7 @@ val coreDeps = Seq(
   "org.http4s" %% "http4s-client-testkit" % http4sV,
   "org.java-websocket" % "Java-WebSocket" % javaWebsocketV,
   "org.scalameta" %% "munit" % munitV,
-  "org.typelevel" %% "munit-cats-effect-3" % munitCatsEffectV
+  "org.typelevel" %% "munit-cats-effect" % munitCatsEffectV
 )).map(_ % Test)
 
 val scala213 = "2.13.8"
@@ -90,6 +90,13 @@ ThisBuild / tlCiReleaseBranches := Seq("main")
 ThisBuild / tlSitePublishBranch := Some("main")
 
 ThisBuild / resolvers += "SOSSS".at("https://s01.oss.sonatype.org/content/repositories/snapshots")
+
+ThisBuild / libraryDependencySchemes ++= Seq(
+  "org.http4s" %% "http4s-core" % "always",
+  "org.http4s" %% "http4s-server" % "always",
+  "org.http4s" %% "http4s-blaze-core" % "always",
+  "org.http4s" %% "http4s-blaze-server" % "always"
+)
 
 lazy val docsSettings =
   Seq(
