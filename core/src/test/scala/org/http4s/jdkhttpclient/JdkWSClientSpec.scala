@@ -20,6 +20,7 @@ import cats.effect._
 import cats.implicits._
 import fs2.Stream
 import munit.CatsEffectSuite
+import munit.catseffect.IOFixture
 import org.http4s._
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.client.websocket._
@@ -38,104 +39,102 @@ import scala.concurrent.duration._
 
 class JdkWSClientSpec extends CatsEffectSuite {
 
-  val webSocket: Resource[IO, WSClient[IO]] = JdkWSClient.simple[IO]
-  val echoServer: Resource[IO, Uri] =
-    BlazeServerBuilder[IO]
-      .bindAny()
-      .withHttpWebSocketApp(wsb =>
-        HttpRoutes
-          .of[IO] { case GET -> Root => wsb.build(identity) }
-          .orNotFound
+  val webSocket: IOFixture[WSClient[IO]] =
+    ResourceSuiteLocalFixture("webSocket", JdkWSClient.simple[IO])
+  val echoServerUri: IOFixture[Uri] =
+    ResourceSuiteLocalFixture(
+      "echoServerUri",
+      BlazeServerBuilder[IO]
+        .bindAny()
+        .withHttpWebSocketApp { wsb =>
+          HttpRoutes
+            .of[IO] { case GET -> Root => wsb.build(identity) }
+            .orNotFound
+        }
+        .resource
+        .map(s => httpToWsUri(s.baseUri))
+    )
+
+  override def munitFixtures: Seq[IOFixture[_]] = List(webSocket, echoServerUri)
+
+  test("send and receive frames in low-level mode") {
+    webSocket()
+      .connect(WSRequest(echoServerUri()))
+      .use { conn =>
+        for {
+          _ <- conn.send(WSFrame.Text("bar"))
+          _ <- conn.sendMany(List(WSFrame.Binary(ByteVector(3, 99, 12)), WSFrame.Text("foo")))
+          _ <- conn.send(WSFrame.Close(1000, "goodbye"))
+          recv <- conn.receiveStream.compile.toList
+        } yield recv
+      }
+      .assertEquals(
+        List(
+          WSFrame.Text("bar"),
+          WSFrame.Binary(ByteVector(3, 99, 12)),
+          WSFrame.Text("foo"),
+          WSFrame.Close(1000, "goodbye")
+        )
       )
-      .resource
-      .map(s => httpToWsUri(s.baseUri))
-
-  val webSocketFixture: SyncIO[FunFixture[WSClient[IO]]] =
-    ResourceFixture(webSocket)
-  val webSocketEchoFixture: SyncIO[FunFixture[(WSClient[IO], Uri)]] =
-    ResourceFixture((webSocket, echoServer).tupled)
-
-  webSocketEchoFixture.test("send and receive frames in low-level mode") {
-    case (webSocket, echoUri) =>
-      webSocket
-        .connect(WSRequest(echoUri))
-        .use { conn =>
-          for {
-            _ <- conn.send(WSFrame.Text("bar"))
-            _ <- conn.sendMany(List(WSFrame.Binary(ByteVector(3, 99, 12)), WSFrame.Text("foo")))
-            _ <- conn.send(WSFrame.Close(1000, "goodbye"))
-            recv <- conn.receiveStream.compile.toList
-          } yield recv
-        }
-        .assertEquals(
-          List(
-            WSFrame.Text("bar"),
-            WSFrame.Binary(ByteVector(3, 99, 12)),
-            WSFrame.Text("foo"),
-            WSFrame.Close(1000, "goodbye")
-          )
-        )
   }
 
-  webSocketEchoFixture.test("send and receive frames in high-level mode") {
-    case (webSocket, echoUri) =>
-      webSocket
-        .connectHighLevel(WSRequest(echoUri))
-        .use { conn =>
-          for {
-            _ <- conn.send(WSFrame.Binary(ByteVector(15, 2, 3)))
-            _ <- conn.sendMany(List(WSFrame.Text("foo"), WSFrame.Text("bar")))
-            recv <- conn.receiveStream.take(3).compile.toList
-          } yield recv
-        }
-        .assertEquals(
-          List(
-            WSFrame.Binary(ByteVector(15, 2, 3)),
-            WSFrame.Text("foo"),
-            WSFrame.Text("bar")
-          )
+  test("send and receive frames in high-level mode") {
+    webSocket()
+      .connectHighLevel(WSRequest(echoServerUri()))
+      .use { conn =>
+        for {
+          _ <- conn.send(WSFrame.Binary(ByteVector(15, 2, 3)))
+          _ <- conn.sendMany(List(WSFrame.Text("foo"), WSFrame.Text("bar")))
+          recv <- conn.receiveStream.take(3).compile.toList
+        } yield recv
+      }
+      .assertEquals(
+        List(
+          WSFrame.Binary(ByteVector(15, 2, 3)),
+          WSFrame.Text("foo"),
+          WSFrame.Text("bar")
         )
+      )
   }
 
-  webSocketEchoFixture.test("group frames by their `last` attribute in high-level mode") {
-    case (webSocket, echoUri) =>
-      webSocket
-        .connectHighLevel(WSRequest(echoUri))
-        .use { conn =>
-          for {
-            _ <- conn.sendMany(
-              List(
-                WSFrame.Text("1", last = false),
-                WSFrame.Text("2", last = false),
-                WSFrame.Text("3"),
-                WSFrame.Binary(ByteVector(1)),
-                WSFrame.Binary(ByteVector(2), last = false),
-                WSFrame.Binary(ByteVector(3), last = false),
-                WSFrame.Binary(ByteVector(4)),
-                WSFrame.Text("4", last = false),
-                WSFrame.Text("5"),
-                WSFrame.Binary(ByteVector(5), last = false),
-                WSFrame.Binary(ByteVector(6)),
-                WSFrame.Text("6"),
-                WSFrame.Binary(ByteVector(7), last = false)
-              )
+  test("group frames by their `last` attribute in high-level mode") {
+    webSocket()
+      .connectHighLevel(WSRequest(echoServerUri()))
+      .use { conn =>
+        for {
+          _ <- conn.sendMany(
+            List(
+              WSFrame.Text("1", last = false),
+              WSFrame.Text("2", last = false),
+              WSFrame.Text("3"),
+              WSFrame.Binary(ByteVector(1)),
+              WSFrame.Binary(ByteVector(2), last = false),
+              WSFrame.Binary(ByteVector(3), last = false),
+              WSFrame.Binary(ByteVector(4)),
+              WSFrame.Text("4", last = false),
+              WSFrame.Text("5"),
+              WSFrame.Binary(ByteVector(5), last = false),
+              WSFrame.Binary(ByteVector(6)),
+              WSFrame.Text("6"),
+              WSFrame.Binary(ByteVector(7), last = false)
             )
-            recv <- conn.receiveStream.take(6).compile.toList
-          } yield recv
-        }
-        .assertEquals(
-          List(
-            WSFrame.Text("123"),
-            WSFrame.Binary(ByteVector(1)),
-            WSFrame.Binary(ByteVector(2, 3, 4)),
-            WSFrame.Text("45"),
-            WSFrame.Binary(ByteVector(5, 6)),
-            WSFrame.Text("6")
           )
+          recv <- conn.receiveStream.take(6).compile.toList
+        } yield recv
+      }
+      .assertEquals(
+        List(
+          WSFrame.Text("123"),
+          WSFrame.Binary(ByteVector(1)),
+          WSFrame.Binary(ByteVector(2, 3, 4)),
+          WSFrame.Text("45"),
+          WSFrame.Binary(ByteVector(5, 6)),
+          WSFrame.Text("6")
         )
+      )
   }
 
-  webSocketFixture.test("automatically close the connection") { webSocket =>
+  test("automatically close the connection") {
     val frames = for {
       ref <- Ref[IO].of(List.empty[WebSocketFrame])
       finished <- Deferred[IO, Unit]
@@ -154,9 +153,9 @@ class JdkWSClientSpec extends CatsEffectSuite {
         override def onStart() = {
           val req = WSRequest(uri"ws://localhost:8080")
           val p = for {
-            _ <- webSocket.connect(req).use(conn => conn.send(WSFrame.Text("hi blaze")))
+            _ <- webSocket().connect(req).use(conn => conn.send(WSFrame.Text("hi blaze")))
             _ <- IO.sleep(1.seconds)
-            _ <- webSocket.connectHighLevel(req).use { conn =>
+            _ <- webSocket().connectHighLevel(req).use { conn =>
               conn.send(WSFrame.Text("hey blaze"))
             }
             _ <- IO.sleep(1.seconds)
@@ -178,7 +177,7 @@ class JdkWSClientSpec extends CatsEffectSuite {
     )
   }
 
-  webSocketFixture.test("send headers") { webSocket =>
+  test("send headers") {
     val sentHeaders = Headers(
       Header.Raw(ci"foo", "bar"),
       Header.Raw(ci"Sec-Websocket-Protocol", "proto"),
@@ -198,7 +197,7 @@ class JdkWSClientSpec extends CatsEffectSuite {
           }
           .resource
           .use { server =>
-            webSocket
+            webSocket()
               .connect(WSRequest(httpToWsUri(server.baseUri)).withHeaders(sentHeaders))
               .use(_ => IO.unit)
           } *> ref.get

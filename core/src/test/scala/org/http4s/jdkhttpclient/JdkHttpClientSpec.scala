@@ -30,14 +30,12 @@ class JdkHttpClientSpec extends ClientRouteTestBattery("JdkHttpClient") {
 
   // regression test for https://github.com/http4s/http4s-jdk-http-client/issues/395
   test("Don't error with empty body and explicit Content-Length: 0") {
-    serverClient().flatMap { case (server, client) =>
-      val address = server().addresses.head
-      val path = GetRoutes.SimplePath
-      val uri = Uri.fromString(s"http://$address$path").toOption.get
-      val req: Request[IO] = Request(uri = uri)
-        .putHeaders(Header.Raw(ci"Content-Length", "0"))
-      val body = client().expect[String](req)
-      body.assertEquals("simple path")
-    }
+    val address = server().addresses.head
+    val path = GetRoutes.SimplePath
+    val uri = Uri.fromString(s"http://$address$path").toOption.get
+    val req: Request[IO] = Request(uri = uri)
+      .putHeaders(Header.Raw(ci"Content-Length", "0"))
+    val body = client().expect[String](req)
+    body.assertEquals("simple path")
   }
 }
