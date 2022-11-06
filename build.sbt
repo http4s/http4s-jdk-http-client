@@ -36,15 +36,15 @@ ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
 val catsV = "2.8.0"
 val catsEffectV = "3.3.14"
-val fs2V = "3.2.12"
+val fs2V = "3.3.0"
 val scodecV = "1.1.34"
-val http4sV = "0.23.15"
+val http4sV = "0.23.16"
 val reactiveStreamsV = "1.0.4"
-val vaultV = "3.2.1"
-val caseInsensitiveV = "1.2.0"
+val vaultV = "3.3.0"
+val caseInsensitiveV = "1.3.0"
 
-val munitV = "0.7.29"
-val munitCatsEffectV = "1.0.7"
+val munitV = "1.0.0-M6"
+val munitCatsEffectV = "2.0.0-M3"
 val javaWebsocketV = "1.5.3"
 
 val emberServer = Seq(
@@ -69,11 +69,11 @@ val coreDeps = Seq(
   "org.http4s" %% "http4s-client-testkit" % http4sV,
   "org.java-websocket" % "Java-WebSocket" % javaWebsocketV,
   "org.scalameta" %% "munit" % munitV,
-  "org.typelevel" %% "munit-cats-effect-3" % munitCatsEffectV
+  "org.typelevel" %% "munit-cats-effect" % munitCatsEffectV
 )).map(_ % Test)
 
-val scala213 = "2.13.8"
-ThisBuild / crossScalaVersions := Seq("2.12.16", scala213, "3.1.3")
+val scala213 = "2.13.10"
+ThisBuild / crossScalaVersions := Seq("2.12.17", scala213, "3.2.0")
 ThisBuild / scalaVersion := scala213
 ThisBuild / tlBaseVersion := "0.7"
 ThisBuild / startYear := Some(2019)
