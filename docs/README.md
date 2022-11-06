@@ -186,13 +186,14 @@ We use the "high-level" connection mode to build a simple websocket app.
 ```scala mdoc:invisible
 import org.http4s.dsl.io._
 import org.http4s.implicits._
-import org.http4s.blaze.server.BlazeServerBuilder
-val echoServer = BlazeServerBuilder[IO]
-  .bindAny()
+import org.http4s.ember.server.EmberServerBuilder
+import com.comcast.ip4s._
+val echoServer = EmberServerBuilder.default[IO]
+  .withPort(port"0")
   .withHttpWebSocketApp(wsb => HttpRoutes.of[IO] {
     case GET -> Root => wsb.build(identity)
   }.orNotFound)
-  .resource
+  .build
   .map(s => s.baseUri.copy(scheme = scheme"ws".some))
 ```
 
