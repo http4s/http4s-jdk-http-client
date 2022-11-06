@@ -185,6 +185,7 @@ object CompletableFutureTerminationTest {
           )
         )
       )
+      .withShutdownTimeout(1.second)
       .withPort(port"0")
       .build
 
