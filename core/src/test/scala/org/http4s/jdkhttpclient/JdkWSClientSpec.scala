@@ -75,7 +75,7 @@ class JdkWSClientSpec extends CatsEffectSuite {
           WSFrame.Text("bar"),
           WSFrame.Binary(ByteVector(3, 99, 12)),
           WSFrame.Text("foo"),
-          WSFrame.Close(1000, "goodbye")
+          WSFrame.Close(1000, "")
         )
       )
   }
