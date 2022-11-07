@@ -74,7 +74,7 @@ val coreDeps = Seq(
 )).map(_ % Test)
 
 val scala213 = "2.13.10"
-ThisBuild / crossScalaVersions := Seq(scala213, "3.2.0")
+ThisBuild / crossScalaVersions := Seq(scala213, "3.2.1")
 ThisBuild / scalaVersion := scala213
 ThisBuild / tlBaseVersion := "1.0"
 ThisBuild / startYear := Some(2019)
