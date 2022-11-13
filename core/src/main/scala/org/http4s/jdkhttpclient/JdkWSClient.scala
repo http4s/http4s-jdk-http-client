@@ -26,7 +26,6 @@ import fs2.CompositeFailure
 import fs2.Stream
 import org.http4s.Header
 import org.http4s.client.websocket._
-import org.http4s.internal.unsafeToCompletionStage
 import org.typelevel.ci._
 import scodec.bits.ByteVector
 
@@ -75,12 +74,11 @@ object JdkWSClient {
               closedDef <- Deferred[F, Unit]
               handleReceive =
                 (wsf: Either[Throwable, WSFrame]) =>
-                  unsafeToCompletionStage(
+                  dispatcher.unsafeToCompletableFuture(
                     queue.offer(wsf) *> (wsf match {
                       case Left(_) | Right(_: WSFrame.Close) => closedDef.complete(()).void
                       case _ => F.unit
-                    }),
-                    dispatcher
+                    })
                   )
               wsListener = new JWebSocket.Listener {
                 override def onOpen(webSocket: JWebSocket): Unit = ()
