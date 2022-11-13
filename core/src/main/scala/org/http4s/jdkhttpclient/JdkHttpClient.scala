@@ -56,7 +56,7 @@ object JdkHttpClient {
     *   cannot be set by the user. By default, the set of restricted headers of the OpenJDK 11 is
     *   used.
     */
-  @deprecated("Use `make` which does not return a Resource", "0.7.1")
+  @deprecated("Use `make` which does not return a `Resource`", "0.7.1")
   def apply[F[_]](
       jdkHttpClient: HttpClient,
       ignoredHeaders: Set[CIString] = restrictedHeaders
@@ -263,13 +263,13 @@ object JdkHttpClient {
 
   /** A `Client` wrapping the default `HttpClient`.
     */
-  @deprecated("Use `simpleF` which does not return a `Resource`", "0.7.1")
+  @deprecated("Use `default` which does not return a `Resource`", "0.7.1")
   def simple[F[_]](implicit F: Async[F]): Resource[F, Client[F]] =
-    Resource.eval(simpleF)
+    Resource.eval(default)
 
   /** A `Client` wrapping the default `HttpClient`.
     */
-  def simpleF[F[_]](implicit F: Async[F]): F[Client[F]] =
+  def default[F[_]](implicit F: Async[F]): F[Client[F]] =
     defaultHttpClient[F].map(make(_))
 
   private[jdkhttpclient] def defaultHttpClient[F[_]](implicit F: Async[F]): F[HttpClient] =
