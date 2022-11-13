@@ -29,7 +29,7 @@ libraryDependencies ++= Seq(
 
 @:callout(warning)
 
-**TLS 1.3 on Java 11.** On Java 11, TLS 1.3 is disabled by default (when using `JdkHttpClient.simple`).
+**TLS 1.3 on Java 11.** On Java 11, TLS 1.3 is disabled by default (when using `JdkHttpClient.default`).
 This is a workaround for a spurious bug, see [#200](https://github.com/http4s/http4s-jdk-http-client/issues/200).
 
 @:@
@@ -50,7 +50,7 @@ import org.http4s.jdkhttpclient.JdkHttpClient
 // It comes for free with `cats.effect.IOApp`:
 import cats.effect.unsafe.implicits.global
 
-val client: Resource[IO, Client[IO]] = JdkHttpClient.simple[IO]
+val client: IO[Client[IO]] = JdkHttpClient.default[IO]
 ```
 
 #### Custom clients
@@ -63,7 +63,7 @@ in an effect, as it creates a default executor and SSL context:
 import java.net.{InetSocketAddress, ProxySelector}
 import java.net.http.HttpClient
 
-val client0: Resource[IO, Client[IO]] = Resource.eval(IO.executor.flatMap { executor =>
+val client0: IO[Client[IO]] = IO.executor.flatMap { exec =>
   IO {
     HttpClient.newBuilder()
       .version(HttpClient.Version.HTTP_2)
@@ -71,7 +71,7 @@ val client0: Resource[IO, Client[IO]] = Resource.eval(IO.executor.flatMap { exec
       .executor(exec)
       .build()
   }
-}).flatMap(JdkHttpClient(_))
+}.map(JdkHttpClient.make(_))
 ```
 
 ### Sharing
@@ -89,7 +89,7 @@ def fetchStatus[F[_]](c: Client[F], uri: Uri): F[Status] =
   c.status(Request[F](Method.GET, uri = uri))
 
 client
-  .use(c => fetchStatus(c, uri"https://http4s.org/"))
+  .flatMap(c => fetchStatus(c, uri"https://http4s.org/"))
   .unsafeRunSync()
 ```
 
@@ -101,7 +101,7 @@ create a new `HttpClient` instance on every invocation:
 
 ```scala mdoc
 def fetchStatusInefficiently[F[_]: Async](uri: Uri): F[Status] =
-  JdkHttpClient.simple[F].use(_.status(Request[F](Method.GET, uri = uri)))
+  JdkHttpClient.default[F].flatMap(_.status(Request[F](Method.GET, uri = uri)))
 ```
 
 @:@
@@ -138,15 +138,14 @@ import org.http4s.client.websocket._
 import org.http4s.jdkhttpclient._
 
 val (http, webSocket) =
-  Resource.eval(IO(HttpClient.newHttpClient()))
-    .flatMap { httpClient =>
-      (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient)).tupled
+  IO(HttpClient.newHttpClient())
+    .map { httpClient =>
+      (JdkHttpClient.make[IO](httpClient), JdkWSClient.make[IO](httpClient))
     }
-    // in almost all cases, it is better to call `use` instead
-    .allocated.map(_._1).unsafeRunSync()
+    .unsafeRunSync()
 ```
 
-If you do not need an HTTP client, you can also call `JdkWSClient.simple[IO]` as above.
+If you do not need an HTTP client, you can also call `JdkWSClient.default[IO]` as above.
 
 ### Overview
 
