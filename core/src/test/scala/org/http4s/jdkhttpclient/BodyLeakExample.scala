@@ -19,9 +19,10 @@ package org.http4s.jdkhttpclient
 import cats.data._
 import cats.effect._
 import cats.syntax.all._
+import com.comcast.ip4s._
 import org.http4s._
-import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.client._
+import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.syntax.all._
 
 // This is a *manual* test for the body leak fixed in #335
@@ -45,10 +46,11 @@ object BodyLeakExample extends IOApp {
       )
 
   override def run(args: List[String]): IO[ExitCode] =
-    BlazeServerBuilder[IO]
-      .bindLocal(8080)
+    EmberServerBuilder
+      .default[IO]
+      .withPort(port"8080")
       .withHttpApp(app)
-      .resource
+      .build
       .product(Resource.eval(JdkHttpClient.default[IO]))
       .use { case (_, client) =>
         for {
