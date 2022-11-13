@@ -45,7 +45,6 @@ val caseInsensitiveV = "1.3.0"
 
 val munitV = "1.0.0-M6"
 val munitCatsEffectV = "2.0.0-M3"
-val javaWebsocketV = "1.5.3"
 
 val emberServer = Seq(
   "org.http4s" %% "http4s-ember-server" % http4sV,
@@ -67,7 +66,6 @@ val coreDeps = Seq(
   "org.typelevel" %% "case-insensitive" % caseInsensitiveV
 ) ++ (emberServer ++ Seq(
   "org.http4s" %% "http4s-client-testkit" % http4sV,
-  "org.java-websocket" % "Java-WebSocket" % javaWebsocketV,
   "org.scalameta" %% "munit" % munitV,
   "org.typelevel" %% "munit-cats-effect" % munitCatsEffectV
 )).map(_ % Test)

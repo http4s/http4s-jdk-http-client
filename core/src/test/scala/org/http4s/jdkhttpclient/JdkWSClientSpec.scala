@@ -28,15 +28,8 @@ import org.http4s.dsl.io._
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.implicits._
 import org.http4s.websocket.WebSocketFrame
-import org.java_websocket.WebSocket
-import org.java_websocket.handshake.ClientHandshake
-import org.java_websocket.server.WebSocketServer
 import org.typelevel.ci._
 import scodec.bits.ByteVector
-
-import java.net.InetSocketAddress
-import java.nio.ByteBuffer
-import scala.concurrent.duration._
 
 class JdkWSClientSpec extends CatsEffectSuite {
 
@@ -137,44 +130,37 @@ class JdkWSClientSpec extends CatsEffectSuite {
   }
 
   test("automatically close the connection") {
+    val closeFrame = WebSocketFrame.Close(1000, "").toTry.get
     val frames = for {
       ref <- Ref[IO].of(List.empty[WebSocketFrame])
-      finished <- Deferred[IO, Unit]
-      // we use Java-Websocket because Blaze has a bug concerning the handling of Close frames and shutting down
-      server = new WebSocketServer(new InetSocketAddress("localhost", 8080)) {
-        override def onOpen(conn: WebSocket, handshake: ClientHandshake) = ()
-        override def onClose(conn: WebSocket, code: Int, reason: String, remote: Boolean) =
-          ref
-            .update(_ :+ WebSocketFrame.Close(code, reason).fold(throw _, identity))
-            .unsafeRunSync()
-        override def onMessage(conn: WebSocket, message: String) =
-          ref.update(_ :+ WebSocketFrame.Text(message)).unsafeRunSync()
-        override def onMessage(conn: WebSocket, message: ByteBuffer) =
-          ref.update(_ :+ WebSocketFrame.Binary(ByteVector(message))).unsafeRunSync()
-        override def onError(conn: WebSocket, ex: Exception) = println(s"WS error $ex")
-        override def onStart() = {
-          val req = WSRequest(uri"ws://localhost:8080")
-          val p = for {
-            _ <- webSocket().connect(req).use(conn => conn.send(WSFrame.Text("hi blaze")))
-            _ <- IO.sleep(1.seconds)
-            _ <- webSocket().connectHighLevel(req).use { conn =>
-              conn.send(WSFrame.Text("hey blaze"))
+      server = EmberServerBuilder
+        .default[IO]
+        .withPort(port"0")
+        .withHttpWebSocketApp { wsb =>
+          HttpRoutes
+            .of[IO] { case GET -> Root =>
+              wsb
+                .withOnClose(ref.update(_ :+ closeFrame))
+                .build(_.evalTap(f => ref.update(_ :+ f)))
             }
-            _ <- IO.sleep(1.seconds)
-            _ <- finished.complete(())
-          } yield ()
-          p.unsafeRunAsync(_ => ())
+            .orNotFound
         }
+        .build
+        .map(s => WSRequest(httpToWsUri(s.baseUri)))
+      _ <- server.use { req =>
+        webSocket().connect(req).use(conn => conn.send(WSFrame.Text("hi blaze"))) *>
+          webSocket().connectHighLevel(req).use { conn =>
+            conn.send(WSFrame.Text("hey blaze"))
+          }
       }
-      frames <- IO(server.start())
-        .bracket(_ => finished.get *> ref.get)(_ => IO(server.stop(0)))
+      frames <- ref.get
     } yield frames
     frames.assertEquals(
       List(
         WebSocketFrame.Text("hi blaze"),
-        WebSocketFrame.Close(1000, "").fold(throw _, identity),
+        closeFrame,
         WebSocketFrame.Text("hey blaze"),
-        WebSocketFrame.Close(1000, "").fold(throw _, identity)
+        closeFrame
       )
     )
   }
