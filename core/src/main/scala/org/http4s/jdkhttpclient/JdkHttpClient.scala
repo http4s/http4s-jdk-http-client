@@ -61,7 +61,7 @@ object JdkHttpClient {
   def apply[F[_]](
       jdkHttpClient: HttpClient,
       ignoredHeaders: Set[CIString] = restrictedHeaders
-  )(implicit F: Async[F]): Resource[F, Client[F]] = Dispatcher[F].map { dispatcher =>
+  )(implicit F: Async[F]): Resource[F, Client[F]] = Dispatcher.parallel[F].map { dispatcher =>
     def convertRequest(req: Request[F]): F[HttpRequest] =
       convertHttpVersionFromHttp4s[F](req.httpVersion).map { version =>
         val rb = HttpRequest.newBuilder

@@ -46,7 +46,7 @@ object JdkWSClient {
   /** Create a new `WSClient` backed by a JDK 11+ http client. */
   def apply[F[_]](
       jdkHttpClient: HttpClient
-  )(implicit F: Async[F]): Resource[F, WSClient[F]] = Dispatcher[F].map { dispatcher =>
+  )(implicit F: Async[F]): Resource[F, WSClient[F]] = Dispatcher.parallel[F].map { dispatcher =>
     WSClient(respondToPings = false) { req =>
       Resource
         .make {
