@@ -253,7 +253,7 @@ object JdkHttpClient {
     Resource.eval(defaultHttpClient[F]).flatMap(apply(_))
 
   private[jdkhttpclient] def defaultHttpClient[F[_]](implicit F: Async[F]): F[HttpClient] =
-    F.executionContext.flatMap { ec =>
+    F.executor.flatMap { exec =>
       F.delay {
         val builder = HttpClient.newBuilder()
         // workaround for https://github.com/http4s/http4s-jdk-http-client/issues/200
@@ -263,10 +263,7 @@ object JdkHttpClient {
           builder.sslParameters(params)
         }
 
-        ec match {
-          case exec: util.concurrent.Executor => builder.executor(exec)
-          case _ => builder.executor(ec.execute(_))
-        }
+        builder.executor(exec)
 
         builder.build()
       }
