@@ -148,18 +148,18 @@ class JdkWSClientSpec extends CatsEffectSuite {
         .build
         .map(s => WSRequest(httpToWsUri(s.baseUri)))
       _ <- server.use { req =>
-        webSocket().connect(req).use(conn => conn.send(WSFrame.Text("hi blaze"))) *>
+        webSocket().connect(req).use(conn => conn.send(WSFrame.Text("hi ember"))) *>
           webSocket().connectHighLevel(req).use { conn =>
-            conn.send(WSFrame.Text("hey blaze"))
+            conn.send(WSFrame.Text("hey ember"))
           }
       }
       frames <- ref.get
     } yield frames
     frames.assertEquals(
       List(
-        WebSocketFrame.Text("hi blaze"),
+        WebSocketFrame.Text("hi ember"),
         closeFrame,
-        WebSocketFrame.Text("hey blaze"),
+        WebSocketFrame.Text("hey ember"),
         closeFrame
       )
     )
