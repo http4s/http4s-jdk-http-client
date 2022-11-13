@@ -40,7 +40,7 @@ import scala.concurrent.duration._
 class JdkWSClientSpec extends CatsEffectSuite {
 
   val webSocket: IOFixture[WSClient[IO]] =
-    ResourceSuiteLocalFixture("webSocket", JdkWSClient.simple[IO])
+    ResourceSuiteLocalFixture("webSocket", Resource.eval(JdkWSClient.default[IO]))
   val echoServerUri: IOFixture[Uri] =
     ResourceSuiteLocalFixture(
       "echoServerUri",

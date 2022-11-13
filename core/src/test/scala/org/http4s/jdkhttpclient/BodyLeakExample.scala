@@ -49,7 +49,7 @@ object BodyLeakExample extends IOApp {
       .bindLocal(8080)
       .withHttpApp(app)
       .resource
-      .product(JdkHttpClient.simple[IO])
+      .product(Resource.eval(JdkHttpClient.default[IO]))
       .use { case (_, client) =>
         for {
           counter <- Ref.of[IO, Long](0L)
