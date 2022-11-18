@@ -44,7 +44,7 @@ val vaultV = "3.3.0"
 val caseInsensitiveV = "1.3.0"
 
 val http4sBlazeV = "1.0.0-M36"
-val munitV = "1.0.0-M6"
+val munitV = "1.0.0-M7"
 val munitCatsEffectV = "2.0.0-M3"
 val javaWebsocketV = "1.5.3"
 
