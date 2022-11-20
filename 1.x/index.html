@@ -211,7 +211,7 @@
 // It comes for free with `cats.effect.IOApp`:
 </span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="identifier">unsafe</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">global</span><span>
 
-</span><span class="keyword">val</span><span> </span><span class="identifier">client</span><span>: </span><span class="type-name">Resource</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Client</span><span>[</span><span class="type-name">IO</span><span>]] = </span><span class="type-name">JdkHttpClient</span><span>.</span><span class="identifier">simple</span><span>[</span><span class="type-name">IO</span><span>]</span></code></pre>
+</span><span class="keyword">val</span><span> </span><span class="identifier">client</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Client</span><span>[</span><span class="type-name">IO</span><span>]] = </span><span class="type-name">JdkHttpClient</span><span>.</span><span class="identifier">simple</span><span>[</span><span class="type-name">IO</span><span>]</span></code></pre>
         
         <h4 id="custom-clients" class="section">Custom clients<a class="anchor-link right" href="#custom-clients"><i class="icofont-laika">&#xef71;</i></a></h4>
         <p>A JDK HTTP client can be passed to <code>JdkHttpClient.apply</code> for use as an
@@ -220,15 +220,15 @@
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">net</span><span>.{</span><span class="type-name">InetSocketAddress</span><span>, </span><span class="type-name">ProxySelector</span><span>}
 </span><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">net</span><span>.</span><span class="identifier">http</span><span>.</span><span class="type-name">HttpClient</span><span>
 
-</span><span class="keyword">val</span><span> </span><span class="identifier">client0</span><span>: </span><span class="type-name">Resource</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Client</span><span>[</span><span class="type-name">IO</span><span>]] = </span><span class="type-name">Resource</span><span>.</span><span class="identifier">eval</span><span>(</span><span class="type-name">IO</span><span>.</span><span class="identifier">executionContext</span><span>.</span><span class="identifier">flatMap</span><span> { </span><span class="identifier">ec</span><span> =&gt;
+</span><span class="keyword">val</span><span> </span><span class="identifier">client0</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Client</span><span>[</span><span class="type-name">IO</span><span>]] = </span><span class="type-name">IO</span><span>.</span><span class="identifier">executor</span><span>.</span><span class="identifier">flatMap</span><span> { </span><span class="identifier">exec</span><span> =&gt;
   </span><span class="type-name">IO</span><span> {
     </span><span class="type-name">HttpClient</span><span>.</span><span class="identifier">newBuilder</span><span>()
       .</span><span class="identifier">version</span><span>(</span><span class="type-name">HttpClient</span><span>.</span><span class="type-name">Version</span><span>.</span><span class="type-name">HTTP_2</span><span>)
       .</span><span class="identifier">proxy</span><span>(</span><span class="type-name">ProxySelector</span><span>.</span><span class="identifier">of</span><span>(</span><span class="keyword">new</span><span> </span><span class="type-name">InetSocketAddress</span><span>(</span><span class="string-literal">&quot;www-proxy&quot;</span><span>, </span><span class="number-literal">8080</span><span>)))
-      .</span><span class="identifier">executor</span><span>(</span><span class="identifier">ec</span><span>.</span><span class="identifier">execute</span><span>(</span><span class="identifier">_</span><span>))
+      .</span><span class="identifier">executor</span><span>(</span><span class="identifier">exec</span><span>)
       .</span><span class="identifier">build</span><span>()
   }
-}).</span><span class="identifier">flatMap</span><span>(</span><span class="type-name">JdkHttpClient</span><span>(</span><span class="identifier">_</span><span>))</span></code></pre>
+}.</span><span class="identifier">map</span><span>(</span><span class="type-name">JdkHttpClient</span><span>(</span><span class="identifier">_</span><span>))</span></code></pre>
         
         <h3 id="sharing" class="section">Sharing<a class="anchor-link right" href="#sharing"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>The client instance contains shared resources such as a connection
@@ -242,7 +242,7 @@
   </span><span class="identifier">c</span><span>.</span><span class="identifier">status</span><span>(</span><span class="type-name">Request</span><span>[</span><span class="type-name">F</span><span>](</span><span class="type-name">Method</span><span>.</span><span class="type-name">GET</span><span>, </span><span class="identifier">uri</span><span> = </span><span class="identifier">uri</span><span>))
 
 </span><span class="identifier">client</span><span>
-  .</span><span class="identifier">use</span><span>(</span><span class="identifier">c</span><span> =&gt; </span><span class="identifier">fetchStatus</span><span>(</span><span class="identifier">c</span><span>, </span><span class="string-literal">uri&quot;https://http4s.org/&quot;</span><span>))
+  .</span><span class="identifier">flatMap</span><span>(</span><span class="identifier">c</span><span> =&gt; </span><span class="identifier">fetchStatus</span><span>(</span><span class="identifier">c</span><span>, </span><span class="string-literal">uri&quot;https://http4s.org/&quot;</span><span>))
   .</span><span class="identifier">unsafeRunSync</span><span>()
 </span><span class="comment">// res1: Status = Status(code = 200)</span></code></pre>
         <div class="callout warning">
@@ -251,7 +251,7 @@
           Contrast with this alternate definition of <code>fetchStatus</code>, which would
           create a new <code>HttpClient</code> instance on every invocation:</p>
           <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">fetchStatusInefficiently</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]: </span><span class="type-name">Async</span><span>](</span><span class="identifier">uri</span><span>: </span><span class="type-name">Uri</span><span>): </span><span class="type-name">F</span><span>[</span><span class="type-name">Status</span><span>] =
-  </span><span class="type-name">JdkHttpClient</span><span>.</span><span class="identifier">simple</span><span>[</span><span class="type-name">F</span><span>].</span><span class="identifier">use</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">status</span><span>(</span><span class="type-name">Request</span><span>[</span><span class="type-name">F</span><span>](</span><span class="type-name">Method</span><span>.</span><span class="type-name">GET</span><span>, </span><span class="identifier">uri</span><span> = </span><span class="identifier">uri</span><span>)))</span></code></pre>
+  </span><span class="type-name">JdkHttpClient</span><span>.</span><span class="identifier">simple</span><span>[</span><span class="type-name">F</span><span>].</span><span class="identifier">flatMap</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">status</span><span>(</span><span class="type-name">Request</span><span>[</span><span class="type-name">F</span><span>](</span><span class="type-name">Method</span><span>.</span><span class="type-name">GET</span><span>, </span><span class="identifier">uri</span><span> = </span><span class="identifier">uri</span><span>)))</span></code></pre>
         </div>
         
         <h3 id="restricted-headers" class="section">Restricted headers<a class="anchor-link right" href="#restricted-headers"><i class="icofont-laika">&#xef71;</i></a></h3>
@@ -279,14 +279,13 @@
 </span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">http4s</span><span>.</span><span class="identifier">jdkhttpclient</span><span>.</span><span class="identifier">_</span><span>
 
 </span><span class="keyword">val</span><span> (</span><span class="identifier">http</span><span>, </span><span class="identifier">webSocket</span><span>) =
-  </span><span class="type-name">Resource</span><span>.</span><span class="identifier">eval</span><span>(</span><span class="type-name">IO</span><span>(</span><span class="type-name">HttpClient</span><span>.</span><span class="identifier">newHttpClient</span><span>()))
-    .</span><span class="identifier">flatMap</span><span> { </span><span class="identifier">httpClient</span><span> =&gt;
-      (</span><span class="type-name">JdkHttpClient</span><span>[</span><span class="type-name">IO</span><span>](</span><span class="identifier">httpClient</span><span>), </span><span class="type-name">JdkWSClient</span><span>[</span><span class="type-name">IO</span><span>](</span><span class="identifier">httpClient</span><span>)).</span><span class="identifier">tupled</span><span>
+  </span><span class="type-name">IO</span><span>(</span><span class="type-name">HttpClient</span><span>.</span><span class="identifier">newHttpClient</span><span>())
+    .</span><span class="identifier">map</span><span> { </span><span class="identifier">httpClient</span><span> =&gt;
+      (</span><span class="type-name">JdkHttpClient</span><span>[</span><span class="type-name">IO</span><span>](</span><span class="identifier">httpClient</span><span>), </span><span class="type-name">JdkWSClient</span><span>[</span><span class="type-name">IO</span><span>](</span><span class="identifier">httpClient</span><span>))
     }
-    </span><span class="comment">// in almost all cases, it is better to call `use` instead
-</span><span>    .</span><span class="identifier">allocated</span><span>.</span><span class="identifier">map</span><span>(</span><span class="identifier">_</span><span class="number-literal">._1</span><span>).</span><span class="identifier">unsafeRunSync</span><span>()
-</span><span class="comment">// http: Client[IO] = org.http4s.client.Client$$anon$3@f8125c1
-// webSocket: WSClient[IO] = org.http4s.client.websocket.WSClient$$anon$7@1dcbe32</span></code></pre>
+    .</span><span class="identifier">unsafeRunSync</span><span>()
+</span><span class="comment">// http: Client[IO] = org.http4s.client.Client$$anon$3@6f5f4c27
+// webSocket: WSClient[IO] = org.http4s.client.websocket.WSClient$$anon$7@1814e8b6</span></code></pre>
         <p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
         
         <h3 id="overview" class="section">Overview<a class="anchor-link right" href="#overview"><i class="icofont-laika">&#xef71;</i></a></h3>
