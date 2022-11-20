@@ -34,11 +34,9 @@ ThisBuild / mergifyStewardConfig := Some(
 ThisBuild / mergifyRequiredJobs += "site"
 ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
-ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
-
 val catsV = "2.9.0"
 val catsEffectV = "3.4.0"
-val fs2V = "3.4-9d4ea04-SNAPSHOT"
+val fs2V = "3.4.0"
 val scodecV = "1.1.34"
 val http4sV = "0.23.16"
 val reactiveStreamsV = "1.0.4"
