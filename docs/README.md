@@ -29,7 +29,7 @@ libraryDependencies ++= Seq(
 
 @:callout(warning)
 
-**TLS 1.3 on Java 11.** On Java 11, TLS 1.3 is disabled by default (when using `JdkHttpClient.default`).
+**TLS 1.3 on Java 11.** On Java 11, TLS 1.3 is disabled by default (when using `JdkHttpClient.simple`).
 This is a workaround for a spurious bug, see [#200](https://github.com/http4s/http4s-jdk-http-client/issues/200).
 
 @:@
@@ -50,7 +50,7 @@ import org.http4s.jdkhttpclient.JdkHttpClient
 // It comes for free with `cats.effect.IOApp`:
 import cats.effect.unsafe.implicits.global
 
-val client: IO[Client[IO]] = JdkHttpClient.default[IO]
+val client: IO[Client[IO]] = JdkHttpClient.simple[IO]
 ```
 
 #### Custom clients
@@ -71,7 +71,7 @@ val client0: IO[Client[IO]] = IO.executor.flatMap { exec =>
       .executor(exec)
       .build()
   }
-}.map(JdkHttpClient.make(_))
+}.map(JdkHttpClient(_))
 ```
 
 ### Sharing
@@ -101,7 +101,7 @@ create a new `HttpClient` instance on every invocation:
 
 ```scala mdoc
 def fetchStatusInefficiently[F[_]: Async](uri: Uri): F[Status] =
-  JdkHttpClient.default[F].flatMap(_.status(Request[F](Method.GET, uri = uri)))
+  JdkHttpClient.simple[F].flatMap(_.status(Request[F](Method.GET, uri = uri)))
 ```
 
 @:@
@@ -140,12 +140,12 @@ import org.http4s.jdkhttpclient._
 val (http, webSocket) =
   IO(HttpClient.newHttpClient())
     .map { httpClient =>
-      (JdkHttpClient.make[IO](httpClient), JdkWSClient.make[IO](httpClient))
+      (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient))
     }
     .unsafeRunSync()
 ```
 
-If you do not need an HTTP client, you can also call `JdkWSClient.default[IO]` as above.
+If you do not need an HTTP client, you can also call `JdkWSClient.simple[IO]` as above.
 
 ### Overview
 

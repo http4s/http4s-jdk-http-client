@@ -34,7 +34,7 @@ import scodec.bits.ByteVector
 class JdkWSClientSpec extends CatsEffectSuite {
 
   val webSocket: IOFixture[WSClient[IO]] =
-    ResourceSuiteLocalFixture("webSocket", Resource.eval(JdkWSClient.default[IO]))
+    ResourceSuiteLocalFixture("webSocket", Resource.eval(JdkWSClient.simple[IO]))
   val echoServerUri: IOFixture[Uri] =
     ResourceSuiteLocalFixture(
       "echoServerUri",

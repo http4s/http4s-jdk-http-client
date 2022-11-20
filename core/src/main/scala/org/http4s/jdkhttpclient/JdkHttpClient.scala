@@ -56,23 +56,7 @@ object JdkHttpClient {
     *   cannot be set by the user. By default, the set of restricted headers of the OpenJDK 11 is
     *   used.
     */
-  @deprecated("Use `make` which does not return a `Resource`", "0.7.1")
   def apply[F[_]](
-      jdkHttpClient: HttpClient,
-      ignoredHeaders: Set[CIString] = restrictedHeaders
-  )(implicit F: Async[F]): Resource[F, Client[F]] =
-    Resource.pure(make(jdkHttpClient, ignoredHeaders))
-
-  /** Creates a `Client` from an `HttpClient`.
-    *
-    * @param jdkHttpClient
-    *   The `HttpClient`.
-    * @param ignoredHeaders
-    *   A set of ignored request headers. Some headers (like Content-Length) are "restricted" and
-    *   cannot be set by the user. By default, the set of restricted headers of the OpenJDK 11 is
-    *   used.
-    */
-  def make[F[_]](
       jdkHttpClient: HttpClient,
       ignoredHeaders: Set[CIString] = restrictedHeaders
   )(implicit F: Async[F]): Client[F] = {
@@ -263,14 +247,8 @@ object JdkHttpClient {
 
   /** A `Client` wrapping the default `HttpClient`.
     */
-  @deprecated("Use `default` which does not return a `Resource`", "0.7.1")
-  def simple[F[_]](implicit F: Async[F]): Resource[F, Client[F]] =
-    Resource.eval(default)
-
-  /** A `Client` wrapping the default `HttpClient`.
-    */
-  def default[F[_]](implicit F: Async[F]): F[Client[F]] =
-    defaultHttpClient[F].map(make(_))
+  def simple[F[_]](implicit F: Async[F]): F[Client[F]] =
+    defaultHttpClient[F].map(apply(_))
 
   private[jdkhttpclient] def defaultHttpClient[F[_]](implicit F: Async[F]): F[HttpClient] =
     F.executor.flatMap { exec =>

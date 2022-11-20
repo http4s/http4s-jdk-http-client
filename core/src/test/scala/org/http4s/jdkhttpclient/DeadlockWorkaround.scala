@@ -29,7 +29,7 @@ class DeadlockWorkaround extends CatsEffectSuite {
   test("fail to connect via TLSv1.3 on Java 11") {
     if (Runtime.version().feature() > 11) IO.pure(true)
     else
-      (JdkHttpClient.default[IO], JdkWSClient.default[IO]).flatMapN { (http, ws) =>
+      (JdkHttpClient.simple[IO], JdkWSClient.simple[IO]).flatMapN { (http, ws) =>
         def testSSLFailure(r: IO[Unit]) = r.intercept[SSLHandshakeException]
         testSSLFailure(http.expect[Unit](uri"https://tls13.1d.pw")) *>
           testSSLFailure(ws.connectHighLevel(WSRequest(uri"wss://tls13.1d.pw")).use(_ => IO.unit))

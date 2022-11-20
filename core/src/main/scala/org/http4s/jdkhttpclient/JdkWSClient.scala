@@ -43,13 +43,7 @@ import java.util.concurrent.CompletionStage
 object JdkWSClient {
 
   /** Create a new `WSClient` backed by a JDK 11+ http client. */
-  @deprecated("Use `make` which does not return a `Resource`", "0.7.1")
   def apply[F[_]](
-      jdkHttpClient: HttpClient
-  )(implicit F: Async[F]): Resource[F, WSClient[F]] =
-    Resource.pure(make(jdkHttpClient))
-
-  def make[F[_]](
       jdkHttpClient: HttpClient
   )(implicit F: Async[F]): WSClient[F] =
     WSClient(respondToPings = false) { req =>
@@ -165,11 +159,6 @@ object JdkWSClient {
     }
 
   /** A `WSClient` wrapping the default `HttpClient`. */
-  @deprecated("Use `default` which does not return a `Resource`", "0.7.1")
-  def simple[F[_]](implicit F: Async[F]): Resource[F, WSClient[F]] =
-    Resource.eval(default)
-
-  /** A `WSClient` wrapping the default `HttpClient`. */
-  def default[F[_]](implicit F: Async[F]): F[WSClient[F]] =
-    JdkHttpClient.defaultHttpClient[F].map(make(_))
+  def simple[F[_]](implicit F: Async[F]): F[WSClient[F]] =
+    JdkHttpClient.defaultHttpClient[F].map(apply(_))
 }
