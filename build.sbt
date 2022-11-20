@@ -23,7 +23,7 @@ lazy val docs = project
   .enablePlugins(Http4sOrgSitePlugin)
   .dependsOn(core)
   .settings(docsSettings)
-  .settings(libraryDependencies ++= blazeServer)
+  .settings(libraryDependencies ++= emberServer)
 
 ThisBuild / mergifyStewardConfig := Some(
   MergifyStewardConfig(
@@ -35,21 +35,19 @@ ThisBuild / mergifyRequiredJobs += "site"
 ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
 val catsV = "2.9.0"
-val catsEffectV = "3.3.14"
-val fs2V = "3.3.0"
+val catsEffectV = "3.4.1"
+val fs2V = "3.4.0"
 val scodecV = "1.1.34"
 val http4sV = "1.0.0-M37"
 val reactiveStreamsV = "1.0.4"
 val vaultV = "3.3.0"
 val caseInsensitiveV = "1.3.0"
 
-val http4sBlazeV = "1.0.0-M36"
 val munitV = "1.0.0-M7"
 val munitCatsEffectV = "2.0.0-M3"
-val javaWebsocketV = "1.5.3"
 
-val blazeServer = Seq(
-  "org.http4s" %% "http4s-blaze-server" % http4sBlazeV,
+val emberServer = Seq(
+  "org.http4s" %% "http4s-ember-server" % http4sV,
   "org.http4s" %% "http4s-dsl" % http4sV
 )
 
@@ -66,9 +64,8 @@ val coreDeps = Seq(
   "org.scodec" %% "scodec-bits" % scodecV,
   "org.typelevel" %% "vault" % vaultV,
   "org.typelevel" %% "case-insensitive" % caseInsensitiveV
-) ++ (blazeServer ++ Seq(
+) ++ (emberServer ++ Seq(
   "org.http4s" %% "http4s-client-testkit" % http4sV,
-  "org.java-websocket" % "Java-WebSocket" % javaWebsocketV,
   "org.scalameta" %% "munit" % munitV,
   "org.typelevel" %% "munit-cats-effect" % munitCatsEffectV
 )).map(_ % Test)
@@ -89,15 +86,6 @@ ThisBuild / githubWorkflowJavaVersions := Seq("11", "17").map(JavaSpec.temurin(_
 ThisBuild / tlCiReleaseBranches := Seq("main")
 ThisBuild / tlSitePublishBranch := Some("main")
 
-ThisBuild / resolvers += "SOSSS".at("https://s01.oss.sonatype.org/content/repositories/snapshots")
-
-ThisBuild / libraryDependencySchemes ++= Seq(
-  "org.http4s" %% "http4s-core" % "always",
-  "org.http4s" %% "http4s-server" % "always",
-  "org.http4s" %% "http4s-blaze-core" % "always",
-  "org.http4s" %% "http4s-blaze-server" % "always"
-)
-
 lazy val docsSettings =
   Seq(
     tlSiteApiModule := Some((core / projectID).value),
@@ -108,6 +96,7 @@ lazy val docsSettings =
         Versions(
           currentVersion = Version("1.x", "1.x"),
           olderVersions = Seq(
+            Version("0.8.x", "0.8"),
             Version("0.7.x", "0.7"),
             Version("0.6.x", "0.6.0-M7"),
             Version("0.5.x", "0.5.0"),

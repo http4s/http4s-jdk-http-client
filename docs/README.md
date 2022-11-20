@@ -50,7 +50,7 @@ import org.http4s.jdkhttpclient.JdkHttpClient
 // It comes for free with `cats.effect.IOApp`:
 import cats.effect.unsafe.implicits.global
 
-val client: Resource[IO, Client[IO]] = JdkHttpClient.simple[IO]
+val client: IO[Client[IO]] = JdkHttpClient.simple[IO]
 ```
 
 #### Custom clients
@@ -63,15 +63,15 @@ in an effect, as it creates a default executor and SSL context:
 import java.net.{InetSocketAddress, ProxySelector}
 import java.net.http.HttpClient
 
-val client0: Resource[IO, Client[IO]] = Resource.eval(IO.executionContext.flatMap { ec =>
+val client0: IO[Client[IO]] = IO.executor.flatMap { exec =>
   IO {
     HttpClient.newBuilder()
       .version(HttpClient.Version.HTTP_2)
       .proxy(ProxySelector.of(new InetSocketAddress("www-proxy", 8080)))
-      .executor(ec.execute(_))
+      .executor(exec)
       .build()
   }
-}).flatMap(JdkHttpClient(_))
+}.map(JdkHttpClient(_))
 ```
 
 ### Sharing
@@ -89,7 +89,7 @@ def fetchStatus[F[_]](c: Client[F], uri: Uri): F[Status] =
   c.status(Request[F](Method.GET, uri = uri))
 
 client
-  .use(c => fetchStatus(c, uri"https://http4s.org/"))
+  .flatMap(c => fetchStatus(c, uri"https://http4s.org/"))
   .unsafeRunSync()
 ```
 
@@ -101,7 +101,7 @@ create a new `HttpClient` instance on every invocation:
 
 ```scala mdoc
 def fetchStatusInefficiently[F[_]: Async](uri: Uri): F[Status] =
-  JdkHttpClient.simple[F].use(_.status(Request[F](Method.GET, uri = uri)))
+  JdkHttpClient.simple[F].flatMap(_.status(Request[F](Method.GET, uri = uri)))
 ```
 
 @:@
@@ -138,12 +138,11 @@ import org.http4s.client.websocket._
 import org.http4s.jdkhttpclient._
 
 val (http, webSocket) =
-  Resource.eval(IO(HttpClient.newHttpClient()))
-    .flatMap { httpClient =>
-      (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient)).tupled
+  IO(HttpClient.newHttpClient())
+    .map { httpClient =>
+      (JdkHttpClient[IO](httpClient), JdkWSClient[IO](httpClient))
     }
-    // in almost all cases, it is better to call `use` instead
-    .allocated.map(_._1).unsafeRunSync()
+    .unsafeRunSync()
 ```
 
 If you do not need an HTTP client, you can also call `JdkWSClient.simple[IO]` as above.
@@ -186,13 +185,14 @@ We use the "high-level" connection mode to build a simple websocket app.
 ```scala mdoc:invisible
 import org.http4s.dsl.io._
 import org.http4s.implicits._
-import org.http4s.blaze.server.BlazeServerBuilder
-val echoServer = BlazeServerBuilder[IO]
-  .bindAny()
+import org.http4s.ember.server.EmberServerBuilder
+import com.comcast.ip4s._
+val echoServer = EmberServerBuilder.default[IO]
+  .withPort(port"0")
   .withHttpWebSocketApp(wsb => HttpRoutes.of[IO] {
     case GET -> Root => wsb.build(identity)
   }.orNotFound)
-  .resource
+  .build
   .map(s => s.baseUri.copy(scheme = scheme"ws".some))
 ```
 
