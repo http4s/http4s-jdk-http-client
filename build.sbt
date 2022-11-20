@@ -83,8 +83,8 @@ ThisBuild / developers := List(
 
 ThisBuild / tlJdkRelease := Some(11)
 ThisBuild / githubWorkflowJavaVersions := Seq("11", "17").map(JavaSpec.temurin(_))
-ThisBuild / tlCiReleaseBranches := Seq("series/0.7")
-ThisBuild / tlSitePublishBranch := Some("series/0.7")
+ThisBuild / tlCiReleaseBranches := Seq("series/0.8")
+ThisBuild / tlSitePublishBranch := Some("series/0.8")
 
 lazy val docsSettings =
   Seq(
@@ -94,8 +94,9 @@ lazy val docsSettings =
       import laika.rewrite._
       _.site.versions(
         Versions(
-          currentVersion = Version("0.7.x", "0.7"),
+          currentVersion = Version("0.8.x", "0.8"),
           olderVersions = Seq(
+            Version("0.7.x", "0.7"),
             Version("0.6.x", "0.6.0-M7"),
             Version("0.5.x", "0.5.0"),
             Version("0.4.x", "0.4.0")
