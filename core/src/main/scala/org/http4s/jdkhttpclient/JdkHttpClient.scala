@@ -18,7 +18,6 @@ package org.http4s.jdkhttpclient
 
 import cats._
 import cats.effect._
-import cats.effect.std.Dispatcher
 import cats.effect.syntax.all._
 import cats.implicits._
 import fs2.Chunk
@@ -39,6 +38,7 @@ import org.typelevel.ci.CIString
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
+import java.net.http.HttpRequest.BodyPublisher
 import java.net.http.HttpRequest.BodyPublishers
 import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
@@ -49,8 +49,7 @@ import scala.jdk.CollectionConverters._
 
 object JdkHttpClient {
 
-  /** Creates a `Client` from an `HttpClient`. Note that the creation of an `HttpClient` is a side
-    * effect.
+  /** Creates a `Client` from an `HttpClient`.
     *
     * @param jdkHttpClient
     *   The `HttpClient`.
@@ -62,39 +61,36 @@ object JdkHttpClient {
   def apply[F[_]](
       jdkHttpClient: HttpClient,
       ignoredHeaders: Set[CIString] = restrictedHeaders
-  )(implicit F: Async[F]): Resource[F, Client[F]] = Dispatcher[F].map { dispatcher =>
-    def convertRequest(req: Request[F]): F[HttpRequest] =
-      convertHttpVersionFromHttp4s[F](req.httpVersion).map { version =>
-        val rb = HttpRequest.newBuilder
-          .method(
-            req.method.name,
-            req.entity match {
-              case Entity.Empty => BodyPublishers.noBody()
-              case Entity.Strict(bytes) =>
-                BodyPublishers.ofInputStream(() => bytes.toInputStream)
-              case Entity.Default(body, _) =>
-                val publisher = FlowAdapters.toFlowPublisher(
-                  StreamUnicastPublisher(body.chunks.map(_.toByteBuffer), dispatcher)
-                )
-
-                if (req.isChunked)
-                  BodyPublishers.fromPublisher(publisher)
-                else
-                  req.contentLength match {
-                    case Some(length) if length > 0L =>
-                      BodyPublishers.fromPublisher(publisher, length)
-                    case _ => BodyPublishers.noBody
-                  }
+  )(implicit F: Async[F]): Client[F] = {
+    def convertRequest(req: Request[F]): Resource[F, HttpRequest] = for {
+      version <- Resource.eval(convertHttpVersionFromHttp4s[F](req.httpVersion))
+      bodyPublisher <- req.entity match {
+        case Entity.Empty => Resource.pure[F, BodyPublisher](BodyPublishers.noBody())
+        case Entity.Strict(bytes) =>
+          Resource.pure[F, BodyPublisher](BodyPublishers.ofInputStream(() => bytes.toInputStream))
+        case Entity.Default(body, _) =>
+          StreamUnicastPublisher(body.chunks.map(_.toByteBuffer))
+            .map(FlowAdapters.toFlowPublisher(_))
+            .map { publisher =>
+              if (req.isChunked)
+                BodyPublishers.fromPublisher(publisher)
+              else
+                req.contentLength match {
+                  case Some(length) if length > 0L =>
+                    BodyPublishers.fromPublisher(publisher, length)
+                  case _ => BodyPublishers.noBody
+                }
             }
-          )
-          .uri(URI.create(req.uri.renderString))
-          .version(version)
-        val headers = req.headers.headers.iterator
-          .filterNot(h => ignoredHeaders.contains(h.name))
-          .flatMap(h => Iterator(h.name.toString, h.value))
-          .toArray
-        (if (headers.isEmpty) rb else rb.headers(headers: _*)).build
       }
+      rb = HttpRequest.newBuilder
+        .method(req.method.name, bodyPublisher)
+        .uri(URI.create(req.uri.renderString))
+        .version(version)
+      headers = req.headers.headers.iterator
+        .filterNot(h => ignoredHeaders.contains(h.name))
+        .flatMap(h => Iterator(h.name.toString, h.value))
+        .toArray
+    } yield (if (headers.isEmpty) rb else rb.headers(headers: _*)).build
 
     // Convert the JDK HttpResponse into a http4s Response value.
     //
@@ -247,7 +243,7 @@ object JdkHttpClient {
 
     Client[F] { req =>
       for {
-        req <- Resource.eval(convertRequest(req))
+        req <- convertRequest(req)
         res = F.fromCompletableFuture(
           F.delay(jdkHttpClient.sendAsync(req, BodyHandlers.ofPublisher))
         )
@@ -258,11 +254,11 @@ object JdkHttpClient {
 
   /** A `Client` wrapping the default `HttpClient`.
     */
-  def simple[F[_]](implicit F: Async[F]): Resource[F, Client[F]] =
-    Resource.eval(defaultHttpClient[F]).flatMap(apply(_))
+  def simple[F[_]](implicit F: Async[F]): F[Client[F]] =
+    defaultHttpClient[F].map(apply(_))
 
   private[jdkhttpclient] def defaultHttpClient[F[_]](implicit F: Async[F]): F[HttpClient] =
-    F.executionContext.flatMap { ec =>
+    F.executor.flatMap { exec =>
       F.delay {
         val builder = HttpClient.newBuilder()
         // workaround for https://github.com/http4s/http4s-jdk-http-client/issues/200
@@ -272,10 +268,7 @@ object JdkHttpClient {
           builder.sslParameters(params)
         }
 
-        ec match {
-          case exec: util.concurrent.Executor => builder.executor(exec)
-          case _ => builder.executor(ec.execute(_))
-        }
+        builder.executor(exec)
 
         builder.build()
       }
