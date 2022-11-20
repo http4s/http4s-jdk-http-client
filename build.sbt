@@ -53,6 +53,9 @@ val emberServer = Seq(
 
 val coreDeps = Seq(
   "org.typelevel" %% "cats-core" % catsV,
+  "org.typelevel" %% "cats-effect" % catsEffectV,
+  "org.typelevel" %% "cats-effect-kernel" % catsEffectV,
+  "org.typelevel" %% "cats-effect-std" % catsEffectV,
   "co.fs2" %% "fs2-core" % fs2V,
   "co.fs2" %% "fs2-reactive-streams" % fs2V,
   "org.http4s" %% "http4s-client" % http4sV,
