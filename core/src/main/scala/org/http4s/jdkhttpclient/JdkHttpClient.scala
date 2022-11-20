@@ -18,7 +18,6 @@ package org.http4s.jdkhttpclient
 
 import cats._
 import cats.effect._
-import cats.effect.std.Dispatcher
 import cats.effect.syntax.all._
 import cats.implicits._
 import fs2.Chunk
@@ -48,8 +47,7 @@ import java.util.concurrent.Flow
 
 object JdkHttpClient {
 
-  /** Creates a `Client` from an `HttpClient`. Note that the creation of an `HttpClient` is a side
-    * effect.
+  /** Creates a `Client` from an `HttpClient`.
     *
     * @param jdkHttpClient
     *   The `HttpClient`.
@@ -61,32 +59,32 @@ object JdkHttpClient {
   def apply[F[_]](
       jdkHttpClient: HttpClient,
       ignoredHeaders: Set[CIString] = restrictedHeaders
-  )(implicit F: Async[F]): Resource[F, Client[F]] = Dispatcher[F].map { dispatcher =>
-    def convertRequest(req: Request[F]): F[HttpRequest] =
-      convertHttpVersionFromHttp4s[F](req.httpVersion).map { version =>
-        val rb = HttpRequest.newBuilder
-          .method(
-            req.method.name, {
-              val publisher = FlowAdapters.toFlowPublisher(
-                StreamUnicastPublisher(req.body.chunks.map(_.toByteBuffer), dispatcher)
-              )
-              if (req.isChunked)
-                BodyPublishers.fromPublisher(publisher)
-              else
-                req.contentLength match {
-                  case Some(length) if length > 0L =>
-                    BodyPublishers.fromPublisher(publisher, length)
-                  case _ => BodyPublishers.noBody
-                }
-            }
-          )
-          .uri(URI.create(req.uri.renderString))
-          .version(version)
-        val headers = req.headers.headers.iterator
-          .filterNot(h => ignoredHeaders.contains(h.name))
-          .flatMap(h => Iterator(h.name.toString, h.value))
-          .toArray
-        (if (headers.isEmpty) rb else rb.headers(headers: _*)).build
+  )(implicit F: Async[F]): Client[F] = {
+    def convertRequest(req: Request[F]): Resource[F, HttpRequest] =
+      StreamUnicastPublisher(req.body.chunks.map(_.toByteBuffer)).evalMap { publisher =>
+        convertHttpVersionFromHttp4s[F](req.httpVersion).map { version =>
+          val rb = HttpRequest.newBuilder
+            .method(
+              req.method.name, {
+                val flowPublisher = FlowAdapters.toFlowPublisher(publisher)
+                if (req.isChunked)
+                  BodyPublishers.fromPublisher(flowPublisher)
+                else
+                  req.contentLength match {
+                    case Some(length) if length > 0L =>
+                      BodyPublishers.fromPublisher(flowPublisher, length)
+                    case _ => BodyPublishers.noBody
+                  }
+              }
+            )
+            .uri(URI.create(req.uri.renderString))
+            .version(version)
+          val headers = req.headers.headers.iterator
+            .filterNot(h => ignoredHeaders.contains(h.name))
+            .flatMap(h => Iterator(h.name.toString, h.value))
+            .toArray
+          (if (headers.isEmpty) rb else rb.headers(headers: _*)).build
+        }
       }
 
     // Convert the JDK HttpResponse into a http4s Response value.
@@ -238,7 +236,7 @@ object JdkHttpClient {
 
     Client[F] { req =>
       for {
-        req <- Resource.eval(convertRequest(req))
+        req <- convertRequest(req)
         res = F.fromCompletableFuture(
           F.delay(jdkHttpClient.sendAsync(req, BodyHandlers.ofPublisher))
         )
@@ -249,11 +247,11 @@ object JdkHttpClient {
 
   /** A `Client` wrapping the default `HttpClient`.
     */
-  def simple[F[_]](implicit F: Async[F]): Resource[F, Client[F]] =
-    Resource.eval(defaultHttpClient[F]).flatMap(apply(_))
+  def simple[F[_]](implicit F: Async[F]): F[Client[F]] =
+    defaultHttpClient[F].map(apply(_))
 
   private[jdkhttpclient] def defaultHttpClient[F[_]](implicit F: Async[F]): F[HttpClient] =
-    F.executionContext.flatMap { ec =>
+    F.executor.flatMap { exec =>
       F.delay {
         val builder = HttpClient.newBuilder()
         // workaround for https://github.com/http4s/http4s-jdk-http-client/issues/200
@@ -263,10 +261,7 @@ object JdkHttpClient {
           builder.sslParameters(params)
         }
 
-        ec match {
-          case exec: util.concurrent.Executor => builder.executor(exec)
-          case _ => builder.executor(ec.execute(_))
-        }
+        builder.executor(exec)
 
         builder.build()
       }

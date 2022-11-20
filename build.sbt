@@ -35,8 +35,8 @@ ThisBuild / mergifyRequiredJobs += "site"
 ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
 val catsV = "2.9.0"
-val catsEffectV = "3.3.14"
-val fs2V = "3.3.0"
+val catsEffectV = "3.4.1"
+val fs2V = "3.4.0"
 val scodecV = "1.1.34"
 val http4sV = "0.23.16"
 val reactiveStreamsV = "1.0.4"
@@ -73,7 +73,7 @@ val coreDeps = Seq(
 val scala213 = "2.13.10"
 ThisBuild / crossScalaVersions := Seq("2.12.17", scala213, "3.2.1")
 ThisBuild / scalaVersion := scala213
-ThisBuild / tlBaseVersion := "0.7"
+ThisBuild / tlBaseVersion := "0.8"
 ThisBuild / startYear := Some(2019)
 ThisBuild / developers := List(
   tlGitHubDev("ChristopherDavenport", "Christopher Davenport"),

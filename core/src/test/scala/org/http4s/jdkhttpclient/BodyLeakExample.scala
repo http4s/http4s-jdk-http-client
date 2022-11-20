@@ -51,7 +51,7 @@ object BodyLeakExample extends IOApp {
       .withPort(port"8080")
       .withHttpApp(app)
       .build
-      .product(JdkHttpClient.simple[IO])
+      .product(Resource.eval(JdkHttpClient.simple[IO]))
       .use { case (_, client) =>
         for {
           counter <- Ref.of[IO, Long](0L)
