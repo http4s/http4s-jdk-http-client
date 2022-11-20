@@ -4,6 +4,17 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v1.0.0-M7 (2022-11-20)
+
+### Breaking changes
+
+* On creation, the `Client` and `WSClient` are no longer wrapped in a `Resource` due to an internal refactoring.
+
+### Dependency updates
+
+* cats-effect-3.4.1
+* fs2-3.4.0
+
 ## v1.0.0-M6 (2022-09-20)
 
 ### Dependency updates
