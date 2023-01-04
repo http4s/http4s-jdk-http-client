@@ -4,6 +4,12 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v1.0.0-M8 (2023-01-05)
+
+### Dependency updates
+
+* **http4s-1.0.0-M38**
+
 ## v1.0.0-M7 (2022-11-20)
 
 ### Breaking changes
