@@ -23,7 +23,7 @@ import cats.implicits._
 import fs2.Chunk
 import fs2.Stream
 import fs2.concurrent.SignallingRef
-import fs2.interop.reactivestreams._
+import fs2.interop.flow._
 import org.http4s.Header
 import org.http4s.Headers
 import org.http4s.HttpVersion
@@ -32,7 +32,6 @@ import org.http4s.Response
 import org.http4s.Status
 import org.http4s.client.Client
 import org.http4s.internal.CollectionCompat.CollectionConverters._
-import org.reactivestreams.FlowAdapters
 import org.typelevel.ci.CIString
 
 import java.net.URI
@@ -61,18 +60,17 @@ object JdkHttpClient {
       ignoredHeaders: Set[CIString] = restrictedHeaders
   )(implicit F: Async[F]): Client[F] = {
     def convertRequest(req: Request[F]): Resource[F, HttpRequest] =
-      StreamUnicastPublisher(req.body.chunks.map(_.toByteBuffer)).evalMap { publisher =>
+      req.body.chunks.map(_.toByteBuffer).toPublisher.evalMap { publisher =>
         convertHttpVersionFromHttp4s[F](req.httpVersion).map { version =>
           val rb = HttpRequest.newBuilder
             .method(
               req.method.name, {
-                val flowPublisher = FlowAdapters.toFlowPublisher(publisher)
                 if (req.isChunked)
-                  BodyPublishers.fromPublisher(flowPublisher)
+                  BodyPublishers.fromPublisher(publisher)
                 else
                   req.contentLength match {
                     case Some(length) if length > 0L =>
-                      BodyPublishers.fromPublisher(flowPublisher, length)
+                      BodyPublishers.fromPublisher(publisher, length)
                     case _ => BodyPublishers.noBody
                   }
               }
@@ -194,6 +192,7 @@ object JdkHttpClient {
         }
         .flatMap { case (subscription, res) =>
           val body: Stream[F, util.List[ByteBuffer]] =
+            res.body.toStream(1)
             Stream
               .eval(StreamSubscriber[F, util.List[ByteBuffer]](1))
               .flatMap(s =>

@@ -36,7 +36,7 @@ ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
 val catsV = "2.9.0"
 val catsEffectV = "3.4.4"
-val fs2V = "3.4.0"
+val fs2V = "3.4.0-59-7543784-SNAPSHOT"
 val scodecV = "1.1.34"
 val http4sV = "0.23.17"
 val reactiveStreamsV = "1.0.4"
@@ -57,10 +57,8 @@ val coreDeps = Seq(
   "org.typelevel" %% "cats-effect-kernel" % catsEffectV,
   "org.typelevel" %% "cats-effect-std" % catsEffectV,
   "co.fs2" %% "fs2-core" % fs2V,
-  "co.fs2" %% "fs2-reactive-streams" % fs2V,
   "org.http4s" %% "http4s-client" % http4sV,
   "org.http4s" %% "http4s-core" % http4sV,
-  "org.reactivestreams" % "reactive-streams" % reactiveStreamsV,
   "org.scodec" %% "scodec-bits" % scodecV,
   "org.typelevel" %% "vault" % vaultV,
   "org.typelevel" %% "case-insensitive" % caseInsensitiveV
@@ -70,10 +68,12 @@ val coreDeps = Seq(
   "org.typelevel" %% "munit-cats-effect" % munitCatsEffectV
 )).map(_ % Test)
 
+ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
+
 val scala213 = "2.13.10"
 ThisBuild / crossScalaVersions := Seq("2.12.17", scala213, "3.2.1")
 ThisBuild / scalaVersion := scala213
-ThisBuild / tlBaseVersion := "0.8"
+ThisBuild / tlBaseVersion := "0.9"
 ThisBuild / startYear := Some(2019)
 ThisBuild / developers := List(
   tlGitHubDev("ChristopherDavenport", "Christopher Davenport"),
