@@ -36,7 +36,7 @@ ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
 val catsV = "2.9.0"
 val catsEffectV = "3.4.5"
-val fs2V = "3.4.0"
+val fs2V = "3.5.0"
 val scodecV = "1.1.34"
 val http4sV = "0.23.17"
 val reactiveStreamsV = "1.0.4"
