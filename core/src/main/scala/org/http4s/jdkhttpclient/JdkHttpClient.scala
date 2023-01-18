@@ -64,16 +64,15 @@ object JdkHttpClient {
         convertHttpVersionFromHttp4s[F](req.httpVersion).map { version =>
           val rb = HttpRequest.newBuilder
             .method(
-              req.method.name, {
-                if (req.isChunked)
-                  BodyPublishers.fromPublisher(publisher)
-                else
-                  req.contentLength match {
-                    case Some(length) if length > 0L =>
-                      BodyPublishers.fromPublisher(publisher, length)
-                    case _ => BodyPublishers.noBody
-                  }
-              }
+              req.method.name,
+              if (req.isChunked)
+                BodyPublishers.fromPublisher(publisher)
+              else
+                req.contentLength match {
+                  case Some(length) if length > 0L =>
+                    BodyPublishers.fromPublisher(publisher, length)
+                  case _ => BodyPublishers.noBody
+                }
             )
             .uri(URI.create(req.uri.renderString))
             .version(version)
@@ -191,25 +190,20 @@ object JdkHttpClient {
           }.uncancelable
         }
         .flatMap { case (subscription, res) =>
-          val body: Stream[F, util.List[ByteBuffer]] =
-            res.body.toStream(1)
-            Stream
-              .eval(StreamSubscriber[F, util.List[ByteBuffer]](1))
-              .flatMap(s =>
-                s.sub.stream(
-                  // Complete the TrybleDeferred so that we indicate we have
-                  // subscribed to the Publisher.
-                  //
-                  // This only happens _after_ someone attempts to pull from the
-                  // body and will never happen if the body is never pulled
-                  // from. In that case, the AlwaysCancelingSubscriber handles
-                  // cleanup.
-                  F.uncancelable { _ =>
-                    subscription.complete(()) *>
-                      F.delay(FlowAdapters.toPublisher(res.body).subscribe(s))
-                  }
-                )
-              )
+          val body =
+            fromSubscriber[F, util.List[ByteBuffer]](1) { subscriber =>
+              // Complete the TrybleDeferred so that we indicate we have
+              // subscribed to the Publisher.
+              //
+              // This only happens _after_ someone attempts to pull from the
+              // body and will never happen if the body is never pulled
+              // from. In that case, the AlwaysCancelingSubscriber handles
+              // cleanup.
+              F.uncancelable { _ =>
+                subscription.complete(()) *>
+                  F.delay(res.body.subscribe(subscriber))
+              }
+            }
           Resource(
             (F.fromEither(Status.fromInt(res.statusCode)), SignallingRef[F, Boolean](false)).mapN {
               case (status, signal) =>
