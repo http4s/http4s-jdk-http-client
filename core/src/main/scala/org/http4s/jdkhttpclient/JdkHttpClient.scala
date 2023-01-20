@@ -23,7 +23,7 @@ import cats.implicits._
 import fs2.Chunk
 import fs2.Stream
 import fs2.concurrent.SignallingRef
-import fs2.interop.flow._
+import fs2.interop.flow
 import org.http4s.Header
 import org.http4s.Headers
 import org.http4s.HttpVersion
@@ -60,7 +60,7 @@ object JdkHttpClient {
       ignoredHeaders: Set[CIString] = restrictedHeaders
   )(implicit F: Async[F]): Client[F] = {
     def convertRequest(req: Request[F]): Resource[F, HttpRequest] =
-      req.body.chunks.map(_.toByteBuffer).toPublisher.evalMap { publisher =>
+      flow.toPublisher(req.body.chunks.map(_.toByteBuffer)).evalMap { publisher =>
         convertHttpVersionFromHttp4s[F](req.httpVersion).map { version =>
           val rb = HttpRequest.newBuilder
             .method(
@@ -191,7 +191,7 @@ object JdkHttpClient {
         }
         .flatMap { case (subscription, res) =>
           val body =
-            fromSubscriber[F, util.List[ByteBuffer]](1) { subscriber =>
+            flow.fromPublisher[F, util.List[ByteBuffer]](1) { subscriber =>
               // Complete the TrybleDeferred so that we indicate we have
               // subscribed to the Publisher.
               //
