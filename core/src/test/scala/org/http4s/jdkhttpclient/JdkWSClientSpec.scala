@@ -31,6 +31,8 @@ import org.http4s.websocket.WebSocketFrame
 import org.typelevel.ci._
 import scodec.bits.ByteVector
 
+import scala.concurrent.duration._
+
 class JdkWSClientSpec extends CatsEffectSuite {
 
   val webSocket: IOFixture[WSClient[IO]] =
@@ -149,6 +151,7 @@ class JdkWSClientSpec extends CatsEffectSuite {
         .map(s => WSRequest(httpToWsUri(s.baseUri)))
       _ <- server.use { req =>
         webSocket().connect(req).use(conn => conn.send(WSFrame.Text("hi ember"))) *>
+          IO.sleep(100.millis) *> // quick sleep to collect the close frame
           webSocket().connectHighLevel(req).use { conn =>
             conn.send(WSFrame.Text("hey ember"))
           }
