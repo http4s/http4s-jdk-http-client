@@ -4,6 +4,18 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v1.0.0-M9 (2023-02-08)
+
+### "Breaking" changes
+
+* Due to internal changes, the dependency on reactive-streams has been dropped.
+
+### Dependency updates
+
+* scala-3.2.2
+* fs2-3.6.0
+* http4s-1.0.0-M39
+
 ## v1.0.0-M8 (2023-01-05)
 
 ### Dependency updates
