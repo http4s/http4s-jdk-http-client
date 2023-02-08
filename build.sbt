@@ -35,10 +35,10 @@ ThisBuild / mergifyRequiredJobs += "site"
 ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
 val catsV = "2.9.0"
-val catsEffectV = "3.4.5"
-val fs2V = "3.5.0-12-6d1e0b0-SNAPSHOT"
-val scodecV = "1.1.34"
-val http4sV = "0.23.17"
+val catsEffectV = "3.4.6"
+val fs2V = "3.6.0"
+val scodecV = "1.1.35"
+val http4sV = "0.23.18"
 val reactiveStreamsV = "1.0.4"
 val vaultV = "3.5.0"
 val caseInsensitiveV = "1.3.0"
@@ -68,10 +68,8 @@ val coreDeps = Seq(
   "org.typelevel" %% "munit-cats-effect" % munitCatsEffectV
 )).map(_ % Test)
 
-ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
-
 val scala213 = "2.13.10"
-ThisBuild / crossScalaVersions := Seq("2.12.17", scala213, "3.2.1")
+ThisBuild / crossScalaVersions := Seq("2.12.17", scala213, "3.2.2")
 ThisBuild / scalaVersion := scala213
 ThisBuild / tlBaseVersion := "0.9"
 ThisBuild / startYear := Some(2019)
