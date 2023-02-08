@@ -36,7 +36,7 @@ ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
 val catsV = "2.9.0"
 val catsEffectV = "3.4.6"
-val fs2V = "3.5.0"
+val fs2V = "3.6.0"
 val scodecV = "1.1.35"
 val http4sV = "1.0.0-M39"
 val reactiveStreamsV = "1.0.4"
@@ -57,10 +57,8 @@ val coreDeps = Seq(
   "org.typelevel" %% "cats-effect-kernel" % catsEffectV,
   "org.typelevel" %% "cats-effect-std" % catsEffectV,
   "co.fs2" %% "fs2-core" % fs2V,
-  "co.fs2" %% "fs2-reactive-streams" % fs2V,
   "org.http4s" %% "http4s-client" % http4sV,
   "org.http4s" %% "http4s-core" % http4sV,
-  "org.reactivestreams" % "reactive-streams" % reactiveStreamsV,
   "org.scodec" %% "scodec-bits" % scodecV,
   "org.typelevel" %% "vault" % vaultV,
   "org.typelevel" %% "case-insensitive" % caseInsensitiveV
