@@ -23,7 +23,7 @@ import cats.implicits._
 import fs2.Chunk
 import fs2.Stream
 import fs2.concurrent.SignallingRef
-import fs2.interop.reactivestreams._
+import fs2.interop.flow
 import org.http4s.Entity
 import org.http4s.Header
 import org.http4s.Headers
@@ -32,7 +32,6 @@ import org.http4s.Request
 import org.http4s.Response
 import org.http4s.Status
 import org.http4s.client.Client
-import org.reactivestreams.FlowAdapters
 import org.typelevel.ci.CIString
 
 import java.net.URI
@@ -69,8 +68,8 @@ object JdkHttpClient {
         case Entity.Strict(bytes) =>
           Resource.pure[F, BodyPublisher](BodyPublishers.ofInputStream(() => bytes.toInputStream))
         case Entity.Default(body, _) =>
-          StreamUnicastPublisher(body.chunks.map(_.toByteBuffer))
-            .map(FlowAdapters.toFlowPublisher(_))
+          flow
+            .toPublisher(body.chunks.map(_.toByteBuffer))
             .map { publisher =>
               if (req.isChunked)
                 BodyPublishers.fromPublisher(publisher)
@@ -198,24 +197,20 @@ object JdkHttpClient {
           }.uncancelable
         }
         .flatMap { case (subscription, res) =>
-          val body: Stream[F, util.List[ByteBuffer]] =
-            Stream
-              .eval(StreamSubscriber[F, util.List[ByteBuffer]](1))
-              .flatMap(s =>
-                s.sub.stream(
-                  // Complete the TrybleDeferred so that we indicate we have
-                  // subscribed to the Publisher.
-                  //
-                  // This only happens _after_ someone attempts to pull from the
-                  // body and will never happen if the body is never pulled
-                  // from. In that case, the AlwaysCancelingSubscriber handles
-                  // cleanup.
-                  F.uncancelable { _ =>
-                    subscription.complete(()) *>
-                      F.delay(FlowAdapters.toPublisher(res.body).subscribe(s))
-                  }
-                )
-              )
+          val body =
+            flow.fromPublisher[F, util.List[ByteBuffer]](1) { subscriber =>
+              // Complete the TrybleDeferred so that we indicate we have
+              // subscribed to the Publisher.
+              //
+              // This only happens _after_ someone attempts to pull from the
+              // body and will never happen if the body is never pulled
+              // from. In that case, the AlwaysCancelingSubscriber handles
+              // cleanup.
+              F.uncancelable { _ =>
+                subscription.complete(()) *>
+                  F.delay(res.body.subscribe(subscriber))
+              }
+            }
           Resource(
             (F.fromEither(Status.fromInt(res.statusCode)), SignallingRef[F, Boolean](false)).mapN {
               case (status, signal) =>
