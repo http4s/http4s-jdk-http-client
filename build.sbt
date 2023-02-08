@@ -36,7 +36,7 @@ ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
 val catsV = "2.9.0"
 val catsEffectV = "3.4.6"
-val fs2V = "3.5.0"
+val fs2V = "3.6.0"
 val scodecV = "1.1.35"
 val http4sV = "0.23.18"
 val reactiveStreamsV = "1.0.4"
@@ -57,10 +57,8 @@ val coreDeps = Seq(
   "org.typelevel" %% "cats-effect-kernel" % catsEffectV,
   "org.typelevel" %% "cats-effect-std" % catsEffectV,
   "co.fs2" %% "fs2-core" % fs2V,
-  "co.fs2" %% "fs2-reactive-streams" % fs2V,
   "org.http4s" %% "http4s-client" % http4sV,
   "org.http4s" %% "http4s-core" % http4sV,
-  "org.reactivestreams" % "reactive-streams" % reactiveStreamsV,
   "org.scodec" %% "scodec-bits" % scodecV,
   "org.typelevel" %% "vault" % vaultV,
   "org.typelevel" %% "case-insensitive" % caseInsensitiveV
@@ -73,7 +71,7 @@ val coreDeps = Seq(
 val scala213 = "2.13.10"
 ThisBuild / crossScalaVersions := Seq("2.12.17", scala213, "3.2.2")
 ThisBuild / scalaVersion := scala213
-ThisBuild / tlBaseVersion := "0.8"
+ThisBuild / tlBaseVersion := "0.9"
 ThisBuild / startYear := Some(2019)
 ThisBuild / developers := List(
   tlGitHubDev("ChristopherDavenport", "Christopher Davenport"),
@@ -83,8 +81,8 @@ ThisBuild / developers := List(
 
 ThisBuild / tlJdkRelease := Some(11)
 ThisBuild / githubWorkflowJavaVersions := Seq("11", "17").map(JavaSpec.temurin(_))
-ThisBuild / tlCiReleaseBranches := Seq("series/0.8")
-ThisBuild / tlSitePublishBranch := Some("series/0.8")
+ThisBuild / tlCiReleaseBranches := Seq("series/0.9")
+ThisBuild / tlSitePublishBranch := Some("series/0.9")
 
 lazy val docsSettings =
   Seq(
@@ -94,8 +92,9 @@ lazy val docsSettings =
       import laika.rewrite._
       _.site.versions(
         Versions(
-          currentVersion = Version("0.8.x", "0.8"),
+          currentVersion = Version("0.9.x", "0.9"),
           olderVersions = Seq(
+            Version("0.8.x", "0.8"),
             Version("0.7.x", "0.7"),
             Version("0.6.x", "0.6.0-M7"),
             Version("0.5.x", "0.5.0"),

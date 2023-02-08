@@ -23,7 +23,7 @@ import cats.implicits._
 import fs2.Chunk
 import fs2.Stream
 import fs2.concurrent.SignallingRef
-import fs2.interop.reactivestreams._
+import fs2.interop.flow
 import org.http4s.Header
 import org.http4s.Headers
 import org.http4s.HttpVersion
@@ -32,7 +32,6 @@ import org.http4s.Response
 import org.http4s.Status
 import org.http4s.client.Client
 import org.http4s.internal.CollectionCompat.CollectionConverters._
-import org.reactivestreams.FlowAdapters
 import org.typelevel.ci.CIString
 
 import java.net.URI
@@ -61,21 +60,19 @@ object JdkHttpClient {
       ignoredHeaders: Set[CIString] = restrictedHeaders
   )(implicit F: Async[F]): Client[F] = {
     def convertRequest(req: Request[F]): Resource[F, HttpRequest] =
-      StreamUnicastPublisher(req.body.chunks.map(_.toByteBuffer)).evalMap { publisher =>
+      flow.toPublisher(req.body.chunks.map(_.toByteBuffer)).evalMap { publisher =>
         convertHttpVersionFromHttp4s[F](req.httpVersion).map { version =>
           val rb = HttpRequest.newBuilder
             .method(
-              req.method.name, {
-                val flowPublisher = FlowAdapters.toFlowPublisher(publisher)
-                if (req.isChunked)
-                  BodyPublishers.fromPublisher(flowPublisher)
-                else
-                  req.contentLength match {
-                    case Some(length) if length > 0L =>
-                      BodyPublishers.fromPublisher(flowPublisher, length)
-                    case _ => BodyPublishers.noBody
-                  }
-              }
+              req.method.name,
+              if (req.isChunked)
+                BodyPublishers.fromPublisher(publisher)
+              else
+                req.contentLength match {
+                  case Some(length) if length > 0L =>
+                    BodyPublishers.fromPublisher(publisher, length)
+                  case _ => BodyPublishers.noBody
+                }
             )
             .uri(URI.create(req.uri.renderString))
             .version(version)
@@ -193,24 +190,20 @@ object JdkHttpClient {
           }.uncancelable
         }
         .flatMap { case (subscription, res) =>
-          val body: Stream[F, util.List[ByteBuffer]] =
-            Stream
-              .eval(StreamSubscriber[F, util.List[ByteBuffer]](1))
-              .flatMap(s =>
-                s.sub.stream(
-                  // Complete the TrybleDeferred so that we indicate we have
-                  // subscribed to the Publisher.
-                  //
-                  // This only happens _after_ someone attempts to pull from the
-                  // body and will never happen if the body is never pulled
-                  // from. In that case, the AlwaysCancelingSubscriber handles
-                  // cleanup.
-                  F.uncancelable { _ =>
-                    subscription.complete(()) *>
-                      F.delay(FlowAdapters.toPublisher(res.body).subscribe(s))
-                  }
-                )
-              )
+          val body =
+            flow.fromPublisher[F, util.List[ByteBuffer]](1) { subscriber =>
+              // Complete the TrybleDeferred so that we indicate we have
+              // subscribed to the Publisher.
+              //
+              // This only happens _after_ someone attempts to pull from the
+              // body and will never happen if the body is never pulled
+              // from. In that case, the AlwaysCancelingSubscriber handles
+              // cleanup.
+              F.uncancelable { _ =>
+                subscription.complete(()) *>
+                  F.delay(res.body.subscribe(subscriber))
+              }
+            }
           Resource(
             (F.fromEither(Status.fromInt(res.statusCode)), SignallingRef[F, Boolean](false)).mapN {
               case (status, signal) =>
