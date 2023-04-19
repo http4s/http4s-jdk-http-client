@@ -106,7 +106,7 @@ object JdkWSClient {
               sendSem <- Semaphore[F](1L)
             } yield (webSocket, queue, closedDef, sendSem)
           } { case (webSocket, queue, _, _) =>
-            for {
+            val cleanupF = for {
               isOutputOpen <- F.delay(!webSocket.isOutputClosed)
               closeOutput = F.fromCompletableFuture(
                 F.delay(webSocket.sendClose(JWebSocket.NORMAL_CLOSURE, ""))
@@ -130,15 +130,13 @@ object JdkWSClient {
                     } yield ()
                   }
 
-              shouldAbort <- F.delay {
-                !webSocket.isOutputClosed || !webSocket.isInputClosed
-              }
-
-              _ <- if(shouldAbort) F.delay {
-                webSocket.abort()
-              } else F.unit
-
             } yield ()
+
+            val ensureResourceReleaseF = F.delay {
+              if (!webSocket.isOutputClosed || !webSocket.isInputClosed) webSocket.abort else ()
+            }
+
+            F.guarantee(cleanupF, ensureResourceReleaseF)
           }
           .map { case (webSocket, queue, closedDef, sendSem) =>
             // sending will throw if done in parallel
