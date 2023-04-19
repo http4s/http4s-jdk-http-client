@@ -129,6 +129,15 @@ object JdkWSClient {
                       })
                     } yield ()
                   }
+
+              shouldAbort <- F.delay {
+                !webSocket.isOutputClosed || !webSocket.isInputClosed
+              }
+
+              _ <- if(shouldAbort) F.delay {
+                webSocket.abort()
+              } else F.unit
+
             } yield ()
           }
           .map { case (webSocket, queue, closedDef, sendSem) =>
