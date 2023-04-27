@@ -50,7 +50,7 @@ object JdkWSClient {
     WSClient(respondToPings = false) { req =>
       Dispatcher
         .sequential(
-          await = true
+          await = false
         )
         .flatMap { dispatcher =>
           Resource
@@ -111,13 +111,6 @@ object JdkWSClient {
                 sendSem <- Semaphore[F](1L)
               } yield (webSocket, queue, closedDef, sendSem)
             } { case (webSocket, queue, closedDef, sendSem) =>
-              def awaitClose(step: Int): F[Unit] =
-                closedDef.tryGet.flatMap {
-                  case Some(_) => F.unit
-                  case None =>
-                    if (step < 10) F.sleep(100.millis) *> awaitClose(step + 1) else F.unit
-                }
-
               val cleanupF = for {
                 isOutputOpen <- F.delay(!webSocket.isOutputClosed)
                 closeOutput = sendSem.permit.use { _ =>
@@ -148,12 +141,12 @@ object JdkWSClient {
                   !webSocket.isInputClosed
                 }
 
-                _ <- if (isInputOpen) awaitClose(0) else F.unit
+                _ <- if (isInputOpen) F.timeoutTo(closedDef.get, 1.second, F.unit) else F.unit
 
               } yield ()
 
               val ensureResourceReleaseF = F.delay {
-                if (!webSocket.isOutputClosed || !webSocket.isInputClosed) webSocket.abort else ()
+                webSocket.abort
               }
 
               F.guarantee(cleanupF, ensureResourceReleaseF)
