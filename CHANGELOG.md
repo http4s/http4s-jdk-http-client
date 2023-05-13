@@ -4,6 +4,14 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
+## v0.9.1 (2023-05-13)
+
+### Dependency updates
+
+* cats-effect-3.5.0
+* fs2-3.7.0
+* http4s-0.23.19
+
 ## v0.9.0 (2023-02-08)
 
 ### "Breaking" changes
