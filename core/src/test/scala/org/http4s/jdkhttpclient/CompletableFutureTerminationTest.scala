@@ -21,6 +21,7 @@ import cats.effect._
 import cats.effect.std.Semaphore
 import cats.syntax.all._
 import com.comcast.ip4s._
+import fs2.io.net.Network
 import munit.CatsEffectSuite
 import org.http4s._
 import org.http4s.ember.server._
@@ -171,7 +172,7 @@ object CompletableFutureTerminationTest {
     *   ensure the server has received the request. This permit is acquired ''before'' one is
     *   acquired from `semaphore`.
     */
-  private def stallingServerR[F[_]](
+  private def stallingServerR[F[_]: Network](
       semaphore: Semaphore[F],
       gotRequest: Semaphore[F]
   )(implicit F: Async[F]): Resource[F, Server] =

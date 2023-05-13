@@ -35,13 +35,13 @@ ThisBuild / mergifyRequiredJobs += "site"
 ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
 val catsV = "2.9.0"
-val catsEffectV = "3.4.11"
-val fs2V = "3.6.1"
+val catsEffectV = "3.5.0"
+val fs2V = "3.7.0"
 val scodecV = "1.1.37"
-val http4sV = "0.23.18"
+val http4sV = "0.23.19"
 val reactiveStreamsV = "1.0.4"
 val vaultV = "3.5.0"
-val caseInsensitiveV = "1.3.0"
+val caseInsensitiveV = "1.4.0"
 
 val munitV = "1.0.0-M7"
 val munitCatsEffectV = "2.0.0-M3"
