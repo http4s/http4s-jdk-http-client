@@ -41,8 +41,10 @@ import java.net.http.HttpRequest.BodyPublishers
 import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
 import java.nio.ByteBuffer
+import java.time.Duration
 import java.util
 import java.util.concurrent.Flow
+import scala.concurrent.duration.FiniteDuration
 
 object JdkHttpClient {
 
@@ -50,13 +52,16 @@ object JdkHttpClient {
     *
     * @param jdkHttpClient
     *   The `HttpClient`.
+    * @param requestTimeout
+    *   Request timeout, defaults to None
     * @param ignoredHeaders
     *   A set of ignored request headers. Some headers (like Content-Length) are "restricted" and
     *   cannot be set by the user. By default, the set of restricted headers of the OpenJDK 11 is
     *   used.
     */
-  def apply[F[_]](
+  def from[F[_]](
       jdkHttpClient: HttpClient,
+      requestTimeout: Option[FiniteDuration] = None,
       ignoredHeaders: Set[CIString] = restrictedHeaders
   )(implicit F: Async[F]): Client[F] = {
     def convertRequest(req: Request[F]): Resource[F, HttpRequest] =
@@ -76,6 +81,9 @@ object JdkHttpClient {
             )
             .uri(URI.create(req.uri.renderString))
             .version(version)
+
+          requestTimeout.fold(rb)(fd => rb.timeout(Duration.ofMillis(fd.toMillis)))
+
           val headers = req.headers.headers.iterator
             .filterNot(h => ignoredHeaders.contains(h.name))
             .flatMap(h => Iterator(h.name.toString, h.value))
@@ -238,12 +246,41 @@ object JdkHttpClient {
     }
   }
 
+  /** Creates a `Client` from an `HttpClient`.
+    *
+    * @param jdkHttpClient
+    *   The `HttpClient`.
+    * @param ignoredHeaders
+    *   A set of ignored request headers. Some headers (like Content-Length) are "restricted" and
+    *   cannot be set by the user. By default, the set of restricted headers of the OpenJDK 11 is
+    *   used.
+    */
+  def apply[F[_]: Async](
+      jdkHttpClient: HttpClient,
+      ignoredHeaders: Set[CIString] = restrictedHeaders
+  ): Client[F] = from(jdkHttpClient, ignoredHeaders = ignoredHeaders)
+
   /** A `Client` wrapping the default `HttpClient`.
     */
   def simple[F[_]](implicit F: Async[F]): F[Client[F]] =
-    defaultHttpClient[F].map(apply(_))
+    defaultHttpClient[F]().map(apply(_))
+
+  /** A `Client` wrapping the default `HttpClient`.
+    */
+  def simple[F[_]](
+      requestTimeout: Option[FiniteDuration] = None,
+      connectionTimeout: Option[FiniteDuration] = None
+  )(implicit
+      F: Async[F]
+  ): F[Client[F]] =
+    defaultHttpClient[F](connectionTimeout).map(from(_, requestTimeout))
 
   private[jdkhttpclient] def defaultHttpClient[F[_]](implicit F: Async[F]): F[HttpClient] =
+    defaultHttpClient(None)
+
+  private def defaultHttpClient[F[_]](
+      connectionTimeout: Option[FiniteDuration] = None
+  )(implicit F: Async[F]): F[HttpClient] =
     F.executor.flatMap { exec =>
       F.delay {
         val builder = HttpClient.newBuilder()
@@ -253,6 +290,10 @@ object JdkHttpClient {
           params.setProtocols(params.getProtocols().filter(_ != "TLSv1.3"))
           builder.sslParameters(params)
         }
+
+        connectionTimeout.fold(builder)(fd =>
+          builder.connectTimeout(Duration.ofMillis(fd.toMillis))
+        )
 
         builder.executor(exec)
 
