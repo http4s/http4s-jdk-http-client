@@ -34,8 +34,10 @@ import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.{WebSocket => JWebSocket}
 import java.nio.ByteBuffer
+import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
+import scala.concurrent.duration.FiniteDuration
 
 /** A `WSClient` wrapper for the JDK 11+ websocket client. It will reply to Pongs with Pings even in
   * "low-level" mode. Custom (non-GET) HTTP methods are ignored.
@@ -45,6 +47,12 @@ object JdkWSClient {
   /** Create a new `WSClient` backed by a JDK 11+ http client. */
   def apply[F[_]](
       jdkHttpClient: HttpClient
+  )(implicit F: Async[F]): WSClient[F] = apply(jdkHttpClient, None)
+
+  /** Create a new `WSClient` backed by a JDK 11+ http client. */
+  def apply[F[_]](
+      jdkHttpClient: HttpClient,
+      connectionTimeout: Option[FiniteDuration]
   )(implicit F: Async[F]): WSClient[F] =
     WSClient(respondToPings = false) { req =>
       Dispatcher.sequential.flatMap { dispatcher =>
@@ -53,6 +61,10 @@ object JdkWSClient {
             for {
               wsBuilder <- F.delay {
                 val builder = jdkHttpClient.newWebSocketBuilder()
+                connectionTimeout.foreach(fd =>
+                  builder.connectTimeout(Duration.ofMillis(fd.toMillis))
+                )
+
                 val (subprotocols, hs) = req.headers.headers.partitionEither {
                   case Header.Raw(ci"Sec-WebSocket-Protocol", p) => Left(p)
                   case h => Right(h)
@@ -160,5 +172,11 @@ object JdkWSClient {
 
   /** A `WSClient` wrapping the default `HttpClient`. */
   def simple[F[_]](implicit F: Async[F]): F[WSClient[F]] =
-    JdkHttpClient.defaultHttpClient[F].map(apply(_))
+    JdkHttpClient.defaultHttpClient[F]().map(apply(_))
+
+  /** A `WSClient` wrapping the default `HttpClient`. */
+  def simple[F[_]](
+      connectionTimeout: Option[FiniteDuration] = None
+  )(implicit F: Async[F]): F[WSClient[F]] =
+    JdkHttpClient.defaultHttpClient[F](connectionTimeout).map(apply(_, connectionTimeout))
 }

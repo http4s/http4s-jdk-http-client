@@ -82,7 +82,7 @@ object JdkHttpClient {
             .uri(URI.create(req.uri.renderString))
             .version(version)
 
-          requestTimeout.fold(rb)(fd => rb.timeout(Duration.ofMillis(fd.toMillis)))
+          requestTimeout.foreach(fd => rb.timeout(Duration.ofMillis(fd.toMillis)))
 
           val headers = req.headers.headers.iterator
             .filterNot(h => ignoredHeaders.contains(h.name))
@@ -275,10 +275,11 @@ object JdkHttpClient {
   ): F[Client[F]] =
     defaultHttpClient[F](connectionTimeout).map(from(_, requestTimeout))
 
+  @deprecated("use defaultHttpClient() instead", since = "0.9.2")
   private[jdkhttpclient] def defaultHttpClient[F[_]](implicit F: Async[F]): F[HttpClient] =
     defaultHttpClient(None)
 
-  private def defaultHttpClient[F[_]](
+  private[jdkhttpclient] def defaultHttpClient[F[_]](
       connectionTimeout: Option[FiniteDuration] = None
   )(implicit F: Async[F]): F[HttpClient] =
     F.executor.flatMap { exec =>
@@ -291,9 +292,7 @@ object JdkHttpClient {
           builder.sslParameters(params)
         }
 
-        connectionTimeout.fold(builder)(fd =>
-          builder.connectTimeout(Duration.ofMillis(fd.toMillis))
-        )
+        connectionTimeout.foreach(fd => builder.connectTimeout(Duration.ofMillis(fd.toMillis)))
 
         builder.executor(exec)
 
