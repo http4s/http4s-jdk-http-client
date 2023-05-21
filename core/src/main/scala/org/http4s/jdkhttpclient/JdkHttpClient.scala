@@ -239,7 +239,10 @@ object JdkHttpClient {
     }
   }
 
-  /** A `Client` wrapping the default `HttpClient`.
+  /** A `Client` wrapping an `HttpClient`, which shares the current
+    * [[cats.effect.kernel.Async.executor executor]], sets the
+    * [[org.http4s.client.defaults.ConnectTimeout default http4s connect timeout]], and disables
+    * [[https://github.com/http4s/http4s-jdk-http-client/issues/200 TLS 1.3 on JDK 11]].
     */
   def simple[F[_]](implicit F: Async[F]): F[Client[F]] =
     defaultHttpClient[F].map(apply(_))
