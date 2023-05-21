@@ -41,6 +41,7 @@ import java.net.http.HttpRequest.BodyPublishers
 import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
 import java.nio.ByteBuffer
+import java.time.Duration
 import java.util
 import java.util.concurrent.Flow
 
@@ -255,6 +256,7 @@ object JdkHttpClient {
         }
 
         builder.executor(exec)
+        builder.connectTimeout(Duration.ofNanos(org.http4s.client.defaults.ConnectTimeout.toNanos))
 
         builder.build()
       }
