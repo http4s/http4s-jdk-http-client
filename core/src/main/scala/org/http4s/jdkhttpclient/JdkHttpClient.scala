@@ -41,6 +41,7 @@ import java.net.http.HttpRequest.BodyPublishers
 import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
 import java.nio.ByteBuffer
+import java.time.Duration
 import java.util
 import java.util.concurrent.Flow
 
@@ -167,9 +168,9 @@ object JdkHttpClient {
         responseF: F[HttpResponse[Flow.Publisher[util.List[ByteBuffer]]]]
     ): Resource[F, Response[F]] =
       Resource
-        .make(
-          (Deferred[F, Unit], responseF).tupled
-        ) { case (subscription, response) =>
+        .makeFull { (poll: Poll[F]) =>
+          (Deferred[F, Unit], poll(responseF)).tupled
+        } { case (subscription, response) =>
           subscription.tryGet.flatMap {
             case None =>
               // Indicates response was never subscribed to. In this case, in
@@ -255,6 +256,7 @@ object JdkHttpClient {
         }
 
         builder.executor(exec)
+        builder.connectTimeout(Duration.ofNanos(org.http4s.client.defaults.ConnectTimeout.toNanos))
 
         builder.build()
       }

@@ -41,7 +41,7 @@ class JdkHttpClientSpec extends ClientRouteTestBattery("JdkHttpClient") {
     body.assertEquals("simple path")
   }
 
-  test("timeout request".only) {
+  test("timeout request") {
     val address = server().addresses.head
     val path = GetRoutes.DelayedPath // 1s delay before response
     val uri = Uri.fromString(s"http://$address$path").toOption.get
