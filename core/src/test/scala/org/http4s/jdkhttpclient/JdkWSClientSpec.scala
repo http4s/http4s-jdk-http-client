@@ -42,10 +42,14 @@ class JdkWSClientSpec extends CatsEffectSuite {
       "echoServerUri",
       EmberServerBuilder
         .default[IO]
+        .withShutdownTimeout(1.second)
         .withPort(port"0")
         .withHttpWebSocketApp { wsb =>
           HttpRoutes
-            .of[IO] { case GET -> Root => wsb.build(identity) }
+            .of[IO] {
+              case GET -> Root => wsb.build(identity)
+              case GET -> Root / "delayed" => IO.sleep(1.second) *> wsb.build(identity)
+            }
             .orNotFound
         }
         .build
@@ -196,6 +200,21 @@ class JdkWSClientSpec extends CatsEffectSuite {
       }
       .map(_.map(recvHeaders => sentHeaders.headers.toSet.subsetOf(recvHeaders.headers.toSet)))
       .assertEquals(Some(true))
+  }
+
+  test("connect timeout") {
+    webSocket()
+      .connectHighLevel(WSRequest(echoServerUri() / "delayed"))
+      .use_
+      .as(false)
+      .timeoutTo(100.millis, IO.pure(true))
+      .timed
+      .flatMap { case (duration, result) =>
+        IO {
+          assert(clue(duration) < 1.second)
+          assert(result)
+        }
+      }
   }
 
   def httpToWsUri(uri: Uri): Uri = uri.copy(scheme = scheme"ws".some)

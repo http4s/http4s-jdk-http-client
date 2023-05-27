@@ -168,9 +168,9 @@ object JdkHttpClient {
         responseF: F[HttpResponse[Flow.Publisher[util.List[ByteBuffer]]]]
     ): Resource[F, Response[F]] =
       Resource
-        .make(
-          (Deferred[F, Unit], responseF).tupled
-        ) { case (subscription, response) =>
+        .makeFull { (poll: Poll[F]) =>
+          (Deferred[F, Unit], poll(responseF)).tupled
+        } { case (subscription, response) =>
           subscription.tryGet.flatMap {
             case None =>
               // Indicates response was never subscribed to. In this case, in

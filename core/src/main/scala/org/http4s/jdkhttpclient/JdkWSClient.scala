@@ -49,7 +49,7 @@ object JdkWSClient {
     WSClient(respondToPings = false) { req =>
       Dispatcher.sequential.flatMap { dispatcher =>
         Resource
-          .make {
+          .makeFull { (poll: Poll[F]) =>
             for {
               wsBuilder <- F.delay {
                 val builder = jdkHttpClient.newWebSocketBuilder()
@@ -100,8 +100,10 @@ object JdkWSClient {
                   handleReceive(error.asLeft); ()
                 }
               }
-              webSocket <- F.fromCompletableFuture(
-                F.delay(wsBuilder.buildAsync(URI.create(req.uri.renderString), wsListener))
+              webSocket <- poll(
+                F.fromCompletableFuture(
+                  F.delay(wsBuilder.buildAsync(URI.create(req.uri.renderString), wsListener))
+                )
               )
               sendSem <- Semaphore[F](1L)
             } yield (webSocket, queue, closedDef, sendSem)
