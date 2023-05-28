@@ -25,6 +25,8 @@ import org.http4s.client.testkit.ClientRouteTestBattery
 import org.http4s.client.testkit.testroutes.GetRoutes
 import org.typelevel.ci._
 
+import scala.concurrent.duration._
+
 class JdkHttpClientSpec extends ClientRouteTestBattery("JdkHttpClient") {
   def clientResource: Resource[IO, Client[IO]] = Resource.eval(JdkHttpClient.simple[IO])
 
@@ -37,5 +39,19 @@ class JdkHttpClientSpec extends ClientRouteTestBattery("JdkHttpClient") {
       .putHeaders(Header.Raw(ci"Content-Length", "0"))
     val body = client().expect[String](req)
     body.assertEquals("simple path")
+  }
+
+  test("timeout request") {
+    val address = server().addresses.head
+    val path = GetRoutes.DelayedPath // 1s delay before response
+    val uri = Uri.fromString(s"http://$address$path").toOption.get
+    val req = Request[IO](uri = uri)
+    val res = client().expect[String](req)
+    res.as(false).timeoutTo(100.millis, IO.pure(true)).timed.flatMap { case (duration, result) =>
+      IO {
+        assert(clue(duration) < 1.second)
+        assert(result)
+      }
+    }
   }
 }

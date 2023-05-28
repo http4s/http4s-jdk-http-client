@@ -49,7 +49,7 @@ object JdkWSClient {
     WSClient(respondToPings = false) { req =>
       Dispatcher.sequential.flatMap { dispatcher =>
         Resource
-          .make {
+          .makeFull { (poll: Poll[F]) =>
             for {
               wsBuilder <- F.delay {
                 val builder = jdkHttpClient.newWebSocketBuilder()
@@ -100,8 +100,10 @@ object JdkWSClient {
                   handleReceive(error.asLeft); ()
                 }
               }
-              webSocket <- F.fromCompletableFuture(
-                F.delay(wsBuilder.buildAsync(URI.create(req.uri.renderString), wsListener))
+              webSocket <- poll(
+                F.fromCompletableFuture(
+                  F.delay(wsBuilder.buildAsync(URI.create(req.uri.renderString), wsListener))
+                )
               )
               sendSem <- Semaphore[F](1L)
             } yield (webSocket, queue, closedDef, sendSem)
@@ -158,7 +160,11 @@ object JdkWSClient {
       }
     }
 
-  /** A `WSClient` wrapping the default `HttpClient`. */
+  /** A `WSClient` wrapping the default `HttpClient`, which shares the current
+    * [[cats.effect.kernel.Async.executor executor]], sets the
+    * [[org.http4s.client.defaults.ConnectTimeout default http4s connect timeout]], and disables
+    * [[https://github.com/http4s/http4s-jdk-http-client/issues/200 TLS 1.3 on JDK 11]].
+    */
   def simple[F[_]](implicit F: Async[F]): F[WSClient[F]] =
     JdkHttpClient.defaultHttpClient[F].map(apply(_))
 }
