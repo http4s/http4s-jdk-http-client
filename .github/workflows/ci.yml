@@ -236,7 +236,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        scala: [2.13.10]
         java: [temurin@11]
     runs-on: ${{ matrix.os }}
     steps:
@@ -290,7 +289,7 @@ jobs:
           key: ${{ runner.os }}-sbt-cache-v2-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
 
       - name: Generate site
-        run: sbt '++ ${{ matrix.scala }}' docs/tlSite
+        run: sbt docs/tlSite
 
       - name: Publish site
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/series/0.9'
