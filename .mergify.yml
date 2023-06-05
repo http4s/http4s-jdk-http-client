@@ -13,7 +13,7 @@ pull_request_rules:
   - status-success=Build and Test (ubuntu-latest, 2.13.10, temurin@11)
   - status-success=Build and Test (ubuntu-latest, 2.13.10, temurin@17)
   - status-success=Build and Test (ubuntu-latest, 3.2.2, temurin@11)
-  - status-success=Generate Site (ubuntu-latest, 2.13.10, temurin@11)
+  - status-success=Generate Site (ubuntu-latest, temurin@11)
   actions:
     merge:
       method: squash
