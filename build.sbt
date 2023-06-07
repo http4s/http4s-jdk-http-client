@@ -68,7 +68,7 @@ val coreDeps = Seq(
   "org.typelevel" %% "munit-cats-effect" % munitCatsEffectV
 )).map(_ % Test)
 
-val scala213 = "2.13.10"
+val scala213 = "2.13.11"
 ThisBuild / crossScalaVersions := Seq(scala213, "3.2.2")
 ThisBuild / scalaVersion := scala213
 ThisBuild / tlBaseVersion := "1.0"
