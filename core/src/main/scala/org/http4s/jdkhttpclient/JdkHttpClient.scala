@@ -253,20 +253,18 @@ object JdkHttpClient {
     defaultHttpClient[F].map(apply(_))
 
   private[jdkhttpclient] def defaultHttpClient[F[_]](implicit F: Async[F]): F[HttpClient] =
-    F.executor.flatMap { exec =>
-      F.delay {
-        val builder = HttpClient.newBuilder()
-        // workaround for https://github.com/http4s/http4s-jdk-http-client/issues/200
-        if (Runtime.version().feature() == 11) {
-          val params = javax.net.ssl.SSLContext.getDefault().getDefaultSSLParameters()
-          params.setProtocols(params.getProtocols().filter(_ != "TLSv1.3"))
-          builder.sslParameters(params)
-        }
-
-        builder.executor(exec)
-
-        builder.build()
+    F.executor.map { exec =>
+      val builder = HttpClient.newBuilder()
+      // workaround for https://github.com/http4s/http4s-jdk-http-client/issues/200
+      if (Runtime.version().feature() == 11) {
+        val params = javax.net.ssl.SSLContext.getDefault().getDefaultSSLParameters()
+        params.setProtocols(params.getProtocols().filter(_ != "TLSv1.3"))
+        builder.sslParameters(params)
       }
+
+      builder.executor(exec)
+
+      builder.build()
     }
 
   def convertHttpVersionFromHttp4s[F[_]](
