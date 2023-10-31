@@ -68,7 +68,7 @@ object JdkHttpClient {
         case Entity.Empty => Resource.pure[F, BodyPublisher](BodyPublishers.noBody())
         case Entity.Strict(bytes) =>
           Resource.pure[F, BodyPublisher](BodyPublishers.ofInputStream(() => bytes.toInputStream))
-        case Entity.Default(body, _) =>
+        case Entity.Streamed(body, _) =>
           flow
             .toPublisher(body.chunks.map(_.toByteBuffer))
             .map { publisher =>
@@ -224,7 +224,7 @@ object JdkHttpClient {
                     case HttpClient.Version.HTTP_1_1 => HttpVersion.`HTTP/1.1`
                     case HttpClient.Version.HTTP_2 => HttpVersion.`HTTP/2`
                   },
-                  entity = Entity(
+                  entity = Entity.stream(
                     body
                       .interruptWhen(signal)
                       .flatMap(bs =>

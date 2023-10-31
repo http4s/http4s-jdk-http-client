@@ -39,6 +39,7 @@ val catsEffectV = "3.5.0"
 val fs2V = "3.7.0"
 val scodecV = "1.1.37"
 val http4sV = "1.0.0-M40"
+val log4catsV = "2.6.0"
 val reactiveStreamsV = "1.0.4"
 val vaultV = "3.5.0"
 val caseInsensitiveV = "1.4.0"
@@ -65,7 +66,8 @@ val coreDeps = Seq(
 ) ++ (emberServer ++ Seq(
   "org.http4s" %% "http4s-client-testkit" % http4sV,
   "org.scalameta" %% "munit" % munitV,
-  "org.typelevel" %% "munit-cats-effect" % munitCatsEffectV
+  "org.typelevel" %% "munit-cats-effect" % munitCatsEffectV,
+  "org.typelevel" %% "log4cats-noop" % log4catsV
 )).map(_ % Test)
 
 val scala213 = "2.13.10"

@@ -29,11 +29,15 @@ import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.implicits._
 import org.http4s.websocket.WebSocketFrame
 import org.typelevel.ci._
+import org.typelevel.log4cats.LoggerFactory
+import org.typelevel.log4cats.noop.NoOpFactory
 import scodec.bits.ByteVector
 
 import scala.concurrent.duration._
 
 class JdkWSClientSpec extends CatsEffectSuite {
+
+  implicit val loggerFactor: LoggerFactory[IO] = NoOpFactory[IO]
 
   val webSocket: IOFixture[WSClient[IO]] =
     ResourceSuiteLocalFixture("webSocket", Resource.eval(JdkWSClient.simple[IO]))
