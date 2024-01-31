@@ -10,10 +10,10 @@ pull_request_rules:
   conditions:
   - author=http4s-steward[bot]
   - body~=labels:.*early-semver-patch
-  - status-success=Build and Test (ubuntu-latest, 2.13.10, temurin@11)
-  - status-success=Build and Test (ubuntu-latest, 2.13.10, temurin@17)
-  - status-success=Build and Test (ubuntu-latest, 3.3.1, temurin@11)
-  - status-success=Generate Site (ubuntu-latest, 2.13.10, temurin@11)
+  - status-success=Build and Test (ubuntu-latest, 2.13, temurin@11)
+  - status-success=Build and Test (ubuntu-latest, 2.13, temurin@17)
+  - status-success=Build and Test (ubuntu-latest, 3, temurin@11)
+  - status-success=Generate Site (ubuntu-latest, temurin@11)
   actions:
     merge:
       method: squash

@@ -34,18 +34,18 @@ ThisBuild / mergifyStewardConfig := Some(
 ThisBuild / mergifyRequiredJobs += "site"
 ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
-val catsV = "2.9.0"
-val catsEffectV = "3.5.2"
-val fs2V = "3.7.0"
-val scodecV = "1.1.37"
+val catsV = "2.10.0"
+val catsEffectV = "3.5.3"
+val fs2V = "3.9.4"
+val scodecV = "1.1.38"
 val http4sV = "1.0.0-M40"
 val log4catsV = "2.6.0"
 val reactiveStreamsV = "1.0.4"
 val vaultV = "3.5.0"
 val caseInsensitiveV = "1.4.0"
 
-val munitV = "1.0.0-M7"
-val munitCatsEffectV = "2.0.0-M3"
+val munitV = "1.0.0-M10"
+val munitCatsEffectV = "2.0.0-M4"
 
 val emberServer = Seq(
   "org.http4s" %% "http4s-ember-server" % http4sV,
@@ -70,7 +70,7 @@ val coreDeps = Seq(
   "org.typelevel" %% "munit-cats-effect" % munitCatsEffectV
 )).map(_ % Test)
 
-val scala213 = "2.13.10"
+val scala213 = "2.13.12"
 ThisBuild / crossScalaVersions := Seq(scala213, "3.3.1")
 ThisBuild / scalaVersion := scala213
 ThisBuild / tlBaseVersion := "1.0"
@@ -90,20 +90,21 @@ lazy val docsSettings =
   Seq(
     tlSiteApiModule := Some((core / projectID).value),
     tlSiteApiPackage := Some("org.http4s.jdkhttpclient"),
-    tlSiteHeliumConfig ~= {
-      import laika.rewrite._
-      _.site.versions(
-        Versions(
-          currentVersion = Version("1.x", "1.x"),
-          olderVersions = Seq(
+    tlSiteHelium := {
+      import laika.ast._
+      import laika.config._
+      tlSiteHelium.value.site.versions(
+        Versions
+          .forCurrentVersion(Version("1.x", "1.x"))
+          .withOlderVersions(
+            Version("0.9.x", "0.9"),
             Version("0.8.x", "0.8"),
             Version("0.7.x", "0.7"),
             Version("0.6.x", "0.6.0-M7"),
             Version("0.5.x", "0.5.0"),
             Version("0.4.x", "0.4.0")
-          ),
-          renderUnversioned = true
-        )
+          )
+          .withRenderUnversioned(false)
       )
     },
     mdocVariables ++= Map(
