@@ -255,7 +255,7 @@ object JdkHttpClient {
         if (Runtime.version().feature() == 11) {
           val params = javax.net.ssl.SSLContext.getDefault().getDefaultSSLParameters()
           params.setProtocols(params.getProtocols().filter(_ != "TLSv1.3"))
-          builder.sslParameters(params)
+          val _ = builder.sslParameters(params)
         }
 
         builder.executor(exec)
