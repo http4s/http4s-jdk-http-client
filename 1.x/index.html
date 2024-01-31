@@ -1,206 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
+  
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Laika 0.18.1 + Helium Theme" />
-    <title>http4s-jdk-http-client</title>
-    
-      <meta name="author" content="Christopher Davenport"/>
-    
-      <meta name="author" content="Alexander Esgen"/>
-    
-      <meta name="author" content="Ross A. Baker"/>
-    
-    
-      <meta name="description" content="docs"/>
-    
-    
-      <link rel="icon"  type="image/svg+xml" href="/images/http4s-favicon.svg"/>
-    
-      <link rel="icon" sizes="32x32" type="image/png" href="/images/http4s-favicon.png"/>
-    
-    
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-    
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
-    
-    <link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
-    <link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
-    <link rel="stylesheet" type="text/css" href="../site/styles.css" />
-    <script src="../helium/laika-helium.js"></script>
-    <script src="../helium/laika-versions.js"></script>
-    <script>initVersions("../", "/index.html", "1.x");</script>
-    
-    <script> /* for avoiding page load transitions */ </script>
-  </head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>http4s-jdk-http-client</title>
+  
+  <meta name="author" content="Christopher Davenport"/>
+  
+  <meta name="author" content="Alexander Esgen"/>
+  
+  <meta name="author" content="Ross A. Baker"/>
+  
+  
+  <meta name="description" content="docs"/>
+  
+  
+  
+  <link rel="icon"  type="image/svg+xml" href="../images/http4s-favicon.svg"/>
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../images/http4s-favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../helium/site/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/site/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/site/landing-page.css" />
+  <script src="../helium/site/laika-helium.js"></script>
+    <script src="../helium/site/laika-versions.js"></script>
+  <script>initVersions("../", "/index.html", "1.x", null);</script>
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
 
   <body>
 
-    <header id="top-bar">
+    <header id="top-bar" class="light-default dark-default">
 
-      <div class="row">
-        <a id="nav-icon">
-          <i class="icofont-laika" title="Navigation">&#xefa2;</i>
-        </a>
-        
-        <div id="version-menu-container">
-          <a id="version-menu-toggle" class="text-link drop-down-toggle" href="#">
-            
-            Version 1.x
-            
-          </a>
-          <nav id="version-menu">
-            <ul id="version-list" class="nav-list">
-            </ul>
-          </nav>
-        </div>
-        
-      </div>
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    <div class="menu-container version-menu">
+      <a class="text-link menu-toggle" href="#">Version 1.x</a>
+      <nav class="menu-content">
+        <ul class="nav-list">
+        </ul>
+      </nav>
+    </div>
+  </div>
 
-      <a class="image-link" href="https://http4s.org"><img src="../images/http4s-logo-text-dark.svg"></a>
+  <a class="image-link" href="https://http4s.org"><img src="../images/http4s-logo-text-dark.svg"></a>
 
-      <span class="row links"><a class="icon-link svg-link" href="https://www.javadoc.io/doc/org.http4s/http4s-jdk-http-client_2.13/1.0.0-M9/org/http4s/jdkhttpclient/index.html"><span title="API"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <div class="row links">
+    
+    <a class="icon-link svg-link" href="https://www.javadoc.io/doc/org.http4s/http4s-jdk-http-client_2.13/1.0.0-M9/org/http4s/jdkhttpclient/index.html"><span class="api" title="API"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
   <g class="svg-shape">
     <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
   </g>
-</svg></span></a><a class="icon-link svg-link" href="https://github.com/http4s/http4s-jdk-http-client"><span title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+</svg></span></a>
+    
+    <a class="icon-link svg-link" href="https://github.com/http4s/http4s-jdk-http-client"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
   <g class="svg-shape">
     <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
   </g>
-</svg></span></a><a class="icon-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika" title="Chat">&#xeed5;</i></a></span>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+  </div>  
 
-    </header>
-
+</header>
+    
     <nav id="sidebar">
 
-      <div class="row">
-        <a class="icon-link svg-link" href="https://www.javadoc.io/doc/org.http4s/http4s-jdk-http-client_2.13/1.0.0-M9/org/http4s/jdkhttpclient/index.html"><span title="API"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <div class="row">
+    
+    <a class="icon-link svg-link" href="https://www.javadoc.io/doc/org.http4s/http4s-jdk-http-client_2.13/1.0.0-M9/org/http4s/jdkhttpclient/index.html"><span class="api" title="API"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
   <g class="svg-shape">
     <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
   </g>
-</svg></span></a><a class="icon-link svg-link" href="https://github.com/http4s/http4s-jdk-http-client"><span title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+</svg></span></a>
+    
+    <a class="icon-link svg-link" href="https://github.com/http4s/http4s-jdk-http-client"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
   <g class="svg-shape">
     <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
   </g>
-</svg></span></a><a class="icon-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika" title="Chat">&#xeed5;</i></a>
-      </div>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+  </div>
 
-      <ul class="nav-list">
-      </ul>
+  <ul class="nav-list">
+    <li class="level1 nav-header">Related Projects</li>
+    <li class="level2 nav-leaf"><a href="https://http4s.org/">http4s</a></li>
+    <li class="level2 nav-leaf"><a href="https://github.com/http4s/blaze">blaze</a></li>
+    <li class="level2 nav-leaf"><a href="https://github.com/http4s/http4s-armeria">http4s-armeria</a></li>
+    <li class="level2 nav-leaf"><a href="https://github.com/http4s/http4s-curl/">http4s-curl</a></li>
+    <li class="level2 nav-leaf"><a href="https://http4s.github.io/http4s-dom/">http4s-dom</a></li>
+    <li class="level2 nav-leaf"><a href="https://http4s.github.io/http4s-finagle/docs/">http4s-finagle</a></li>
+    <li class="level2 nav-leaf"><a href="https://github.com/http4s/http4s-jetty/">http4s-jetty</a></li>
+    <li class="level2 nav-leaf"><a href="https://github.com/http4s/http4s-netty/">http4s-netty</a></li>
+    <li class="level2 nav-leaf"><a href="https://http4s.github.io/http4s-servlet/">http4s-servlet</a></li>
+    <li class="level2 nav-leaf"><a href="https://github.com/http4s/rho/">rho</a></li>
+    <li class="level2 nav-leaf"><a href="https://github.com/http4s/http4s-boopickle/">http4s-boopickle</a></li>
+    <li class="level2 nav-leaf"><a href="https://github.com/http4s/http4s-fabric/">http4s-fabric</a></li>
+    <li class="level2 nav-leaf"><a href="https://http4s.github.io/http4s-fs2-data/">http4s-fs2-data</a></li>
+    <li class="level2 nav-leaf"><a href="https://http4s.github.io/http4s-scala-xml/">http4s-scala-xml</a></li>
+    <li class="level2 nav-leaf"><a href="https://http4s.github.io/http4s-prometheus-metrics/">http4s-prometheus-metrics</a></li>
+    <li class="level2 nav-leaf"><a href="https://github.com/http4s/http4s-scalatags/">http4s-scalatags</a></li>
+    <li class="level2 nav-leaf"><a href="https://http4s.github.io/http4s-session/">http4s-session</a></li>
+    <li class="level2 nav-leaf"><a href="https://github.com/http4s/http4s-twirl/">http4s-twirl</a></li>
+    <li class="level2 nav-leaf"><a href="https://http4s.github.io/sbt-http4s-org/">sbt-http4s-org</a></li>
+    <li class="level2 nav-leaf"><a href="https://github.com/typelevel/feral/">feral</a></li>
+  </ul>
 
-      <ul class="nav-list">
-        <li class="level1 nav-header">Related Projects</li>
-        
-          <li class="level2"><a href="https://http4s.org/">http4s</a></li>
-        
-          <li class="level2"><a href="https://github.com/http4s/blaze">blaze</a></li>
-        
-          <li class="level2"><a href="https://github.com/http4s/http4s-armeria">http4s-armeria</a></li>
-        
-          <li class="level2"><a href="https://github.com/http4s/http4s-async-http-client">http4s-async-http-client</a></li>
-        
-          <li class="level2"><a href="https://github.com/http4s/http4s-curl/">http4s-curl</a></li>
-        
-          <li class="level2"><a href="https://http4s.github.io/http4s-dom/">http4s-dom</a></li>
-        
-          <li class="level2"><a href="https://http4s.github.io/http4s-finagle/docs/">http4s-finagle</a></li>
-        
-          <li class="level2"><a href="https://github.com/http4s/http4s-jetty/">http4s-jetty</a></li>
-        
-          <li class="level2"><a href="https://github.com/http4s/http4s-netty/">http4s-netty</a></li>
-        
-          <li class="level2"><a href="https://github.com/http4s/http4s-okhttp-client/">http4s-okhttp-client</a></li>
-        
-          <li class="level2"><a href="https://http4s.github.io/http4s-servlet/">http4s-servlet</a></li>
-        
-          <li class="level2"><a href="https://github.com/http4s/http4s-tomcat/">http4s-tomcat</a></li>
-        
-          <li class="level2"><a href="https://github.com/http4s/rho/">rho</a></li>
-        
-          <li class="level2"><a href="https://github.com/http4s/http4s-boopickle/">http4s-boopickle</a></li>
-        
-          <li class="level2"><a href="https://github.com/http4s/http4s-fabric/">http4s-fabric</a></li>
-        
-          <li class="level2"><a href="https://github.com/http4s/http4s-play-json/">http4s-play-json</a></li>
-        
-          <li class="level2"><a href="https://http4s.github.io/http4s-scala-xml/">http4s-scala-xml</a></li>
-        
-          <li class="level2"><a href="https://github.com/http4s/http4s-scala-xml-1/">http4s-scala-xml-1</a></li>
-        
-          <li class="level2"><a href="https://http4s.github.io/http4s-dropwizard-metrics/">http4s-dropwizard-metrics</a></li>
-        
-          <li class="level2"><a href="https://http4s.github.io/http4s-prometheus-metrics/">http4s-prometheus-metrics</a></li>
-        
-          <li class="level2"><a href="https://github.com/http4s/http4s-scalatags/">http4s-scalatags</a></li>
-        
-          <li class="level2"><a href="https://http4s.github.io/http4s-session/">http4s-session</a></li>
-        
-          <li class="level2"><a href="https://github.com/http4s/http4s-twirl/">http4s-twirl</a></li>
-        
-          <li class="level2"><a href="https://http4s.github.io/sbt-http4s-org/">sbt-http4s-org</a></li>
-        
-          <li class="level2"><a href="https://github.com/typelevel/feral/">feral</a></li>
-        
-      </ul>
-
-    </nav>
+</nav>
 
     <div id="container">
 
-      <nav id="page-nav">
-        <p class="header"><a href="#">http4s-jdk-http-client</a></p>
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">http4s-jdk-http-client</a></p>
 
-        <ul class="nav-list">
-          <li class="level1"><a href="#http-client">HTTP client</a></li>
-          <li class="level2"><a href="#installation">Installation</a></li>
-          <li class="level2"><a href="#compatibility">Compatibility</a></li>
-          <li class="level2"><a href="#creating-the-client">Creating the client</a></li>
-          <li class="level2"><a href="#sharing">Sharing</a></li>
-          <li class="level2"><a href="#restricted-headers">Restricted headers</a></li>
-          <li class="level2"><a href="#further-reading">Further reading</a></li>
-          <li class="level1"><a href="#websocket-client">Websocket client</a></li>
-          <li class="level2"><a href="#creation">Creation</a></li>
-          <li class="level2"><a href="#overview">Overview</a></li>
-          <li class="level2"><a href="#usage-example">Usage example</a></li>
-        </ul>
+  <ul class="nav-list">
+    <li class="level1 nav-node"><a href="#http-client">HTTP client</a></li>
+    <li class="level2 nav-leaf"><a href="#installation">Installation</a></li>
+    <li class="level2 nav-leaf"><a href="#compatibility">Compatibility</a></li>
+    <li class="level2 nav-leaf"><a href="#creating-the-client">Creating the client</a></li>
+    <li class="level2 nav-leaf"><a href="#sharing">Sharing</a></li>
+    <li class="level2 nav-leaf"><a href="#restricted-headers">Restricted headers</a></li>
+    <li class="level2 nav-leaf"><a href="#further-reading">Further reading</a></li>
+    <li class="level1 nav-node"><a href="#websocket-client">Websocket client</a></li>
+    <li class="level2 nav-leaf"><a href="#creation">Creation</a></li>
+    <li class="level2 nav-leaf"><a href="#overview">Overview</a></li>
+    <li class="level2 nav-leaf"><a href="#usage-example">Usage example</a></li>
+  </ul>
 
-        <p class="footer"></p>
-      </nav>
+  <p class="footer"></p>
+</nav>
+
 
       <main class="content">
 
         <h1 id="http4s-jdk-http-client" class="title">http4s-jdk-http-client</h1>
         <p><a href="https://github.com/http4s/http4s-jdk-http-client/actions"><img src="https://github.com/http4s/http4s-jdk-http-client/workflows/CI/badge.svg?branch=master" alt="Build Status"></a> <a href="https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_2.13"><img src="https://maven-badges.herokuapp.com/maven-central/org.http4s/http4s-jdk-http-client_2.13/badge.svg" alt="Maven Central"></a> <a href="https://javadoc.io/doc/org.http4s/http4s-jdk-http-client_2.13"><img src="https://javadoc.io/badge2/org.http4s/http4s-jdk-http-client_2.13/javadoc.svg" alt="javadoc"></a></p>
         
-        <h2 id="http-client" class="section">HTTP client<a class="anchor-link right" href="#http-client"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <h2 id="http-client" class="section"><a class="anchor-link left" href="#http-client"><i class="icofont-laika link">&#xef71;</i></a>HTTP client</h2>
         <p><code>http4s-jdk-http-client</code> contains a <a href="https://http4s.org/v1.0/client/">http4s-client</a> implementation based on
         the <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpClient.html"><code>java.net.http.HttpClient</code></a> introduced in Java
         11.</p>
         
-        <h3 id="installation" class="section">Installation<a class="anchor-link right" href="#installation"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <h3 id="installation" class="section"><a class="anchor-link left" href="#installation"><i class="icofont-laika link">&#xef71;</i></a>Installation</h3>
         <p>To use http4s-jdk-http-client in an existing SBT project, add the
         following dependency to your <code>build.sbt</code>:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> ++= </span><span class="type-name">Seq</span><span>(
   </span><span class="string-literal">&quot;org.http4s&quot;</span><span> %% </span><span class="string-literal">&quot;http4s-jdk-http-client&quot;</span><span> % </span><span class="string-literal">&quot;1.0.0-M9&quot;</span><span>
 )</span></code></pre>
         
-        <h3 id="compatibility" class="section">Compatibility<a class="anchor-link right" href="#compatibility"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <h3 id="compatibility" class="section"><a class="anchor-link left" href="#compatibility"><i class="icofont-laika link">&#xef71;</i></a>Compatibility</h3>
         <ul>
           <li>Requires Java 11 or greater</li>
           <li>Built for Scala 2.13 and 3</li>
-          <li>Works with http4s-client-1.0.0-M39</li>
+          <li>Works with http4s-client-1.0.0-M40</li>
         </ul>
         <div class="callout warning">
-          <i class="icofont-laika">&#xf026;</i>
+          <i class="icofont-laika warning">&#xf026;</i>
           <p><strong>TLS 1.3 on Java 11.</strong> On Java 11, TLS 1.3 is disabled by default (when using <code>JdkHttpClient.simple</code>).
           This is a workaround for a spurious bug, see <a href="https://github.com/http4s/http4s-jdk-http-client/issues/200">#200</a>.</p>
         </div>
         
-        <h3 id="creating-the-client" class="section">Creating the client<a class="anchor-link right" href="#creating-the-client"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <h3 id="creating-the-client" class="section"><a class="anchor-link left" href="#creating-the-client"><i class="icofont-laika link">&#xef71;</i></a>Creating the client</h3>
         
-        <h4 id="simple" class="section">Simple<a class="anchor-link right" href="#simple"><i class="icofont-laika">&#xef71;</i></a></h4>
+        <h4 id="simple" class="section"><a class="anchor-link left" href="#simple"><i class="icofont-laika link">&#xef71;</i></a>Simple</h4>
         <p>A default JDK HTTP client can be created with a call to <code>simple</code> for
         any <a href="https://typelevel.org/cats-effect/docs/typeclasses/async"><code>Async</code></a> type, such as <code>cats.effect.IO</code>:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">Resource</span><span>}
@@ -213,12 +192,13 @@
 
 </span><span class="keyword">val</span><span> </span><span class="identifier">client</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Client</span><span>[</span><span class="type-name">IO</span><span>]] = </span><span class="type-name">JdkHttpClient</span><span>.</span><span class="identifier">simple</span><span>[</span><span class="type-name">IO</span><span>]</span></code></pre>
         
-        <h4 id="custom-clients" class="section">Custom clients<a class="anchor-link right" href="#custom-clients"><i class="icofont-laika">&#xef71;</i></a></h4>
+        <h4 id="custom-clients" class="section"><a class="anchor-link left" href="#custom-clients"><i class="icofont-laika link">&#xef71;</i></a>Custom clients</h4>
         <p>A JDK HTTP client can be passed to <code>JdkHttpClient.apply</code> for use as an
         http4s-client backend.  It is a good idea to create the <code>HttpClient</code>
-        in an effect, as it creates a default executor and SSL context:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">net</span><span>.{</span><span class="type-name">InetSocketAddress</span><span>, </span><span class="type-name">ProxySelector</span><span>}
+        in an effect, as it creates an SSL context:</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">net</span><span>.{</span><span class="type-name">InetSocketAddress</span><span>, </span><span class="type-name">ProxySelector</span><span>}
 </span><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">net</span><span>.</span><span class="identifier">http</span><span>.</span><span class="type-name">HttpClient</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">time</span><span>.</span><span class="type-name">Duration</span><span>
 
 </span><span class="keyword">val</span><span> </span><span class="identifier">client0</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Client</span><span>[</span><span class="type-name">IO</span><span>]] = </span><span class="type-name">IO</span><span>.</span><span class="identifier">executor</span><span>.</span><span class="identifier">flatMap</span><span> { </span><span class="identifier">exec</span><span> =&gt;
   </span><span class="type-name">IO</span><span> {
@@ -226,11 +206,12 @@
       .</span><span class="identifier">version</span><span>(</span><span class="type-name">HttpClient</span><span>.</span><span class="type-name">Version</span><span>.</span><span class="type-name">HTTP_2</span><span>)
       .</span><span class="identifier">proxy</span><span>(</span><span class="type-name">ProxySelector</span><span>.</span><span class="identifier">of</span><span>(</span><span class="keyword">new</span><span> </span><span class="type-name">InetSocketAddress</span><span>(</span><span class="string-literal">&quot;www-proxy&quot;</span><span>, </span><span class="number-literal">8080</span><span>)))
       .</span><span class="identifier">executor</span><span>(</span><span class="identifier">exec</span><span>)
+      .</span><span class="identifier">connectTimeout</span><span>(</span><span class="type-name">Duration</span><span>.</span><span class="identifier">ofSeconds</span><span>(</span><span class="number-literal">10</span><span>))
       .</span><span class="identifier">build</span><span>()
   }
 }.</span><span class="identifier">map</span><span>(</span><span class="type-name">JdkHttpClient</span><span>(</span><span class="identifier">_</span><span>))</span></code></pre>
         
-        <h3 id="sharing" class="section">Sharing<a class="anchor-link right" href="#sharing"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <h3 id="sharing" class="section"><a class="anchor-link left" href="#sharing"><i class="icofont-laika link">&#xef71;</i></a>Sharing</h3>
         <p>The client instance contains shared resources such as a connection
         pool, and should be passed as an argument to code that uses it:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="identifier">_</span><span>
@@ -246,7 +227,7 @@
   .</span><span class="identifier">unsafeRunSync</span><span>()
 </span><span class="comment">// res1: Status = Status(code = 200)</span></code></pre>
         <div class="callout warning">
-          <i class="icofont-laika">&#xf026;</i>
+          <i class="icofont-laika warning">&#xf026;</i>
           <p><strong>Failure to share.</strong>
           Contrast with this alternate definition of <code>fetchStatus</code>, which would
           create a new <code>HttpClient</code> instance on every invocation:</p>
@@ -254,7 +235,7 @@
   </span><span class="type-name">JdkHttpClient</span><span>.</span><span class="identifier">simple</span><span>[</span><span class="type-name">F</span><span>].</span><span class="identifier">flatMap</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">status</span><span>(</span><span class="type-name">Request</span><span>[</span><span class="type-name">F</span><span>](</span><span class="type-name">Method</span><span>.</span><span class="type-name">GET</span><span>, </span><span class="identifier">uri</span><span> = </span><span class="identifier">uri</span><span>)))</span></code></pre>
         </div>
         
-        <h3 id="restricted-headers" class="section">Restricted headers<a class="anchor-link right" href="#restricted-headers"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <h3 id="restricted-headers" class="section"><a class="anchor-link left" href="#restricted-headers"><i class="icofont-laika link">&#xef71;</i></a>Restricted headers</h3>
         <p>The underlying <code>HttpClient</code> may disallow certain request headers like <code>Host</code>
         or <code>Content-Length</code> to be set directly by the user. Therefore, you can pass a set
         of ignored headers to <code>JdkHttpClient.apply</code>. By default, the set of restricted
@@ -263,15 +244,15 @@
         the restriction for certain headers by passing
         <code>-Djdk.httpclient.allowRestrictedHeaders=host,content-length</code> etc. to <code>java</code>.</p>
         
-        <h3 id="further-reading" class="section">Further reading<a class="anchor-link right" href="#further-reading"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <h3 id="further-reading" class="section"><a class="anchor-link left" href="#further-reading"><i class="icofont-laika link">&#xef71;</i></a>Further reading</h3>
         <p>For more details on the http4s-client, please see the <a href="https://http4s.org/v1.0/client/">core client
         documentation</a>.</p>
         
-        <h2 id="websocket-client" class="section">Websocket client<a class="anchor-link right" href="#websocket-client"><i class="icofont-laika">&#xef71;</i></a></h2>
+        <h2 id="websocket-client" class="section"><a class="anchor-link left" href="#websocket-client"><i class="icofont-laika link">&#xef71;</i></a>Websocket client</h2>
         <p>This package also contains a functional websocket client. Please note that
         the API may change in the future.</p>
         
-        <h3 id="creation" class="section">Creation<a class="anchor-link right" href="#creation"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <h3 id="creation" class="section"><a class="anchor-link left" href="#creation"><i class="icofont-laika link">&#xef71;</i></a>Creation</h3>
         <p>A <code>WSClient</code> is created
         using an <code>HttpClient</code> as above. It is encouraged to use the same <code>HttpClient</code>
         to construct a <code>Client[F]</code> and a <code>WSClient[F]</code>.</p>
@@ -284,11 +265,11 @@
       (</span><span class="type-name">JdkHttpClient</span><span>[</span><span class="type-name">IO</span><span>](</span><span class="identifier">httpClient</span><span>), </span><span class="type-name">JdkWSClient</span><span>[</span><span class="type-name">IO</span><span>](</span><span class="identifier">httpClient</span><span>))
     }
     .</span><span class="identifier">unsafeRunSync</span><span>()
-</span><span class="comment">// http: Client[IO] = org.http4s.client.Client$$anon$3@434e370f
-// webSocket: WSClient[IO] = org.http4s.client.websocket.WSClient$$anon$7@1ec5fc98</span></code></pre>
+</span><span class="comment">// http: Client[IO] = org.http4s.client.Client$$anon$3@44f1601e
+// webSocket: WSClient[IO] = org.http4s.client.websocket.WSClient$$anon$7@2571915e</span></code></pre>
         <p>If you do not need an HTTP client, you can also call <code>JdkWSClient.simple[IO]</code> as above.</p>
         
-        <h3 id="overview" class="section">Overview<a class="anchor-link right" href="#overview"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <h3 id="overview" class="section"><a class="anchor-link left" href="#overview"><i class="icofont-laika link">&#xef71;</i></a>Overview</h3>
         <p>We have the following websocket frame hierarchy:</p>
         <ul>
           <li>
@@ -336,7 +317,7 @@
           <li>Groups the data frames by their <code>last</code> attribute.</li>
         </ul>
         
-        <h3 id="usage-example" class="section">Usage example<a class="anchor-link right" href="#usage-example"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <h3 id="usage-example" class="section"><a class="anchor-link left" href="#usage-example"><i class="icofont-laika link">&#xef71;</i></a>Usage example</h3>
         <p>We use the &quot;high-level&quot; connection mode to build a simple websocket app.</p>
         <pre><code class="nohighlight"><span class="identifier">echoServer</span><span>.</span><span class="identifier">use</span><span> { </span><span class="identifier">echoUri</span><span> =&gt;
   </span><span class="identifier">webSocket</span><span>
@@ -368,14 +349,17 @@
 </span><span class="comment">// res2: String = &quot;reality is often disappointing. REALITY IS OFTEN DISAPPOINTING.&quot;</span></code></pre>
         <p>For an overview of all options and functions visit the <a href="https://static.javadoc.io/org.http4s/http4s-jdk-http-client_2.13/1.0.0-M9/org/http4s/jdkhttpclient/index.html">scaladoc</a>.</p>
 
-        <hr style="margin-top: 30px"/>
-        <footer style="font-size: 90%; text-align: center">
-          http4s-jdk-http-client is a <a href="https://typelevel.org/">Typelevel</a> project distributed under the <a href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache-2.0</a> license.
-        </footer>
+        
+<hr class="footer-rule"/>
+<footer>
+  http4s-jdk-http-client is a <a href="https://typelevel.org/">Typelevel</a> project distributed under the <a href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache-2.0</a> license.
+</footer>
+
 
       </main>
 
     </div>
 
   </body>
+
 </html>
