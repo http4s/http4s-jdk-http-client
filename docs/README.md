@@ -57,11 +57,12 @@ val client: IO[Client[IO]] = JdkHttpClient.simple[IO]
 
 A JDK HTTP client can be passed to `JdkHttpClient.apply` for use as an
 http4s-client backend.  It is a good idea to create the `HttpClient`
-in an effect, as it creates a default executor and SSL context:
+in an effect, as it creates an SSL context:
 
 ```scala mdoc:silent
 import java.net.{InetSocketAddress, ProxySelector}
 import java.net.http.HttpClient
+import java.time.Duration
 
 val client0: IO[Client[IO]] = IO.executor.flatMap { exec =>
   IO {
@@ -69,6 +70,7 @@ val client0: IO[Client[IO]] = IO.executor.flatMap { exec =>
       .version(HttpClient.Version.HTTP_2)
       .proxy(ProxySelector.of(new InetSocketAddress("www-proxy", 8080)))
       .executor(exec)
+      .connectTimeout(Duration.ofSeconds(10))
       .build()
   }
 }.map(JdkHttpClient(_))
@@ -187,6 +189,11 @@ import org.http4s.dsl.io._
 import org.http4s.implicits._
 import org.http4s.ember.server.EmberServerBuilder
 import com.comcast.ip4s._
+import org.typelevel.log4cats.LoggerFactory
+import org.typelevel.log4cats.noop.NoOpFactory
+
+implicit val loggerFactor: LoggerFactory[IO] = NoOpFactory[IO]
+
 val echoServer = EmberServerBuilder.default[IO]
   .withPort(port"0")
   .withHttpWebSocketApp(wsb => HttpRoutes.of[IO] {

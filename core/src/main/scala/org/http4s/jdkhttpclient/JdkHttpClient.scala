@@ -42,6 +42,7 @@ import java.net.http.HttpRequest.BodyPublishers
 import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
 import java.nio.ByteBuffer
+import java.time.Duration
 import java.util
 import java.util.concurrent.Flow
 import scala.jdk.CollectionConverters._
@@ -67,7 +68,7 @@ object JdkHttpClient {
         case Entity.Empty => Resource.pure[F, BodyPublisher](BodyPublishers.noBody())
         case Entity.Strict(bytes) =>
           Resource.pure[F, BodyPublisher](BodyPublishers.ofInputStream(() => bytes.toInputStream))
-        case Entity.Default(body, _) =>
+        case Entity.Streamed(body, _) =>
           flow
             .toPublisher(body.chunks.map(_.toByteBuffer))
             .map { publisher =>
@@ -174,9 +175,9 @@ object JdkHttpClient {
         responseF: F[HttpResponse[Flow.Publisher[util.List[ByteBuffer]]]]
     ): Resource[F, Response[F]] =
       Resource
-        .make(
-          (Deferred[F, Unit], responseF).tupled
-        ) { case (subscription, response) =>
+        .makeFull { (poll: Poll[F]) =>
+          (Deferred[F, Unit], poll(responseF)).tupled
+        } { case (subscription, response) =>
           subscription.tryGet.flatMap {
             case None =>
               // Indicates response was never subscribed to. In this case, in
@@ -223,7 +224,7 @@ object JdkHttpClient {
                     case HttpClient.Version.HTTP_1_1 => HttpVersion.`HTTP/1.1`
                     case HttpClient.Version.HTTP_2 => HttpVersion.`HTTP/2`
                   },
-                  entity = Entity(
+                  entity = Entity.stream(
                     body
                       .interruptWhen(signal)
                       .flatMap(bs =>
@@ -247,7 +248,10 @@ object JdkHttpClient {
     }
   }
 
-  /** A `Client` wrapping the default `HttpClient`.
+  /** A `Client` wrapping an `HttpClient`, which shares the current
+    * [[cats.effect.kernel.Async.executor executor]], sets the
+    * [[org.http4s.client.defaults.ConnectTimeout default http4s connect timeout]], and disables
+    * [[https://github.com/http4s/http4s-jdk-http-client/issues/200 TLS 1.3 on JDK 11]].
     */
   def simple[F[_]](implicit F: Async[F]): F[Client[F]] =
     defaultHttpClient[F].map(apply(_))
@@ -260,10 +264,11 @@ object JdkHttpClient {
         if (Runtime.version().feature() == 11) {
           val params = javax.net.ssl.SSLContext.getDefault().getDefaultSSLParameters()
           params.setProtocols(params.getProtocols().filter(_ != "TLSv1.3"))
-          builder.sslParameters(params)
+          val _ = builder.sslParameters(params)
         }
 
         builder.executor(exec)
+        builder.connectTimeout(Duration.ofNanos(org.http4s.client.defaults.ConnectTimeout.toNanos))
 
         builder.build()
       }
