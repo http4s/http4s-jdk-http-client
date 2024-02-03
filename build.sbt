@@ -80,7 +80,7 @@ ThisBuild / developers := List(
 )
 
 ThisBuild / tlJdkRelease := Some(11)
-ThisBuild / githubWorkflowJavaVersions := Seq("11", "17").map(JavaSpec.temurin(_))
+ThisBuild / githubWorkflowJavaVersions := Seq("11", "17", "21").map(JavaSpec.temurin(_))
 ThisBuild / tlCiReleaseBranches := Seq("series/0.9")
 ThisBuild / tlSitePublishBranch := Some("series/0.9")
 
@@ -109,8 +109,8 @@ lazy val docsSettings =
       "HTTP4S_VERSION_SHORT" -> http4sV.split("\\.").take(2).mkString("."),
       "SCALA_VERSION" -> CrossVersion.binaryScalaVersion(scalaVersion.value),
       "SCALA_VERSIONS" -> formatCrossScalaVersions((core / crossScalaVersions).value.toList)
-    ),
-    unusedCompileDependenciesFilter -= moduleFilter()
+    )
+    // unusedCompileDependenciesFilter -= moduleFilter()
   )
 
 def formatCrossScalaVersions(crossScalaVersions: List[String]): String = {
