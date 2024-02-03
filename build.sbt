@@ -1,4 +1,5 @@
 import com.typesafe.tools.mima.core._
+import explicitdeps.ExplicitDepsPlugin.autoImport.moduleFilterRemoveValue
 
 lazy val root = project
   .in(file("."))
@@ -109,8 +110,8 @@ lazy val docsSettings =
       "HTTP4S_VERSION_SHORT" -> http4sV.split("\\.").take(2).mkString("."),
       "SCALA_VERSION" -> CrossVersion.binaryScalaVersion(scalaVersion.value),
       "SCALA_VERSIONS" -> formatCrossScalaVersions((core / crossScalaVersions).value.toList)
-    )
-    // unusedCompileDependenciesFilter -= moduleFilter()
+    ),
+    unusedCompileDependenciesFilter -= moduleFilter()
   )
 
 def formatCrossScalaVersions(crossScalaVersions: List[String]): String = {
