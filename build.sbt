@@ -1,4 +1,5 @@
 import com.typesafe.tools.mima.core._
+import explicitdeps.ExplicitDepsPlugin.autoImport.moduleFilterRemoveValue
 
 lazy val root = project
   .in(file("."))
@@ -80,7 +81,7 @@ ThisBuild / developers := List(
 )
 
 ThisBuild / tlJdkRelease := Some(11)
-ThisBuild / githubWorkflowJavaVersions := Seq("11", "17").map(JavaSpec.temurin(_))
+ThisBuild / githubWorkflowJavaVersions := Seq("11", "17", "21").map(JavaSpec.temurin(_))
 ThisBuild / tlCiReleaseBranches := Seq("series/0.9")
 ThisBuild / tlSitePublishBranch := Some("series/0.9")
 
