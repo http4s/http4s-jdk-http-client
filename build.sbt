@@ -34,16 +34,16 @@ ThisBuild / mergifyStewardConfig := Some(
 ThisBuild / mergifyRequiredJobs += "site"
 ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
-val catsV = "2.10.0"
-val catsEffectV = "3.5.4"
+val catsV = "2.12.0"
+val catsEffectV = "3.5.5"
 val fs2V = "3.9.4"
-val scodecV = "1.1.38"
+val scodecV = "1.2.1"
 val http4sV = "0.23.26"
 val reactiveStreamsV = "1.0.4"
 val vaultV = "3.5.0"
 val caseInsensitiveV = "1.4.0"
 
-val munitV = "1.0.0-M11"
+val munitV = "1.0.2"
 val munitCatsEffectV = "2.0.0-M4"
 
 val emberServer = Seq(
@@ -68,7 +68,7 @@ val coreDeps = Seq(
   "org.typelevel" %% "munit-cats-effect" % munitCatsEffectV
 )).map(_ % Test)
 
-val scala213 = "2.13.12"
+val scala213 = "2.13.15"
 ThisBuild / crossScalaVersions := Seq("2.12.20", scala213, "3.3.4")
 ThisBuild / scalaVersion := scala213
 ThisBuild / tlBaseVersion := "0.9"
