@@ -192,7 +192,7 @@ import com.comcast.ip4s._
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.noop.NoOpFactory
 
-implicit val loggerFactor: LoggerFactory[IO] = NoOpFactory[IO]
+implicit val loggerFactory: LoggerFactory[IO] = NoOpFactory[IO]
 
 val echoServer = EmberServerBuilder.default[IO]
   .withPort(port"0")

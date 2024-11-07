@@ -37,7 +37,7 @@ import scala.concurrent.duration._
 
 class JdkWSClientSpec extends CatsEffectSuite {
 
-  implicit val loggerFactor: LoggerFactory[IO] = NoOpFactory[IO]
+  implicit val loggerFactory: LoggerFactory[IO] = NoOpFactory[IO]
 
   val webSocket: IOFixture[WSClient[IO]] =
     ResourceSuiteLocalFixture("webSocket", Resource.eval(JdkWSClient.simple[IO]))
