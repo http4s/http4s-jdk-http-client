@@ -40,7 +40,7 @@ import scala.concurrent.duration._
 final class CompletableFutureTerminationTest extends CatsEffectSuite {
   import CompletableFutureTerminationTest._
 
-  implicit val loggerFactor: LoggerFactory[IO] = NoOpFactory[IO]
+  implicit val loggerFactory: LoggerFactory[IO] = NoOpFactory[IO]
 
   private val duration: FiniteDuration =
     FiniteDuration(50L, TimeUnit.MILLISECONDS)

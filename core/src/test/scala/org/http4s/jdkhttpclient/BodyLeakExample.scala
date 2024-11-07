@@ -31,7 +31,7 @@ import org.typelevel.log4cats.noop.NoOpFactory
 // Run e.g. with `bloop run core-test --args -J-Xmx200M`
 object BodyLeakExample extends IOApp {
 
-  implicit val loggerFactor: LoggerFactory[IO] = NoOpFactory[IO]
+  implicit val loggerFactory: LoggerFactory[IO] = NoOpFactory[IO]
 
   val app: HttpApp[IO] =
     Kleisli((_: Request[IO]) => IO.pure(Response[IO]().withEntity("Hello, HTTP")))
