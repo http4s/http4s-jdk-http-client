@@ -24,10 +24,14 @@ import org.http4s._
 import org.http4s.client._
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.syntax.all._
+import org.typelevel.log4cats.LoggerFactory
+import org.typelevel.log4cats.noop.NoOpFactory
 
 // This is a *manual* test for the body leak fixed in #335
 // Run e.g. with `bloop run core-test --args -J-Xmx200M`
 object BodyLeakExample extends IOApp {
+
+  implicit val loggerFactory: LoggerFactory[IO] = NoOpFactory[IO]
 
   val app: HttpApp[IO] =
     Kleisli((_: Request[IO]) => IO.pure(Response[IO]().withEntity("Hello, HTTP")))

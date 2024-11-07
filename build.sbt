@@ -38,7 +38,8 @@ val catsV = "2.12.0"
 val catsEffectV = "3.5.5"
 val fs2V = "3.11.0"
 val scodecV = "1.2.1"
-val http4sV = "0.23.29"
+val http4sV = "1.0.0-M43"
+val log4catsV = "2.7.0"
 val reactiveStreamsV = "1.0.4"
 val vaultV = "3.6.0"
 val caseInsensitiveV = "1.4.2"
@@ -48,7 +49,8 @@ val munitCatsEffectV = "2.0.0"
 
 val emberServer = Seq(
   "org.http4s" %% "http4s-ember-server" % http4sV,
-  "org.http4s" %% "http4s-dsl" % http4sV
+  "org.http4s" %% "http4s-dsl" % http4sV,
+  "org.typelevel" %% "log4cats-noop" % log4catsV
 )
 
 val coreDeps = Seq(
@@ -69,9 +71,9 @@ val coreDeps = Seq(
 )).map(_ % Test)
 
 val scala213 = "2.13.15"
-ThisBuild / crossScalaVersions := Seq("2.12.20", scala213, "3.3.4")
+ThisBuild / crossScalaVersions := Seq(scala213, "3.3.4")
 ThisBuild / scalaVersion := scala213
-ThisBuild / tlBaseVersion := "0.9"
+ThisBuild / tlBaseVersion := "1.0"
 ThisBuild / startYear := Some(2019)
 ThisBuild / developers := List(
   tlGitHubDev("ChristopherDavenport", "Christopher Davenport"),
@@ -81,8 +83,8 @@ ThisBuild / developers := List(
 
 ThisBuild / tlJdkRelease := Some(11)
 ThisBuild / githubWorkflowJavaVersions := Seq("11", "17").map(JavaSpec.temurin(_))
-ThisBuild / tlCiReleaseBranches := Seq("series/0.9")
-ThisBuild / tlSitePublishBranch := Some("series/0.9")
+ThisBuild / tlCiReleaseBranches := Seq("main")
+ThisBuild / tlSitePublishBranch := Some("main")
 
 lazy val docsSettings =
   Seq(
@@ -93,8 +95,9 @@ lazy val docsSettings =
       import laika.config._
       tlSiteHelium.value.site.versions(
         Versions
-          .forCurrentVersion(Version("0.9.x", "0.9"))
+          .forCurrentVersion(Version("1.x", "1.x"))
           .withOlderVersions(
+            Version("0.9.x", "0.9"),
             Version("0.8.x", "0.8"),
             Version("0.7.x", "0.7"),
             Version("0.6.x", "0.6.0-M7"),

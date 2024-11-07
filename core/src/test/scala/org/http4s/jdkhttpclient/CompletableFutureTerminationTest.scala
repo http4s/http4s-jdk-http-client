@@ -26,6 +26,8 @@ import munit.CatsEffectSuite
 import org.http4s._
 import org.http4s.ember.server._
 import org.http4s.server._
+import org.typelevel.log4cats.LoggerFactory
+import org.typelevel.log4cats.noop.NoOpFactory
 
 import java.net.URI
 import java.net.http.HttpClient
@@ -37,6 +39,8 @@ import scala.concurrent.duration._
 
 final class CompletableFutureTerminationTest extends CatsEffectSuite {
   import CompletableFutureTerminationTest._
+
+  implicit val loggerFactory: LoggerFactory[IO] = NoOpFactory[IO]
 
   private val duration: FiniteDuration =
     FiniteDuration(50L, TimeUnit.MILLISECONDS)
@@ -172,7 +176,7 @@ object CompletableFutureTerminationTest {
     *   ensure the server has received the request. This permit is acquired ''before'' one is
     *   acquired from `semaphore`.
     */
-  private def stallingServerR[F[_]: Network](
+  private def stallingServerR[F[_]: Network: LoggerFactory](
       semaphore: Semaphore[F],
       gotRequest: Semaphore[F]
   )(implicit F: Async[F]): Resource[F, Server] =

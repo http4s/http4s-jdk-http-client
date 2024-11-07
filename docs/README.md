@@ -189,6 +189,11 @@ import org.http4s.dsl.io._
 import org.http4s.implicits._
 import org.http4s.ember.server.EmberServerBuilder
 import com.comcast.ip4s._
+import org.typelevel.log4cats.LoggerFactory
+import org.typelevel.log4cats.noop.NoOpFactory
+
+implicit val loggerFactory: LoggerFactory[IO] = NoOpFactory[IO]
+
 val echoServer = EmberServerBuilder.default[IO]
   .withPort(port"0")
   .withHttpWebSocketApp(wsb => HttpRoutes.of[IO] {

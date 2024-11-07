@@ -4,15 +4,7 @@ This file summarizes **notable** changes for each release, but does not describe
 
 ----
 
-## v0.9.1 (2023-05-13)
-
-### Dependency updates
-
-* cats-effect-3.5.0
-* fs2-3.7.0
-* http4s-0.23.19
-
-## v0.9.0 (2023-02-08)
+## v1.0.0-M9 (2023-02-08)
 
 ### "Breaking" changes
 
@@ -22,8 +14,15 @@ This file summarizes **notable** changes for each release, but does not describe
 
 * scala-3.2.2
 * fs2-3.6.0
+* http4s-1.0.0-M39
 
-## v0.8.0 (2022-11-20)
+## v1.0.0-M8 (2023-01-05)
+
+### Dependency updates
+
+* **http4s-1.0.0-M38**
+
+## v1.0.0-M7 (2022-11-20)
 
 ### Breaking changes
 
@@ -34,37 +33,120 @@ This file summarizes **notable** changes for each release, but does not describe
 * cats-effect-3.4.1
 * fs2-3.4.0
 
-## v0.7.0 (2022-03-23)
+## v1.0.0-M6 (2022-09-20)
 
-This is the spiritual successor to v0.5.0.
+### Dependency updates
+
+* **http4s-1.0.0-M37**
+
+## v1.0.0-M5 (2022-08-27)
+
+### Dependency updates
+
+* **http4s-1.0.0-M36**
+
+## v1.0.0-M4 (2022-07-29)
+
+### Dependency updates
+
+* **http4s-1.0.0-M35**
+
+## v1.0.0-M3 (2022-07-07)
+
+### Dependency updates
+
+* cats-2.8.0
+* **http4s-1.0.0-M34**
+
+## v1.0.0-M2 (2022-05-31)
+
+### Improvements
+
+* Optimizations via new entity model. [#644](https://github.com/http4s/http4s-jdk-http-client/pull/644)
+* Use Cats Effect EC as `HttpClient` executor. [#641](https://github.com/http4s/http4s-jdk-http-client/pull/641)
+
+### Dependency updates
+
+* cats-effect-3.3.12
+* fs2-3.2.7
+* **http4s-1.0.0-M33**
+
+## v1.0.0-M1 (2022-03-23)
+
+This is the spiritual successor to v0.6.0-M7.
 
 ### Breaking changes
 
-* We now use the upstream WebSocket model made public in http4s-0.23.11.
+* We now use the upstream WebSocket model made public in http4s-1.0.0-M32.
 
 ### Dependency updates
 
-* scala-2.12.15, scala-2.13.8, scala-3.1.1
-* cats-2.7.0
+* scala-2.13.8, scala-3.1.1
 * cats-effect-3.3.8
 * fs2-3.2.5
-* http4s-0.23.11
+* http4s-1.0.0-M32
 
-## v0.5.0 (2021-07-31)
-
-This release is considered stable.
+## v0.6.0-M7 (2021-12-09)
 
 ### Dependency updates
 
-* **http4s-0.23.0**
+* **http4s-1.0.0-M30**
+* **scala-3.1.0**
+* scala-2.13.7
+* cats-2.7.0
+* cats-effect-3.3.0
+* fs2-3.2.3
+* scodec-bits-1.1.30
+* case-insensitive-1.2.0
+
+## v0.6.0-M6 (2021-10-13)
+
+### Dependency updates
+
+* **http4s-1.0.0-M29**
+* fs2-3.1.5
+
+## v0.6.0-M5 (2021-10-07)
+
+### Dependency updates
+
+* **http4s-1.0.0-M28**
+* fs2-3.1.4
+* scodec-1.1.29
+
+## v0.6.0-M4 (2021-09-21)
+
+### Dependency updates
+
+* **http4s-1.0.0-M27**
+* scala-2.12.15
+* cats-effect-3.2.9
+* vault-3.1.0
+
+## v0.6.0-M3 (2021-09-15)
+
+### Dependency updates
+
+* **http4s-1.0.0-M25**
+* scala-3.0.2
+* cats-effect-3.2.8
+* fs2-3.1.2
+* scodec-bits-1.1.28
+
+## v0.6.0-M2 (2021-08-08)
+
+### Dependency updates
+
+* **http4s-1.0.0-M24**
 * scala-2.12.14
 * scala-3.0.1
-* cats-effect-3.2.1
-* fs2-3.0.6
+* cats-effect-3.2.2
+* fs2-3.1.0
+* vault-3.0.4
 
-## v0.5.0-RC1 (2021-05-28)
+## v0.6.0-M1 (2021-05-28)
 
-The v0.5.x releases will now track http4s-0.23.x.
+This is the moral successor to v0.5.0-M4, tracking the 1.x releases of http4s.
 
 ### Breaking changes
 
@@ -73,7 +155,7 @@ The v0.5.x releases will now track http4s-0.23.x.
 ### Dependency updates
 
 * **scala-3.0.0**
-* **http4s-0.23.0-RC1**
+* **http4s-1.0.0-M23**
 * scala-2.13.6
 * cats-2.6.1
 * cats-effect-3.1.1
