@@ -122,7 +122,7 @@ object JdkWSClient {
                       errs <- Stream
                         .repeatEval(queue.tryTake)
                         .unNoneTerminate
-                        .collect { case Left(e) => e }
+                        .collect { case Left(t) => t }
                         .compile
                         .toList
                       _ <- F.raiseError[Unit](CompositeFailure.fromList(errs) match {
