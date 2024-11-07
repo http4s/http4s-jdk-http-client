@@ -24,7 +24,6 @@ import fs2.Chunk
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 import fs2.interop.flow
-import org.http4s.Entity
 import org.http4s.Header
 import org.http4s.Headers
 import org.http4s.HttpVersion
@@ -32,12 +31,12 @@ import org.http4s.Request
 import org.http4s.Response
 import org.http4s.Status
 import org.http4s.client.Client
+import org.http4s.internal.CollectionCompat.CollectionConverters._
 import org.typelevel.ci.CIString
 
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
-import java.net.http.HttpRequest.BodyPublisher
 import java.net.http.HttpRequest.BodyPublishers
 import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
@@ -45,7 +44,6 @@ import java.nio.ByteBuffer
 import java.time.Duration
 import java.util
 import java.util.concurrent.Flow
-import scala.jdk.CollectionConverters._
 
 object JdkHttpClient {
 
@@ -62,16 +60,12 @@ object JdkHttpClient {
       jdkHttpClient: HttpClient,
       ignoredHeaders: Set[CIString] = restrictedHeaders
   )(implicit F: Async[F]): Client[F] = {
-    def convertRequest(req: Request[F]): Resource[F, HttpRequest] = for {
-      version <- Resource.eval(convertHttpVersionFromHttp4s[F](req.httpVersion))
-      bodyPublisher <- req.entity match {
-        case Entity.Empty => Resource.pure[F, BodyPublisher](BodyPublishers.noBody())
-        case Entity.Strict(bytes) =>
-          Resource.pure[F, BodyPublisher](BodyPublishers.ofInputStream(() => bytes.toInputStream))
-        case Entity.Streamed(body, _) =>
-          flow
-            .toPublisher(body.chunks.map(_.toByteBuffer))
-            .map { publisher =>
+    def convertRequest(req: Request[F]): Resource[F, HttpRequest] =
+      flow.toPublisher(req.body.chunks.map(_.toByteBuffer)).evalMap { publisher =>
+        convertHttpVersionFromHttp4s[F](req.httpVersion).map { version =>
+          val rb = HttpRequest.newBuilder
+            .method(
+              req.method.name,
               if (req.isChunked)
                 BodyPublishers.fromPublisher(publisher)
               else
@@ -80,17 +74,16 @@ object JdkHttpClient {
                     BodyPublishers.fromPublisher(publisher, length)
                   case _ => BodyPublishers.noBody
                 }
-            }
+            )
+            .uri(URI.create(req.uri.renderString))
+            .version(version)
+          val headers = req.headers.headers.iterator
+            .filterNot(h => ignoredHeaders.contains(h.name))
+            .flatMap(h => Iterator(h.name.toString, h.value))
+            .toArray
+          (if (headers.isEmpty) rb else rb.headers(headers: _*)).build
+        }
       }
-      rb = HttpRequest.newBuilder
-        .method(req.method.name, bodyPublisher)
-        .uri(URI.create(req.uri.renderString))
-        .version(version)
-      headers = req.headers.headers.iterator
-        .filterNot(h => ignoredHeaders.contains(h.name))
-        .flatMap(h => Iterator(h.name.toString, h.value))
-        .toArray
-    } yield (if (headers.isEmpty) rb else rb.headers(headers: _*)).build
 
     // Convert the JDK HttpResponse into a http4s Response value.
     //
@@ -224,14 +217,12 @@ object JdkHttpClient {
                     case HttpClient.Version.HTTP_1_1 => HttpVersion.`HTTP/1.1`
                     case HttpClient.Version.HTTP_2 => HttpVersion.`HTTP/2`
                   },
-                  entity = Entity.stream(
-                    body
-                      .interruptWhen(signal)
-                      .flatMap(bs =>
-                        Stream.fromIterator(bs.iterator.asScala.map(Chunk.byteBuffer), 1)
-                      )
-                      .flatMap(Stream.chunk)
-                  )
+                  body = body
+                    .interruptWhen(signal)
+                    .flatMap(bs =>
+                      Stream.fromIterator(bs.iterator.asScala.map(Chunk.byteBuffer), 1)
+                    )
+                    .flatMap(Stream.chunk)
                 ) -> signal.set(true)
             }
           )
