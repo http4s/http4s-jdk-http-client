@@ -11,10 +11,6 @@ lazy val core = project
     name := "http4s-jdk-http-client",
     libraryDependencies ++= coreDeps,
     mimaBinaryIssueFilters ++= Seq(
-      // package private, due to #641
-      ProblemFilters.exclude[IncompatibleMethTypeProblem](
-        "org.http4s.jdkhttpclient.JdkHttpClient.defaultHttpClient"
-      )
     )
   )
 
@@ -71,7 +67,7 @@ val coreDeps = Seq(
 val scala213 = "2.13.15"
 ThisBuild / crossScalaVersions := Seq("2.12.20", scala213, "3.3.4")
 ThisBuild / scalaVersion := scala213
-ThisBuild / tlBaseVersion := "0.9"
+ThisBuild / tlBaseVersion := "0.10"
 ThisBuild / startYear := Some(2019)
 ThisBuild / developers := List(
   tlGitHubDev("ChristopherDavenport", "Christopher Davenport"),
@@ -80,9 +76,9 @@ ThisBuild / developers := List(
 )
 
 ThisBuild / tlJdkRelease := Some(11)
-ThisBuild / githubWorkflowJavaVersions := Seq("11", "17").map(JavaSpec.temurin(_))
-ThisBuild / tlCiReleaseBranches := Seq("series/0.9")
-ThisBuild / tlSitePublishBranch := Some("series/0.9")
+ThisBuild / githubWorkflowJavaVersions := Seq("11", "17", "21").map(JavaSpec.temurin(_))
+ThisBuild / tlCiReleaseBranches := Seq("series/0.10")
+ThisBuild / tlSitePublishBranch := Some("series/0.10")
 
 lazy val docsSettings =
   Seq(
@@ -93,9 +89,10 @@ lazy val docsSettings =
       import laika.config._
       tlSiteHelium.value.site.versions(
         Versions
-          .forCurrentVersion(Version("0.9.x", "0.9"))
+          .forCurrentVersion(Version("0.10.x", "0.10"))
           .withOlderVersions(
-            Version("0.8.x", "0.8"),
+            Version("0.9.x", "0.9"),
+	    Version("0.8.x", "0.8"),
             Version("0.7.x", "0.7"),
             Version("0.6.x", "0.6.0-M7"),
             Version("0.5.x", "0.5.0"),
