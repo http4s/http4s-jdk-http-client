@@ -28,7 +28,7 @@ import org.typelevel.ci._
 import scala.concurrent.duration._
 
 class JdkHttpClientSpec extends ClientRouteTestBattery("JdkHttpClient") {
-  def clientResource: Resource[IO, Client[IO]] = JdkHttpClient.simpleResource[IO]
+  def clientResource: Resource[IO, Client[IO]] = JdkHttpClient.simple[IO]
 
   // regression test for https://github.com/http4s/http4s-jdk-http-client/issues/395
   test("Don't error with empty body and explicit Content-Length: 0") {

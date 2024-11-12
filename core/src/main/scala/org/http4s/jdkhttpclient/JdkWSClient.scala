@@ -170,16 +170,11 @@ object JdkWSClient {
     * [[org.http4s.client.defaults.ConnectTimeout default http4s connect timeout]], and disables
     * [[https://github.com/http4s/http4s-jdk-http-client/issues/200 TLS 1.3 on JDK 11]].
     *
-    * * On Java 21 and higher, prefer [[simpleResource]] as it actively closes the underlying
-    * client, releasing its resources early.
+    * * On Java 21 and higher, it actively closes the underlying client, releasing its resources
+    * early. On earlier Java versions, closing the underlying client is not possible, so the release
+    * is a no-op. On these Java versions (and there only), you can safely use
+    * [[cats.effect.Resource allocated]] to avoid dealing with resource management.
     */
-  def simple[F[_]](implicit F: Async[F]): F[WSClient[F]] =
-    JdkHttpClient.defaultHttpClient[F].map(apply(_))
-
-  /** Like [[simple]], but wraps the client in a [[cats.effect.Resource Resource]] to ensure it's
-    * properly shut down on JVM 21 and higher. On lower Java versions, closing the resource does
-    * nothing (garbage collection will eventually clean up the client).
-    */
-  def simpleResource[F[_]](implicit F: Async[F]): Resource[F, WSClient[F]] =
+  def simple[F[_]](implicit F: Async[F]): Resource[F, WSClient[F]] =
     JdkHttpClient.defaultHttpClientResource[F].map(apply(_))
 }
