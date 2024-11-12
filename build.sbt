@@ -72,7 +72,7 @@ val coreDeps = Seq(
 val scala213 = "2.13.15"
 ThisBuild / crossScalaVersions := Seq("2.12.20", scala213, "3.3.4")
 ThisBuild / scalaVersion := scala213
-ThisBuild / tlBaseVersion := "0.9"
+ThisBuild / tlBaseVersion := "0.10"
 ThisBuild / startYear := Some(2019)
 ThisBuild / developers := List(
   tlGitHubDev("ChristopherDavenport", "Christopher Davenport"),
