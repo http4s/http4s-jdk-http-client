@@ -117,15 +117,15 @@ jobs:
         run: sbt '++ ${{ matrix.scala }}' unusedCompileDependenciesTest
 
       - name: Make target directories
-        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/series/0.9')
+        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/series/0.10')
         run: mkdir -p core/target project/target
 
       - name: Compress target directories
-        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/series/0.9')
+        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/series/0.10')
         run: tar cf targets.tar core/target project/target
 
       - name: Upload target directories
-        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/series/0.9')
+        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/series/0.10')
         uses: actions/upload-artifact@v4
         with:
           name: target-${{ matrix.os }}-${{ matrix.java }}-${{ matrix.scala }}
@@ -134,7 +134,7 @@ jobs:
   publish:
     name: Publish Artifacts
     needs: [build]
-    if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/series/0.9')
+    if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/series/0.10')
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -363,7 +363,7 @@ jobs:
         run: sbt docs/tlSite
 
       - name: Publish site
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/series/0.9'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/series/0.10'
         uses: peaceiris/actions-gh-pages@v4.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
