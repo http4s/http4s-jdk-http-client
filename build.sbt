@@ -93,7 +93,7 @@ lazy val docsSettings =
           .forCurrentVersion(Version("0.10.x", "0.10"))
           .withOlderVersions(
             Version("0.9.x", "0.9"),
-	    Version("0.8.x", "0.8"),
+            Version("0.8.x", "0.8"),
             Version("0.7.x", "0.7"),
             Version("0.6.x", "0.6.0-M7"),
             Version("0.5.x", "0.5.0"),
