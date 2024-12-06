@@ -1,4 +1,5 @@
 import com.typesafe.tools.mima.core._
+import explicitdeps.ExplicitDepsPlugin.autoImport.moduleFilterRemoveValue
 
 lazy val root = project
   .in(file("."))
