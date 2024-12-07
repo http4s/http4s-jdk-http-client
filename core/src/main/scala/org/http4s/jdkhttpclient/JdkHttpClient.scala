@@ -63,10 +63,15 @@ object JdkHttpClient {
     def convertRequest(req: Request[F]): Resource[F, HttpRequest] =
       flow.toPublisher(req.body.chunks.map(_.toByteBuffer)).evalMap { publisher =>
         convertHttpVersionFromHttp4s[F](req.httpVersion).map { version =>
+          def isStreaming = version match {
+            case HttpClient.Version.HTTP_1_1 => req.isChunked
+            case HttpClient.Version.HTTP_2 => req.contentLength.isEmpty
+          }
+
           val rb = HttpRequest.newBuilder
             .method(
               req.method.name,
-              if (req.isChunked)
+              if (isStreaming)
                 BodyPublishers.fromPublisher(publisher)
               else
                 req.contentLength match {
