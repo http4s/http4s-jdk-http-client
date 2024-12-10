@@ -40,7 +40,7 @@ class JdkWSClientSpec extends CatsEffectSuite {
   implicit val loggerFactory: LoggerFactory[IO] = NoOpFactory[IO]
 
   val webSocket: IOFixture[WSClient[IO]] =
-    ResourceSuiteLocalFixture("webSocket", Resource.eval(JdkWSClient.simple[IO]))
+    ResourceSuiteLocalFixture("webSocket", JdkWSClient.simple[IO])
   val echoServerUri: IOFixture[Uri] =
     ResourceSuiteLocalFixture(
       "echoServerUri",

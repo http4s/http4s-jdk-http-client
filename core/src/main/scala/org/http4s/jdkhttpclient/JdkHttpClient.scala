@@ -69,16 +69,23 @@ object JdkHttpClient {
         case Entity.Strict(bytes) =>
           Resource.pure[F, BodyPublisher](BodyPublishers.ofInputStream(() => bytes.toInputStream))
         case Entity.Streamed(body, _) =>
+          def consumeFully = version match {
+            case HttpClient.Version.HTTP_1_1 => req.isChunked
+            case HttpClient.Version.HTTP_2 => req.contentLength.isEmpty
+          }
           flow
             .toPublisher(body.chunks.map(_.toByteBuffer))
             .map { publisher =>
-              if (req.isChunked)
+              if (consumeFully)
                 BodyPublishers.fromPublisher(publisher)
               else
                 req.contentLength match {
                   case Some(length) if length > 0L =>
                     BodyPublishers.fromPublisher(publisher, length)
-                  case _ => BodyPublishers.noBody
+                  case _ =>
+                    // If we dont do this, we might block finalization
+                    publisher.subscribe(DrainingSubscriber)
+                    BodyPublishers.noBody
                 }
             }
       }
@@ -252,9 +259,22 @@ object JdkHttpClient {
     * [[cats.effect.kernel.Async.executor executor]], sets the
     * [[org.http4s.client.defaults.ConnectTimeout default http4s connect timeout]], and disables
     * [[https://github.com/http4s/http4s-jdk-http-client/issues/200 TLS 1.3 on JDK 11]].
+    *
+    * On Java 21 and higher, it actively closes the underlying client, releasing its resources
+    * early. On earlier Java versions, closing the underlying client is not possible, so the release
+    * is a no-op. On these Java versions (and there only), you can safely use
+    * [[cats.effect.Resource allocated]] to avoid dealing with resource management.
     */
-  def simple[F[_]](implicit F: Async[F]): F[Client[F]] =
-    defaultHttpClient[F].map(apply(_))
+  def simple[F[_]](implicit F: Async[F]): Resource[F, Client[F]] =
+    defaultHttpClientResource[F].map(apply(_))
+
+  private[jdkhttpclient] def defaultHttpClientResource[F[_]](implicit
+      F: Async[F]
+  ): Resource[F, HttpClient] =
+    Resource.make[F, HttpClient](defaultHttpClient[F]) {
+      case c: AutoCloseable => Sync[F].blocking(c.close())
+      case _ => Applicative[F].unit
+    }
 
   private[jdkhttpclient] def defaultHttpClient[F[_]](implicit F: Async[F]): F[HttpClient] =
     F.executor.flatMap { exec =>
@@ -296,4 +316,12 @@ object JdkHttpClient {
       "via",
       "warning"
     ).map(CIString(_))
+
+  private object DrainingSubscriber extends Flow.Subscriber[ByteBuffer] {
+    override def onSubscribe(subscription: Flow.Subscription): Unit =
+      subscription.request(Long.MaxValue)
+    override def onNext(item: ByteBuffer): Unit = ()
+    override def onError(throwable: Throwable): Unit = ()
+    override def onComplete(): Unit = ()
+  }
 }

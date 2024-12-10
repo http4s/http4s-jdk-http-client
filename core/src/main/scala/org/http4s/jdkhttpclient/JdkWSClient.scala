@@ -131,6 +131,11 @@ object JdkWSClient {
                       })
                     } yield ()
                   }
+              // If the input side is still open (no close received from server), the JDK will not clean up the connection.
+              // This also implies the client can't be shutdown on Java 21+ as it waits for all open connections
+              // to be be closed. As we don't expect/handle anything coming on the input anymore
+              // at this point, we can safely abort.
+              _ <- F.delay(webSocket.abort())
             } yield ()
           }
           .map { case (webSocket, queue, closedDef, sendSem) =>
@@ -164,7 +169,12 @@ object JdkWSClient {
     * [[cats.effect.kernel.Async.executor executor]], sets the
     * [[org.http4s.client.defaults.ConnectTimeout default http4s connect timeout]], and disables
     * [[https://github.com/http4s/http4s-jdk-http-client/issues/200 TLS 1.3 on JDK 11]].
+    *
+    * * On Java 21 and higher, it actively closes the underlying client, releasing its resources
+    * early. On earlier Java versions, closing the underlying client is not possible, so the release
+    * is a no-op. On these Java versions (and there only), you can safely use
+    * [[cats.effect.Resource allocated]] to avoid dealing with resource management.
     */
-  def simple[F[_]](implicit F: Async[F]): F[WSClient[F]] =
-    JdkHttpClient.defaultHttpClient[F].map(apply(_))
+  def simple[F[_]](implicit F: Async[F]): Resource[F, WSClient[F]] =
+    JdkHttpClient.defaultHttpClientResource[F].map(apply(_))
 }
