@@ -1,4 +1,5 @@
 import com.typesafe.tools.mima.core._
+import explicitdeps.ExplicitDepsPlugin.autoImport.moduleFilterRemoveValue
 
 lazy val root = project
   .in(file("."))
@@ -11,10 +12,6 @@ lazy val core = project
     name := "http4s-jdk-http-client",
     libraryDependencies ++= coreDeps,
     mimaBinaryIssueFilters ++= Seq(
-      // package private, due to #641
-      ProblemFilters.exclude[IncompatibleMethTypeProblem](
-        "org.http4s.jdkhttpclient.JdkHttpClient.defaultHttpClient"
-      )
     )
   )
 
@@ -82,7 +79,7 @@ ThisBuild / developers := List(
 )
 
 ThisBuild / tlJdkRelease := Some(11)
-ThisBuild / githubWorkflowJavaVersions := Seq("11", "17").map(JavaSpec.temurin(_))
+ThisBuild / githubWorkflowJavaVersions := Seq("11", "17", "21").map(JavaSpec.temurin(_))
 ThisBuild / tlCiReleaseBranches := Seq("main")
 ThisBuild / tlSitePublishBranch := Some("main")
 
@@ -97,6 +94,7 @@ lazy val docsSettings =
         Versions
           .forCurrentVersion(Version("1.x", "1.x"))
           .withOlderVersions(
+            Version("0.10.x", "0.10"),
             Version("0.9.x", "0.9"),
             Version("0.8.x", "0.8"),
             Version("0.7.x", "0.7"),

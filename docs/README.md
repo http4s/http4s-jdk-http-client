@@ -50,7 +50,7 @@ import org.http4s.jdkhttpclient.JdkHttpClient
 // It comes for free with `cats.effect.IOApp`:
 import cats.effect.unsafe.implicits.global
 
-val client: IO[Client[IO]] = JdkHttpClient.simple[IO]
+val client: Resource[IO, Client[IO]] = JdkHttpClient.simple[IO]
 ```
 
 #### Custom clients
@@ -91,7 +91,7 @@ def fetchStatus[F[_]](c: Client[F], uri: Uri): F[Status] =
   c.status(Request[F](Method.GET, uri = uri))
 
 client
-  .flatMap(c => fetchStatus(c, uri"https://http4s.org/"))
+  .use(c => fetchStatus(c, uri"https://http4s.org/"))
   .unsafeRunSync()
 ```
 
@@ -103,7 +103,7 @@ create a new `HttpClient` instance on every invocation:
 
 ```scala mdoc
 def fetchStatusInefficiently[F[_]: Async](uri: Uri): F[Status] =
-  JdkHttpClient.simple[F].flatMap(_.status(Request[F](Method.GET, uri = uri)))
+  JdkHttpClient.simple[F].use(_.status(Request[F](Method.GET, uri = uri)))
 ```
 
 @:@
