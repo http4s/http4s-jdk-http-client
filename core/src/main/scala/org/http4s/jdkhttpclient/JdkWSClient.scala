@@ -90,11 +90,15 @@ object JdkWSClient {
                 override def onBinary(webSocket: JWebSocket, data: ByteBuffer, last: Boolean)
                     : CompletionStage[_] =
                   handleReceive(WSFrame.Binary(ByteVector(data), last).asRight)
-                override def onPing(webSocket: JWebSocket, message: ByteBuffer)
-                    : CompletionStage[_] =
+                override def onPing(
+                    webSocket: JWebSocket,
+                    message: ByteBuffer
+                ): CompletionStage[_] =
                   handleReceive(WSFrame.Ping(ByteVector(message)).asRight)
-                override def onPong(webSocket: JWebSocket, message: ByteBuffer)
-                    : CompletionStage[_] =
+                override def onPong(
+                    webSocket: JWebSocket,
+                    message: ByteBuffer
+                ): CompletionStage[_] =
                   handleReceive(WSFrame.Pong(ByteVector(message)).asRight)
                 override def onError(webSocket: JWebSocket, error: Throwable): Unit = {
                   handleReceive(error.asLeft); ()
@@ -141,14 +145,15 @@ object JdkWSClient {
           .map { case (webSocket, queue, closedDef, sendSem) =>
             // sending will throw if done in parallel
             val rawSend = (wsf: WSFrame) =>
-              F.fromCompletableFuture(F.delay(wsf match {
-                case WSFrame.Text(text, last) => webSocket.sendText(text, last)
-                case WSFrame.Binary(data, last) => webSocket.sendBinary(data.toByteBuffer, last)
-                case WSFrame.Ping(data) => webSocket.sendPing(data.toByteBuffer)
-                case WSFrame.Pong(data) => webSocket.sendPong(data.toByteBuffer)
-                case WSFrame.Close(statusCode, reason) => webSocket.sendClose(statusCode, reason)
-              }))
-                .void
+              F.fromCompletableFuture(
+                F.delay(wsf match {
+                  case WSFrame.Text(text, last) => webSocket.sendText(text, last)
+                  case WSFrame.Binary(data, last) => webSocket.sendBinary(data.toByteBuffer, last)
+                  case WSFrame.Ping(data) => webSocket.sendPing(data.toByteBuffer)
+                  case WSFrame.Pong(data) => webSocket.sendPong(data.toByteBuffer)
+                  case WSFrame.Close(statusCode, reason) => webSocket.sendClose(statusCode, reason)
+                })
+              ).void
             new WSConnection[F] {
               override def send(wsf: WSFrame) =
                 sendSem.permit.use(_ => rawSend(wsf))
