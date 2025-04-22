@@ -32,7 +32,7 @@ ThisBuild / mergifyRequiredJobs += "site"
 ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
 val catsV = "2.13.0"
-val catsEffectV = "3.6.0"
+val catsEffectV = "3.6.1"
 val fs2V = "3.12.0"
 val scodecV = "1.2.1"
 val http4sV = "0.23.30"
