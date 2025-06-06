@@ -105,7 +105,7 @@ object JdkWSClient {
                 }
               }
               webSocket <- poll(
-                F.fromCompletableFuture(
+                CancelableAsync.fromCompletableFuture(
                   F.delay(wsBuilder.buildAsync(URI.create(req.uri.renderString), wsListener))
                 )
               )

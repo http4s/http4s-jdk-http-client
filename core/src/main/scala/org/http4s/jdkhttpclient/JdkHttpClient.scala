@@ -240,7 +240,7 @@ object JdkHttpClient {
     Client[F] { req =>
       for {
         req <- convertRequest(req)
-        res = F.fromCompletableFuture(
+        res = CancelableAsync.fromCompletableFuture(
           F.delay(jdkHttpClient.sendAsync(req, BodyHandlers.ofPublisher))
         )
         res <- convertResponse(res)
