@@ -36,10 +36,17 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.duration._
 
 final class CompletableFutureTerminationTest extends CatsEffectSuite {
+
   import CompletableFutureTerminationTest._
 
   private val duration: FiniteDuration =
     FiniteDuration(50L, TimeUnit.MILLISECONDS)
+
+  /** If test took longer than serverTimeout, it means we leaked a connection, and the client held
+    * onto it even after the cancellation attempt, blocking http client finalization. It got
+    * eventually released after the server force terminated all connections.
+    */
+  override def munitIOTimeout: Duration = serverTimeout
 
   // This test ensures that converting from a
   // java.util.concurrent.CompletableFuture to an effect type, such as IO,
@@ -65,80 +72,86 @@ final class CompletableFutureTerminationTest extends CatsEffectSuite {
   //
   // See: https://docs.oracle.com/en/java/javase/14/docs/api/java.net.http/java/net/http/HttpResponse.BodySubscriber.html
   test("Terminating an effect generated from a CompletableFuture") {
-    (Semaphore[IO](1L), Deferred[IO, Observation[HttpResponse[String]]], Semaphore[IO](1L)).tupled
-      .flatMap { case (stallServer, observation, gotRequest) =>
-        // Acquire the `stallServer` semaphore so that the server will not
-        // return _any_ bytes until we release a permit.
-        stallServer.acquire *>
-          // Acquire the `gotRequest` semaphore. The server will release this
-          // once it gets our Request. We wait until this happens to start our
-          // timeout logic.
-          gotRequest.acquire *>
-          // Start a Http4s Server, it will be terminated at the conclusion of
-          // this test.
-          stallingServerR[IO](stallServer, gotRequest).use { (server: Server) =>
-            // Call the server, using the JDK client. We call directly with
-            // the JDK client because we need to have low level control over
-            // the result to observe whether or not the
-            // java.util.concurrent.CompletableFuture is still executing (and
-            // holding on to resources).
-            callServer[IO](server).flatMap((cf: CompletableFuture[HttpResponse[String]]) =>
-              // Attach a handler onto the result. This will populate our
-              // `observation` Deferred value when the CompletableFuture
-              // finishes for any reason.
-              //
-              // We start executing this in the background, so that we
-              // asynchronously populate our Observation.
-              observeCompletableFuture(observation, cf).start.flatMap(fiber =>
-                // Wait until we are sure the Http4s Server has received the
-                // request.
-                gotRequest.acquire *>
-                  // Lift the CompletableFuture to a IO value and attach a
-                  // (short) timeout to the termination.
+    JdkHttpClient.defaultHttpClientResource[IO].use { client =>
+      (Semaphore[IO](1L), Deferred[IO, Observation[HttpResponse[String]]], Semaphore[IO](1L)).tupled
+        .flatMap { case (stallServer, observation, gotRequest) =>
+          // Acquire the `stallServer` semaphore so that the server will not
+          // return _any_ bytes until we release a permit.
+          stallServer.acquire *>
+            // Acquire the `gotRequest` semaphore. The server will release this
+            // once it gets our Request. We wait until this happens to start our
+            // timeout logic.
+            gotRequest.acquire *>
+            // Start a Http4s Server, it will be terminated at the conclusion of
+            // this test.
+            stallingServerR[IO](stallServer, gotRequest).use { (server: Server) =>
+              // Call the server, using the JDK client. We call directly with
+              // the JDK client because we need to have low level control over
+              // the result to observe whether or not the
+              // java.util.concurrent.CompletableFuture is still executing (and
+              // holding on to resources).
+              callServer[IO](client, server).flatMap(
+                (cf: CompletableFuture[HttpResponse[String]]) =>
+                  // Attach a handler onto the result. This will populate our
+                  // `observation` Deferred value when the CompletableFuture
+                  // finishes for any reason.
                   //
-                  // Important! The IO result _must_ be terminated via the
-                  // timeout _before any bytes_ have been received by the JDK
-                  // HttpClient in order to validate resource safety. Once we
-                  // start getting bytes back, the CompletableFuture _is
-                  // complete_ and we are in a different context.
-                  //
-                  // Notice that we release stallServer _after_ the
-                  // timeout. _This is the crux of this entire test_. Once
-                  // we release `stallServer`, the Http4s Server will
-                  // attempt to send back an Http Response to our JDK
-                  // client. If the CompletableFuture and associated
-                  // resources were properly cleaned up after the
-                  // timeoutTo terminated the running effect, then the JDK
-                  // client connection will either be closed, or the
-                  // attempt to invoke `complete` on the
-                  // `CompletableFuture` will fail, in both cases
-                  // releasing any resources being held. If not, then it
-                  // will still receive bytes, meaning there is a resource
-                  // leak.
-                  IO.fromCompletableFuture(IO(cf))
-                    .void
-                    .timeoutTo(duration, stallServer.release) *>
-                  // After the timeout has triggered, wait for the observation to complete.
-                  fiber.join *>
-                  // Check our observation. Whether or not there is an exception
-                  // is not actually relevant to the success case. What _is_
-                  // important is that there is no result. If there is a result,
-                  // then that means that _after_ `timeoutTo` released
-                  // `stallServer` the CompletableFuture for the Http response
-                  // body still processed data, which indicates a resource leak.
-                  observation.get.flatMap {
-                    case Observation(None, _) => IO.pure(true)
-                    case otherwise =>
-                      IO.raiseError(new AssertionError(s"Expected no result, got $otherwise"))
-                  }
+                  // We start executing this in the background, so that we
+                  // asynchronously populate our Observation.
+                  observeCompletableFuture(observation, cf).start.flatMap(fiber =>
+                    // Wait until we are sure the Http4s Server has received the
+                    // request.
+                    gotRequest.acquire *>
+                      // Lift the CompletableFuture to a IO value and attach a
+                      // (short) timeout to the termination.
+                      //
+                      // Important! The IO result _must_ be terminated via the
+                      // timeout _before any bytes_ have been received by the JDK
+                      // HttpClient in order to validate resource safety. Once we
+                      // start getting bytes back, the CompletableFuture _is
+                      // complete_ and we are in a different context.
+                      //
+                      // Notice that we release stallServer _after_ the
+                      // timeout. _This is the crux of this entire test_. Once
+                      // we release `stallServer`, the Http4s Server will
+                      // attempt to send back an Http Response to our JDK
+                      // client. If the CompletableFuture and associated
+                      // resources were properly cleaned up after the
+                      // timeoutTo terminated the running effect, then the JDK
+                      // client connection will either be closed, or the
+                      // attempt to invoke `complete` on the
+                      // `CompletableFuture` will fail, in both cases
+                      // releasing any resources being held. If not, then it
+                      // will still receive bytes, meaning there is a resource
+                      // leak.
+                      CancelableAsync
+                        .fromCompletableFuture(IO(cf))
+                        .void
+                        .timeoutTo(duration, stallServer.release) *>
+                      // After the timeout has triggered, wait for the observation to complete.
+                      fiber.join *>
+                      // Check our observation. Whether or not there is an exception
+                      // is not actually relevant to the success case. What _is_
+                      // important is that there is no result. If there is a result,
+                      // then that means that _after_ `timeoutTo` released
+                      // `stallServer` the CompletableFuture for the Http response
+                      // body still processed data, which indicates a resource leak.
+                      observation.get.flatMap {
+                        case Observation(None, _) => IO.pure(true)
+                        case otherwise =>
+                          IO.raiseError(new AssertionError(s"Expected no result, got $otherwise"))
+                      }
+                  )
               )
-            )
-          }
-      }
+            }
+        }
+    }
   }
 }
 
 object CompletableFutureTerminationTest {
+
+  private val serverTimeout = 5.seconds
 
   /** ADT to contain the result of an invocation to
     * [[java.util.concurrent.CompletionStage#handleAsync]]
@@ -179,14 +192,12 @@ object CompletableFutureTerminationTest {
     EmberServerBuilder
       .default[F]
       .withHttpApp(
-        Kleisli(
-          Function.const(
-            gotRequest.release *>
-              semaphore.permit.use(_ => F.pure(Response[F]()))
-          )
+        Kleisli.liftF(
+          gotRequest.release *>
+            semaphore.permit.use(_ => F.pure(Response[F]()))
         )
       )
-      .withShutdownTimeout(1.second)
+      .withShutdownTimeout(serverTimeout)
       .withPort(port"0")
       .build
 
@@ -218,11 +229,11 @@ object CompletableFutureTerminationTest {
     * in a [[java.util.concurrent.CompletableFuture]].
     */
   private def callServer[F[_]](
+      client: HttpClient,
       server: Server
   )(implicit F: Sync[F]): F[CompletableFuture[HttpResponse[String]]] =
     for {
       jURI <- F.catchNonFatal(new URI(server.baseUri.renderString))
-      client <- F.delay(HttpClient.newHttpClient)
       result <- F.delay(
         client.sendAsync(HttpRequest.newBuilder(jURI).build(), HttpResponse.BodyHandlers.ofString)
       )
