@@ -234,7 +234,8 @@ object CompletableFutureTerminationTest {
         JBiFunction[A, Throwable, Unit](result =>
           t => cb(Right(Observation(Option(result), Option(t))))
         )
-      ); ();
+      );
+      ();
     }.flatMap(observe.complete(_).void)
 
   /** Given a Http4s Server, make a GET request to `/` using a JDK HttpClient and return the result

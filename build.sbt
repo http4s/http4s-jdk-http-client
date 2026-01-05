@@ -35,12 +35,12 @@ val catsV = "2.13.0"
 val catsEffectV = "3.6.3"
 val fs2V = "3.12.2"
 val scodecV = "1.2.4"
-val http4sV = "0.23.30"
+val http4sV = "0.23.33"
 val reactiveStreamsV = "1.0.4"
 val vaultV = "3.6.0"
 val caseInsensitiveV = "1.5.0"
 
-val munitV = "1.1.1"
+val munitV = "1.2.1"
 val munitCatsEffectV = "2.1.0"
 
 val emberServer = Seq(
@@ -65,8 +65,9 @@ val coreDeps = Seq(
   "org.typelevel" %% "munit-cats-effect" % munitCatsEffectV
 )).map(_ % Test)
 
-val scala213 = "2.13.16"
-ThisBuild / crossScalaVersions := Seq("2.12.20", scala213, "3.3.6")
+val scala213 = "2.13.18"
+ThisBuild / crossScalaVersions := Seq("2.12.20", scala213, "3.3.7")
+
 ThisBuild / scalaVersion := scala213
 ThisBuild / tlBaseVersion := "0.10"
 ThisBuild / startYear := Some(2019)
