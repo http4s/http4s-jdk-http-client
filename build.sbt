@@ -41,7 +41,7 @@ val vaultV = "3.6.0"
 val caseInsensitiveV = "1.5.0"
 
 val munitV = "1.2.4"
-val munitCatsEffectV = "2.1.0"
+val munitCatsEffectV = "2.2.0"
 
 val emberServer = Seq(
   "org.http4s" %% "http4s-ember-server" % http4sV,
