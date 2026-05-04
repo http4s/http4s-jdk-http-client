@@ -32,7 +32,7 @@ ThisBuild / mergifyRequiredJobs += "site"
 ThisBuild / mergifyLabelPaths += "docs" -> file("docs")
 
 val catsV = "2.13.0"
-val catsEffectV = "3.6.3"
+val catsEffectV = "3.7.0"
 val fs2V = "3.12.2"
 val scodecV = "1.2.4"
 val http4sV = "0.23.33"
@@ -41,7 +41,7 @@ val vaultV = "3.6.0"
 val caseInsensitiveV = "1.5.0"
 
 val munitV = "1.3.0"
-val munitCatsEffectV = "2.1.0"
+val munitCatsEffectV = "2.2.0"
 
 val emberServer = Seq(
   "org.http4s" %% "http4s-ember-server" % http4sV,
