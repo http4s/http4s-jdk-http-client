@@ -40,7 +40,7 @@ val reactiveStreamsV = "1.0.4"
 val vaultV = "3.7.0"
 val caseInsensitiveV = "1.5.0"
 
-val munitV = "1.3.4"
+val munitV = "1.3.5"
 val munitCatsEffectV = "2.2.0"
 
 val emberServer = Seq(
