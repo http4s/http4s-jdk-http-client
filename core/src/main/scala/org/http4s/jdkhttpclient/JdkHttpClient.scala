@@ -178,7 +178,10 @@ object JdkHttpClient {
     ): Resource[F, Response[F]] =
       Resource
         .makeFull { (poll: Poll[F]) =>
-          (Deferred[F, Unit], poll(responseF)).tupled
+          val maybeCancelableResponseF =
+            if (JdkVersion.supportsCancellation) poll(responseF)
+            else responseF
+          (Deferred[F, Unit], maybeCancelableResponseF).tupled
         } { case (subscription, response) =>
           subscription.tryGet.flatMap {
             case None =>
@@ -274,7 +277,7 @@ object JdkHttpClient {
       F.delay {
         val builder = HttpClient.newBuilder()
         // workaround for https://github.com/http4s/http4s-jdk-http-client/issues/200
-        if (Runtime.version().feature() == 11) {
+        if (JdkVersion.tls13TriggersDeadlock) {
           val params = javax.net.ssl.SSLContext.getDefault().getDefaultSSLParameters()
           params.setProtocols(params.getProtocols().filter(_ != "TLSv1.3"))
           val _ = builder.sslParameters(params)
