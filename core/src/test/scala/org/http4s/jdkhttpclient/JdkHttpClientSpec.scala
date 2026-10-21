@@ -42,6 +42,11 @@ class JdkHttpClientSpec extends ClientRouteTestBattery("JdkHttpClient") {
   }
 
   test("timeout request") {
+    assume(
+      JdkVersion.supportsCancellation,
+      "This test checks cancellation behavior, which was only introduced in JDK 16."
+    )
+
     val address = server().addresses.head
     val path = GetRoutes.DelayedPath // 1s delay before response
     val uri = Uri.fromString(s"http://$address$path").toOption.get
@@ -50,6 +55,25 @@ class JdkHttpClientSpec extends ClientRouteTestBattery("JdkHttpClient") {
     res.as(false).timeoutTo(100.millis, IO.pure(true)).timed.flatMap { case (duration, result) =>
       IO {
         assert(clue(duration) < 1.second)
+        assert(result)
+      }
+    }
+  }
+
+  test("uncancelable request") {
+    assume(
+      !JdkVersion.supportsCancellation,
+      "This test checks behavior when cancellation is not available, which is pre JDK 16."
+    )
+
+    val address = server().addresses.head
+    val path = GetRoutes.DelayedPath // 1s delay before response
+    val uri = Uri.fromString(s"http://$address$path").toOption.get
+    val req = Request[IO](uri = uri)
+    val res = client().expect[String](req)
+    res.as(false).timeoutTo(100.millis, IO.pure(true)).timed.flatMap { case (duration, result) =>
+      IO {
+        assert(clue(duration) >= 1.second)
         assert(result)
       }
     }

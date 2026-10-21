@@ -104,11 +104,12 @@ object JdkWSClient {
                   handleReceive(error.asLeft); ()
                 }
               }
-              webSocket <- poll(
-                F.fromCompletableFuture(
-                  F.delay(wsBuilder.buildAsync(URI.create(req.uri.renderString), wsListener))
-                )
+              webSocketF = F.fromCompletableFuture(
+                F.delay(wsBuilder.buildAsync(URI.create(req.uri.renderString), wsListener))
               )
+              webSocket <-
+                if (JdkVersion.supportsCancellation) poll(webSocketF)
+                else webSocketF
               sendSem <- Semaphore[F](1L)
             } yield (webSocket, queue, closedDef, sendSem)
           } { case (webSocket, queue, _, _) =>
