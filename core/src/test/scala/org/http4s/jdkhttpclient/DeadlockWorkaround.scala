@@ -27,13 +27,16 @@ import javax.net.ssl.SSLHandshakeException
 class DeadlockWorkaround extends CatsEffectSuite {
 
   test("fail to connect via TLSv1.3 on Java 11") {
-    if (Runtime.version().feature() > 11) IO.pure(true)
-    else
-      (JdkHttpClient.simple[IO], JdkWSClient.simple[IO]).tupled.use { case (http, ws) =>
-        def testSSLFailure(r: IO[Unit]) = r.intercept[SSLHandshakeException]
-        testSSLFailure(http.expect[Unit](uri"https://tls13.1d.pw")) *>
-          testSSLFailure(ws.connectHighLevel(WSRequest(uri"wss://tls13.1d.pw")).use(_ => IO.unit))
-      }
+    assume(
+      JdkVersion.tls13TriggersDeadlock,
+      "Test only applies to JDK 11, which has a deadlock issue that is triggered by using TLSv1.3"
+    )
+
+    (JdkHttpClient.simple[IO], JdkWSClient.simple[IO]).tupled.use { case (http, ws) =>
+      def testSSLFailure(r: IO[Unit]) = r.intercept[SSLHandshakeException]
+      testSSLFailure(http.expect[Unit](uri"https://tls13.1d.pw")) *>
+        testSSLFailure(ws.connectHighLevel(WSRequest(uri"wss://tls13.1d.pw")).use(_ => IO.unit))
+    }
   }
 
 }
