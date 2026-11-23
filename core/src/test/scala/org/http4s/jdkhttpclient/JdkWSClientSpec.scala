@@ -203,6 +203,11 @@ class JdkWSClientSpec extends CatsEffectSuite {
   }
 
   test("connect timeout") {
+    assume(
+      JdkVersion.supportsCancellation,
+      "This test checks cancellation behavior, which was only introduced in JDK 16."
+    )
+
     webSocket()
       .connectHighLevel(WSRequest(echoServerUri() / "delayed"))
       .use_
@@ -212,6 +217,26 @@ class JdkWSClientSpec extends CatsEffectSuite {
       .flatMap { case (duration, result) =>
         IO {
           assert(clue(duration) < 1.second)
+          assert(result)
+        }
+      }
+  }
+
+  test("uncancelable connect") {
+    assume(
+      !JdkVersion.supportsCancellation,
+      "This test checks behavior when cancellation is not available, which is pre JDK 16."
+    )
+
+    webSocket()
+      .connectHighLevel(WSRequest(echoServerUri() / "delayed"))
+      .use_
+      .as(false)
+      .timeoutTo(100.millis, IO.pure(true))
+      .timed
+      .flatMap { case (duration, result) =>
+        IO {
+          assert(clue(duration) >= 1.second)
           assert(result)
         }
       }
