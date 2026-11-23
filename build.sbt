@@ -35,7 +35,7 @@ val catsV = "2.12.0"
 val catsEffectV = "3.5.7"
 val fs2V = "3.11.0"
 val scodecV = "1.2.1"
-val http4sV = "1.0.0-M49"
+val http4sV = "1.0.0-M50"
 val log4catsV = "2.7.0"
 val reactiveStreamsV = "1.0.4"
 val vaultV = "3.6.0"
@@ -67,9 +67,11 @@ val coreDeps = Seq(
   "org.typelevel" %% "munit-cats-effect" % munitCatsEffectV
 )).map(_ % Test)
 
-val scala213 = "2.13.15"
+val scala213 = "2.13.18"
 ThisBuild / crossScalaVersions := Seq(scala213, "3.3.8")
 ThisBuild / scalaVersion := scala213
+ThisBuild / dependencyOverrides += ("org.typelevel" % "kind-projector" % "0.13.4" cross CrossVersion.full)
+ThisBuild / semanticdbVersion := "4.13.9"
 ThisBuild / tlBaseVersion := "1.0"
 ThisBuild / startYear := Some(2019)
 ThisBuild / developers := List(
